@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('lastname');
+            $table->string('firstname');
+            $table->string('middlename')->nullable();
+            $table->string('suffix')->nullable();
+            $table->string('title');
+            $table->tinyInteger('active')->default(1);
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
@@ -35,15 +38,37 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('users_info', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->date('birthdate')->nullable();
+            $table->string('contact')->nullable();
+            $table->string('email')->nullable()->unique();
+            $table->string('address')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('users_roles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('role_id')->nullable()->constrained('roles', 'role_id')->nullOnDelete();
+        });
+
+        Schema::create('users_settings', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
+            $table->json('settings')->nullable();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('users_info');
+        Schema::dropIfExists('users_roles');
+        Schema::dropIfExists('users_settings');
     }
 };
