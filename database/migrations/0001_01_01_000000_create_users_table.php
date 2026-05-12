@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('lastname');
-            $table->string('firstname');
-            $table->string('middlename')->nullable();
+            $table->string('last_name');
+            $table->string('first_name');
+            $table->string('middle_name')->nullable();
             $table->string('suffix')->nullable();
-            $table->string('title');
+            $table->string('honorifics');
             $table->tinyInteger('active')->default(1);
             $table->string('password');
             $table->rememberToken();
@@ -39,23 +39,23 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
-        Schema::create('users_info', function (Blueprint $table) {
+        Schema::create('user_infos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->date('birthdate')->nullable();
+            $table->date('birth_date')->nullable();
             $table->string('contact')->nullable();
-            $table->string('email')->nullable()->unique();
+            $table->string('email_address')->nullable()->unique();
             $table->string('address')->nullable();
             $table->timestamps();
         });
 
-        Schema::create('users_roles', function (Blueprint $table) {
+        Schema::create('user_roles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('role_id')->nullable()->constrained('roles', 'role_id')->nullOnDelete();
         });
 
-        Schema::create('users_settings', function (Blueprint $table) {
+        Schema::create('user_settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->json('settings')->nullable();
@@ -67,8 +67,8 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
-        Schema::dropIfExists('users_info');
-        Schema::dropIfExists('users_roles');
-        Schema::dropIfExists('users_settings');
+        Schema::dropIfExists('user_info');
+        Schema::dropIfExists('user_roles');
+        Schema::dropIfExists('user_settings');
     }
 };
