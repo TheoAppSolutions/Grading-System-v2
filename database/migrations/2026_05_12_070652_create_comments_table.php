@@ -27,25 +27,25 @@ return new class extends Migration
         Schema::create('comments_midquarter', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id')->index();
-            $table->string('schoolyear', 20);
+            $table->string('school_year', 20);
             $table->tinyInteger('quarter');
             $table->string('subject_id', 50)->index();
             $table->foreignId('criteria_id')->constrained('grade_criteria')->cascadeOnDelete();
             $table->decimal('score', 4, 1)->default(0);
             $table->timestamps();
 
-            $table->unique(['student_id', 'schoolyear', 'quarter', 'subject_id', 'criteria_id']);
+            $table->unique(['student_id', 'school_year', 'quarter', 'subject_id', 'criteria_id']);
         });
 
         Schema::create('comments_quarter', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id')->index();
-            $table->string('schoolyear', 20);
+            $table->string('school_year', 20);
             $table->foreignId('criteria_id')->constrained('grade_criteria')->cascadeOnDelete();
             $table->decimal('score', 4, 1)->default(0);
             $table->timestamps();
 
-            $table->unique(['student_id', 'schoolyear', 'criteria_id']);
+            $table->unique(['student_id', 'school_year', 'criteria_id']);
         });
     }
 

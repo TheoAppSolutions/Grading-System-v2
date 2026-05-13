@@ -8,5 +8,35 @@ use Illuminate\Database\Eloquent\Model;
 #[Table('school_years')]
 class SchoolYear extends Model
 {
-    //
+    // Relationships
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class, 'school_year', 'school_year');
+    }
+
+    public function sections(): HasMany
+    {
+        return $this->hasMany(Section::class, 'school_year', 'school_year');
+    }
+
+    public function grades(): HasMany
+    {
+        return $this->hasMany(Grade::class, 'school_year', 'school_year');
+    }
+
+    // Helpers
+    public function isActive(): bool
+    {
+        return $this->active === '1' || $this->active === 'true';
+    }
+
+    public static function getActive(): ?static
+    {
+        return static::where('active', '1')->first();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('active', '1');
+    }
 }
