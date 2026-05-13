@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Filament\Admin\Resources\Enrollments\Schemas;
+
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+
+class EnrollmentForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Select::make('student_id')
+                    ->relationship('student', 'name')
+                    ->required(),
+                TextInput::make('school_year')
+                    ->required()
+                    ->default('2018'),
+                TextInput::make('grade_level'),
+                TextInput::make('section_or_strand'),
+            ]);
+    }
+}

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Table('users')]
-#[Fillable(['last_name', 'first_name', 'middle_name', 'suffix', 'honorifics', 'password', 'active'])]
+#[Fillable(['name', 'last_name', 'first_name', 'middle_name', 'suffix', 'honorifics', 'password', 'active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {

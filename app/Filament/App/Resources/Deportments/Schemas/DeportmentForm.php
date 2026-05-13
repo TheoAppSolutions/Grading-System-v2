@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Filament\App\Resources\Deportments\Schemas;
+
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+
+class DeportmentForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Select::make('student_id')
+                    ->relationship('student', 'name')
+                    ->required(),
+                TextInput::make('user_id')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('deportment')
+                    ->numeric(),
+                TextInput::make('quarter')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('school_year')
+                    ->required(),
+            ]);
+    }
+}

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('student_id')->unique();
             $table->string('student_lrn', 20)->nullable();
+            $table->string('name');
             $table->string('firstname');
             $table->string('middlename')->nullable();
             $table->string('lastname');
