@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('description', 200)->nullable()->unique();
             $table->string('color_template', 200)->nullable();
+            $table->timestamps();
         });
     }
 

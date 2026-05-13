@@ -56,12 +56,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('role_id')->nullable()->constrained('roles', 'role_id')->nullOnDelete();
+            $table->timestamps();
         });
 
         Schema::create('user_settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->json('settings')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -13,13 +13,23 @@ return new class extends Migration
     {
         Schema::create('school_years', function (Blueprint $table) {
             $table->id();
-            $table->string('active');
             $table->string('school_year');
-            $table->integer('school_year_start')->nullable();
-            $table->integer('school_year_end')->nullable();
-            $table->json('school_days')->nullable();
-            $table->string('days_settings')->default('4');
-            $table->string('card_template')->default('');
+            $table->string('school_year_start');
+            $table->string('school_year_end');
+            $table->tinyInteger('active')->default(0);
+            $table->integer('attendance_entries')->default(10);
+            $table->string('card_template')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('school_year_infos', function (Blueprint $table) {
+            $table->id();
+            $table->string('school_year');
+            $table->tinyInteger('month');
+            $table->unsignedInteger('days')->default(0);
+            $table->timestamps();
+
+            $table->unique(['school_year_id', 'month']);
         });
     }
 
@@ -29,5 +39,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('school_years');
+        Schema::dropIfExists('school_year_infos');
     }
 };

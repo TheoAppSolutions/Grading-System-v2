@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('subject_title')->default('');
             $table->string('grade_level');
             $table->index('subject_id');
+            $table->timestamps();
         });
 
         Schema::create('subject_users', function (Blueprint $table) {
@@ -31,6 +32,7 @@ return new class extends Migration
             $table->string('semester')->default('');
             $table->string('category')->default('');
             $table->index('subject_id');
+            $table->timestamps();
         });
 
         Schema::create('subject_units', function (Blueprint $table) {
@@ -39,6 +41,7 @@ return new class extends Migration
             $table->float('units');
             $table->string('school_year')->nullable();
             $table->index('subject_id');
+            $table->timestamps();
         });
 
         Schema::create('subject_excluded', function (Blueprint $table) {
@@ -46,6 +49,7 @@ return new class extends Migration
             $table->integer('student_id')->index();
             $table->string('subject_id')->index();
             $table->string('school_year');
+            $table->timestamps();
         });
     }
 

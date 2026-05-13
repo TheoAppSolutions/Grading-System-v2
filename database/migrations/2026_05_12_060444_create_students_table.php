@@ -16,13 +16,14 @@ return new class extends Migration
             $table->integer('student_id')->unique();
             $table->string('student_lrn', 20)->nullable();
             $table->string('name');
-            $table->string('firstname');
-            $table->string('middlename')->nullable();
+            $table->string('first_name');
+            $table->string('middle_name')->nullable();
             $table->string('lastname');
             $table->string('suffix')->default('');
             $table->string('section')->default('');
             $table->string('gender');
             $table->tinyInteger('active')->default(1);
+            $table->timestamps();
         });
 
         Schema::create('student_infos', function (Blueprint $table) {
@@ -43,6 +44,7 @@ return new class extends Migration
             $table->integer('student_id')->nullable()->index();
             $table->string('section')->nullable();
             $table->string('school_year')->nullable();
+            $table->timestamps();
         });
 
         Schema::create('student_fields', function (Blueprint $table) {
@@ -50,6 +52,7 @@ return new class extends Migration
             $table->integer('student_id')->nullable()->index();
             $table->string('field_name')->nullable();
             $table->string('field_value')->nullable();
+            $table->timestamps();
         });
     }
 

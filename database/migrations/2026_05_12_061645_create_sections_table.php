@@ -16,6 +16,9 @@ return new class extends Migration
             $table->integer('grade_level');
             $table->string('section', 191);
             $table->string('school_year', 191);
+            $table->timestamps();
+
+            $table->unique(['grade_level', 'section', 'school_year']);
         });
     }
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('school_year')->default('2018');
             $table->string('grade_level')->nullable();
             $table->string('section_or_strand', 191)->nullable();
+            $table->timestamps();
         });
     }
 

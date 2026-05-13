@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();
             $table->string('section')->default('');
             $table->string('school_year')->nullable();
+            $table->timestamps();
         });
     }
 
