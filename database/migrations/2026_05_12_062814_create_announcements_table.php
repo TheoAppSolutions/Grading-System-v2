@@ -30,8 +30,8 @@ return new class extends Migration
             $table->boolean('is_read')->default(false);
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
+
             $table->unique(['announcement_id', 'user_id']);
-            $table->timestamps();
         });
 
         Schema::create('announcement_notifications', function (Blueprint $table) {

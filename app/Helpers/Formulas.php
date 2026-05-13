@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Models;
-
 use App\Models\SubjectUnit;
 
-class Formulas extends Model
+class Formulas
 {
     // ─── Constants ────────────────────────────────────────────────────────────
     private const FINAL_INDEX         = 5;
