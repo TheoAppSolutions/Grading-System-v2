@@ -7,6 +7,7 @@ use App\Filament\Admin\Resources\SchoolYears\Pages\EditSchoolYear;
 use App\Filament\Admin\Resources\SchoolYears\Pages\ListSchoolYears;
 use App\Filament\Admin\Resources\SchoolYears\Schemas\SchoolYearForm;
 use App\Filament\Admin\Resources\SchoolYears\Tables\SchoolYearsTable;
+use App\Filament\Admin\Resources\SchoolYears\RelationManagers;
 use App\Models\SchoolYear;
 use BackedEnum;
 use Filament\Resources\Resource;

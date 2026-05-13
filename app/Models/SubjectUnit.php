@@ -16,4 +16,9 @@ class SubjectUnit extends Model
     {
         return $this->belongsTo(Subject::class, 'subject_id', 'subject_id');
     }
+
+    public function getUnits()
+    {
+        return $this->units;
+    }
 }
