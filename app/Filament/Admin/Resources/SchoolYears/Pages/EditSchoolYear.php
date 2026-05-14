@@ -22,9 +22,19 @@ class EditSchoolYear extends EditRecord
     #[Override]
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        SchoolYearInfo::updateSchoolYearInfo($data);
-        unset($data['attendance_entry']);
-        $data['active'] = '0';
+        $record = $this->record;
+
+        if ($record->isDirty('attendance_entries')) {
+            SchoolYearInfo::where('school_year_id', $record->id)->delete();
+            for ($month = 1; $month <= $record->attendance_entries; $month++) {
+                SchoolYearInfo::create([
+                    'school_year_id' => $record->id,
+                    'month' => $month,
+                    'days' => 0,
+                ]);
+            }
+        }
+
         return parent::mutateFormDataBeforeSave($data);
     }
 }

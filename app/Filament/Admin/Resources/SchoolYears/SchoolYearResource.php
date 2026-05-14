@@ -10,10 +10,12 @@ use App\Filament\Admin\Resources\SchoolYears\Tables\SchoolYearsTable;
 use App\Filament\Admin\Resources\SchoolYears\RelationManagers;
 use App\Models\SchoolYear;
 use BackedEnum;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SchoolYearResource extends Resource
 {
@@ -22,6 +24,12 @@ class SchoolYearResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'school_year';
+
+    protected static string | UnitEnum | null $navigationGroup = 'School Settings';
+
+    protected static ?string $navigationLabel = "School Year";
+    
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -36,7 +44,7 @@ class SchoolYearResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\SchoolYearInfoRelationManager::class,
         ];
     }
 
