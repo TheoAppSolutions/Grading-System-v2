@@ -1,17 +1,31 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Sushi;
 
-use Illuminate\Database\Eloquent\Attributes\Table;
-use Illuminate\Database\Eloquent\Attributes\Unguarded;
+use App\Models\UserRole;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Table('roles')]
-#[Unguarded]
 class Role extends Model
 {
+    use \Sushi\Sushi;
+
+    protected $rows = [
+        [
+            'id' => 1,
+            'name' => 'Admin',
+        ],
+        [
+            'id' => 2,
+            'name' => 'Office',
+        ],
+        [
+            'id' => 3,
+            'name' => 'Teacher',
+        ],
+    ];
+
     // Relationships
     public function userRoles(): HasMany
     {

@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Support;
-
 use App\Models;
 use Illuminate\Support\Facades\Auth;
 
