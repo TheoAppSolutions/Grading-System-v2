@@ -14,26 +14,49 @@ class Role extends Model
     protected $rows = [
         [
             'id' => 1,
-            'name' => 'Admin',
+            'role_description' => 'Admin',
+            'color_template' => 'info',
         ],
         [
             'id' => 2,
-            'name' => 'Office',
+            'role_description' => 'Principal',
+            'color_template' => 'primary',
         ],
         [
             'id' => 3,
-            'name' => 'Teacher',
+            'role_description' => 'Office',
+            'color_template' => 'info',
+        ],
+        [
+            'id' => 4,
+            'role_description' => 'Homeroom',
+            'color_template' => 'warning',
+        ],
+        [
+            'id' => 5,
+            'role_description' => 'Teacher',
+            'color_template' => 'success',
+        ],
+        [
+            'id' => 6,
+            'role_description' => 'Registrar',
+            'color_template' => 'danger',
+        ],
+        [
+            'id' => 7,
+            'role_description' => 'Secretary',
+            'color_template' => 'warning',
         ],
     ];
 
     // Relationships
     public function userRoles(): HasMany
     {
-        return $this->hasMany(UserRole::class, 'role_id', 'role_id');
+        return $this->hasMany(UserRole::class, 'role_id', 'id');
     }
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'users_roles', 'role_id', 'user_id');
+        return $this->belongsToMany(User::class, 'users_roles', 'id', 'user_id');
     }
 }
