@@ -15,8 +15,10 @@ class SettingsTable
         return $table
             ->columns([
                 TextColumn::make('field_name')
+                    ->label('Name')
                     ->searchable(),
                 TextColumn::make('field_value')
+                    ->label('Value')
                     ->searchable(),
             ])
             ->filters([

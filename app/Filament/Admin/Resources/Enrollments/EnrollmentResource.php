@@ -11,6 +11,7 @@ use App\Filament\Admin\Resources\Enrollments\Schemas\EnrollmentInfolist;
 use App\Filament\Admin\Resources\Enrollments\Tables\EnrollmentsTable;
 use App\Models\Enrollment;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,10 @@ class EnrollmentResource extends Resource
     protected static ?string $model = Enrollment::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'School Settings';
+
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {

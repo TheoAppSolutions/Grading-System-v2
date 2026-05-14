@@ -17,14 +17,14 @@ class LogsTable
             ->columns([
                 TextColumn::make('user.name')
                     ->searchable(),
+                TextColumn::make('info')
+                    ->searchable(),
+                TextColumn::make('description')
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 //

@@ -11,6 +11,7 @@ use App\Filament\Admin\Resources\Sections\Schemas\SectionInfolist;
 use App\Filament\Admin\Resources\Sections\Tables\SectionsTable;
 use App\Models\Section;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,10 @@ class SectionResource extends Resource
     protected static ?string $model = Section::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'School Settings';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

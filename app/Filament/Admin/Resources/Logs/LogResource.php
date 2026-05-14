@@ -11,6 +11,7 @@ use App\Filament\Admin\Resources\Logs\Schemas\LogInfolist;
 use App\Filament\Admin\Resources\Logs\Tables\LogsTable;
 use App\Models\Log;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,10 @@ class LogResource extends Resource
     protected static ?string $model = Log::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'System Settings';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

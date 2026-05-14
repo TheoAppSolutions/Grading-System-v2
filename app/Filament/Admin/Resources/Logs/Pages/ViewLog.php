@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\Logs\Pages;
 
 use App\Filament\Admin\Resources\Logs\LogResource;
-use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewLog extends ViewRecord
@@ -13,7 +13,8 @@ class ViewLog extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            // EditAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Filament\Admin\Resources\GradeLevels\Schemas\GradeLevelForm;
 use App\Filament\Admin\Resources\GradeLevels\Tables\GradeLevelsTable;
 use App\Models\GradeLevel;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -19,6 +20,10 @@ class GradeLevelResource extends Resource
     protected static ?string $model = GradeLevel::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'School Settings';
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'label';
 
