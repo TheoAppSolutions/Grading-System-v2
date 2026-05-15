@@ -25,17 +25,17 @@ return new class extends Migration
         Schema::create('school_year_infos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('school_year_id')->constrained('school_years')->onDelete('cascade');
-            $table->tinyInteger('month');
+            $table->integer('coverage')->unsigned();
             $table->unsignedInteger('days')->default(0);
             $table->timestamps();
 
-            $table->unique(['school_year_id', 'month']);
+            $table->unique(['school_year_id', 'coverage']);
         });
 
         Schema::create('school_year_card_templates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
-            $table->integer('card_template_id');
+            $table->integer('card_template_id')->nullable();
             $table->string('category');
             $table->timestamps();
         });
