@@ -29,6 +29,12 @@ class AppPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Amber,
+                'secondary' => Color::Slate,
+                'success' => Color::Green,
+                'danger' => Color::Red,
+                'warning' => Color::Yellow,
+                'info' => Color::Blue,
+                'gray' => Color::Gray,
             ])
             ->breadcrumbs(false)
             ->sidebarCollapsibleOnDesktop()

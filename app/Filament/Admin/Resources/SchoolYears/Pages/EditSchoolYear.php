@@ -6,16 +6,24 @@ use App\Filament\Admin\Resources\SchoolYears\SchoolYearResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use App\Models\SchoolYearInfo;
+use Filament\Actions\Action;
 use Override;
+use Filament\Pages\Enums\SubNavigationPosition;
 
 class EditSchoolYear extends EditRecord
 {
     protected static string $resource = SchoolYearResource::class;
 
+    protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::End;
+
     protected function getHeaderActions(): array
     {
         return [
             DeleteAction::make(),
+            parent::getSaveFormAction(),
+            parent::getCancelFormAction()
+                ->url($this->getResource()::getUrl('index'))
+                ->color('secondary'),
         ];
     }
 
@@ -36,5 +44,17 @@ class EditSchoolYear extends EditRecord
         }
 
         return parent::mutateFormDataBeforeSave($data);
+    }
+
+    #[Override]
+    protected function getCancelFormAction(): Action
+    {
+        return parent::getCancelFormAction()->hidden();
+    }
+
+    #[Override]
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()->hidden();
     }
 }

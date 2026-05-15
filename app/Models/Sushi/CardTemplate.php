@@ -11,11 +11,18 @@ class CardTemplate extends Model
     protected $rows = [
         [
             'id' => 1,
+            'category' => 'Primary',
             'template' => 'A',
         ],
         [
             'id' => 2,
+            'category' => 'Secondary',
             'template' => 'B',
+        ],
+        [
+            'id' => 3,
+            'category' => 'SHS',
+            'template' => 'C',
         ],
     ];
 }

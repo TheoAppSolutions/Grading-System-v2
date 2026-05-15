@@ -17,6 +17,10 @@ class SchoolYear extends Model
         return $this->hasMany(SchoolYearInfo::class, 'school_year_id', 'id');
     }
 
+    public function schoolYearCardTemplate(): HasMany
+    {
+        return $this->hasMany(SchoolYearCardTemplate::class, 'school_year_id', 'id');
+    }
 
     public function enrollments(): HasMany
     {

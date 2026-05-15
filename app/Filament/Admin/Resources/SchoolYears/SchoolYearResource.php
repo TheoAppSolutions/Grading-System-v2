@@ -45,6 +45,7 @@ class SchoolYearResource extends Resource
     {
         return [
             RelationManagers\SchoolYearInfoRelationManager::class,
+            RelationManagers\SchoolYearCardTemplateRelationManager::class,
         ];
     }
 

@@ -5,6 +5,8 @@ namespace App\Filament\Admin\Resources\SchoolYears\Pages;
 use App\Filament\Admin\Resources\SchoolYears\SchoolYearResource;
 use Filament\Resources\Pages\CreateRecord;
 use App\Models\SchoolYearInfo;
+use App\Models\SchoolYearCardTemplate;
+use App\Models\Sushi\CardTemplate;
 use Filament\Actions\Action;
 use Override;
 
@@ -27,6 +29,15 @@ class CreateSchoolYear extends CreateRecord
                 'school_year_id' => $record->id,
                 'month' => $month,
                 'days' => 0,
+            ]);
+        }
+
+        $cardTemplates = CardTemplate::all()->pluck('category')->toArray();
+        foreach ($cardTemplates as $i => $category) {
+            SchoolYearCardTemplate::create([
+                'school_year_id' => $record->id,
+                'card_template_id' => $i + 1,
+                'category' => $category,
             ]);
         }
     }

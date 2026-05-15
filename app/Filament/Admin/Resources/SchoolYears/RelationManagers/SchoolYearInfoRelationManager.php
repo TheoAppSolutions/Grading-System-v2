@@ -12,6 +12,8 @@ class SchoolYearInfoRelationManager extends RelationManager
 {
     protected static string $relationship = 'schoolYearInfo';
 
+    protected static ?string $relationshipTitle = 'No. Calendar Days';
+
     public function table(Table $table): Table
     {
         return $table
@@ -21,8 +23,6 @@ class SchoolYearInfoRelationManager extends RelationManager
                 TextInputColumn::make('days')
                     ->rules(['required', 'max:255']),
             ])
-            ->headerActions([
-                // CreateAction::make(),
-            ]);
+            ->paginated(false);
     }
 }

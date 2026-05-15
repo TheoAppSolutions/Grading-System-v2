@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('school_year_end');
             $table->tinyInteger('active')->default(0);
             $table->integer('attendance_entries')->default(10);
-            $table->string('card_template')->nullable();
+            $table->integer('card_template_id')->nullable();
             $table->timestamps();
         });
 
@@ -31,6 +31,14 @@ return new class extends Migration
 
             $table->unique(['school_year_id', 'month']);
         });
+
+        Schema::create('school_year_card_templates', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
+            $table->integer('card_template_id');
+            $table->string('category');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -40,5 +48,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('school_years');
         Schema::dropIfExists('school_year_infos');
+        Schema::dropIfExists('school_year_card_templates');
     }
 };
