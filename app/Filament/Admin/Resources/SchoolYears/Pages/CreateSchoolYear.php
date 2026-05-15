@@ -40,4 +40,9 @@ class CreateSchoolYear extends CreateRecord
             ]);
         }
     }
+
+    protected function getCreateAnotherFormAction(): Action
+    {
+        return Action::make('createAnother')->hidden();
+    }
 }
