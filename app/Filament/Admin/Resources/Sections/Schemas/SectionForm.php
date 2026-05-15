@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Sections\Schemas;
 
-use App\Models\GradeLevel;
+use App\Models\Sushi\GradeLevel;
 use App\Models\SchoolYear;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

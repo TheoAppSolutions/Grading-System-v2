@@ -24,19 +24,18 @@ class CreateSchoolYear extends CreateRecord
     protected function afterCreate(): void
     {
         $record = $this->record;
-        for ($month = 1; $month <= $record->attendance_entries; $month++) {
+        for ($count = 1; $count <= $record->attendance_entries; $count++) {
             SchoolYearInfo::create([
                 'school_year_id' => $record->id,
-                'month' => $month,
+                'coverage' => $count,
                 'days' => 0,
             ]);
         }
 
         $cardTemplates = CardTemplate::all()->pluck('category')->toArray();
-        foreach ($cardTemplates as $i => $category) {
+        foreach ($cardTemplates as $category) {
             SchoolYearCardTemplate::create([
                 'school_year_id' => $record->id,
-                'card_template_id' => $i + 1,
                 'category' => $category,
             ]);
         }

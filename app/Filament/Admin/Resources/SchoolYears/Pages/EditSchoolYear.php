@@ -20,7 +20,6 @@ class EditSchoolYear extends EditRecord
     {
         return [
             DeleteAction::make(),
-            parent::getSaveFormAction(),
             parent::getCancelFormAction()
                 ->url($this->getResource()::getUrl('index'))
                 ->color('secondary'),
@@ -31,15 +30,22 @@ class EditSchoolYear extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $record = $this->record;
+        $oldCount = $record->attendance_entries;
+        $newCount = $data['attendance_entries'];
 
-        if ($record->isDirty('attendance_entries')) {
-            SchoolYearInfo::where('school_year_id', $record->id)->delete();
-            for ($month = 1; $month <= $record->attendance_entries; $month++) {
-                SchoolYearInfo::create([
-                    'school_year_id' => $record->id,
-                    'month' => $month,
-                    'days' => 0,
-                ]);
+        if ($oldCount !== $newCount) {
+            if ($newCount < $oldCount) {
+                SchoolYearInfo::where('school_year_id', $record->id)
+                    ->where('coverage', '>', $newCount)
+                    ->delete();
+            } else {
+                for ($month = $oldCount + 1; $month <= $newCount; $month++) {
+                    SchoolYearInfo::create([
+                        'school_year_id' => $record->id,
+                        'coverage' => $month,
+                        'days' => 0,
+                    ]);
+                }
             }
         }
 
@@ -52,9 +58,8 @@ class EditSchoolYear extends EditRecord
         return parent::getCancelFormAction()->hidden();
     }
 
-    #[Override]
-    protected function getSaveFormAction(): Action
+    protected function afterSave(): void
     {
-        return parent::getSaveFormAction()->hidden();
+        $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->record]));
     }
 }

@@ -16,10 +16,35 @@ class SchoolYearInfoRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        $startMonth = (int) $this->ownerRecord->school_year_start;
+        $endMonth = (int) $this->ownerRecord->school_year_end;
+        $entries = (int) $this->ownerRecord->attendance_entries;
+
+        $months = [];
+        $month = $startMonth;
+        while (true) {
+            $months[] = $month;
+            if ($month === $endMonth) break;
+            $month = ($month % 12) + 1;
+        }
+
+        $totalMonths = count($months);
+        $chunkSize = (int) ceil($totalMonths / $entries);
+
+        $chunks = array_chunk($months, $chunkSize);
+        $rangeMap = [];
+        foreach ($chunks as $index => $chunk) {
+            $label = count($chunk) > 1
+                ? MyTools::getMonths()[reset($chunk)] . ' - ' . MyTools::getMonths()[end($chunk)]
+                : MyTools::getMonths()[reset($chunk)];
+
+            $rangeMap[$index + 1] = $label;
+        }
         return $table
             ->columns([
-                TextColumn::make('month')
-                    ->formatStateUsing(fn($state) => MyTools::getMonths()[$state]),
+                TextColumn::make('coverage')
+                    ->label('Coverage')
+                    ->formatStateUsing(fn($state) => $rangeMap[$state] ?? '-'),
                 TextInputColumn::make('days')
                     ->rules(['required', 'max:255']),
             ])
