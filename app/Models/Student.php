@@ -23,11 +23,6 @@ class Student extends Model
         return $this->hasMany(StudentField::class, 'student_id', 'student_id');
     }
 
-    public function sections(): HasMany
-    {
-        return $this->hasMany(StudentSection::class, 'student_id', 'student_id');
-    }
-
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class, 'student_id', 'student_id');

@@ -14,15 +14,15 @@ class SectionForm
     {
         return $schema
             ->components([
-                Select::make('grade_level')
+                Select::make('grade_level_id')
                     ->required()
                     ->searchable()
                     ->options(
                         function () {
-                            return GradeLevel::pluck('label', 'id')->sortBy('sort_order', 1)->toArray();;
+                            return GradeLevel::pluck('label', 'id')->toArray();;
                         }
                     ),
-                Select::make('school_year')
+                Select::make('school_year_id')
                     ->required()
                     ->searchable()
                     ->options(

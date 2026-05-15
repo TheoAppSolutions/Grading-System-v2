@@ -21,20 +21,4 @@ class Award extends Model
     {
         return $this->belongsTo(Subject::class, 'subject_id', 'subject_id');
     }
-
-    // Helpers
-    public function scopeBySchoolYear($query, string $schoolyear)
-    {
-        return $query->where('school_year', $schoolyear);
-    }
-
-    public function scopeBySection($query, string $section)
-    {
-        return $query->where('section', $section);
-    }
-
-    public function scopeByGender($query, string $gender)
-    {
-        return $query->where('gender', $gender);
-    }
 }

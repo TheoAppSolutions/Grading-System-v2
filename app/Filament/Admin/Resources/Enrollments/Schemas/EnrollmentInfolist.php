@@ -16,7 +16,7 @@ class EnrollmentInfolist
                 TextEntry::make('school_year'),
                 TextEntry::make('grade_level')
                     ->placeholder('-'),
-                TextEntry::make('section_or_strand')
+                TextEntry::make('section_id')
                     ->placeholder('-'),
             ]);
     }

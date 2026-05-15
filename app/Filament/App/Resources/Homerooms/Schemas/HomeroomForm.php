@@ -18,7 +18,7 @@ class HomeroomForm
                     ->numeric(),
                 TextInput::make('user2_id')
                     ->numeric(),
-                TextInput::make('section')
+                TextInput::make('section_id')
                     ->required()
                     ->default(''),
                 TextInput::make('school_year'),

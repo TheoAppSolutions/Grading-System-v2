@@ -25,28 +25,12 @@ class Homeroom extends Model
 
     public function sectionRecord(): BelongsTo
     {
-        return $this->belongsTo(Section::class, 'section', 'section');
-    }
-
-    public function students(): HasMany
-    {
-        return $this->hasMany(StudentSection::class, 'section', 'section')
-            ->where('school_year', $this->schoolyear);
+        return $this->belongsTo(Section::class, 'section_id', 'id');
     }
 
     // Helpers
     public function hasCoAdviser(): bool
     {
         return !is_null($this->user2_id);
-    }
-
-    public function scopeBySchoolYear($query, string $schoolyear)
-    {
-        return $query->where('school_year', $schoolyear);
-    }
-
-    public function scopeBySection($query, string $section)
-    {
-        return $query->where('section', $section);
     }
 }

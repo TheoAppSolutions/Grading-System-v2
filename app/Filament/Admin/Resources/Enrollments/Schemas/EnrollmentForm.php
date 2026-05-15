@@ -19,7 +19,7 @@ class EnrollmentForm
                     ->required()
                     ->default('2018'),
                 TextInput::make('grade_level'),
-                TextInput::make('section_or_strand'),
+                TextInput::make('section_id'),
             ]);
     }
 }

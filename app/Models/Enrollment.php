@@ -29,7 +29,7 @@ class Enrollment extends Model
 
     public function section(): BelongsTo
     {
-        return $this->belongsTo(Section::class, 'section_or_strand', 'section');
+        return $this->belongsTo(Section::class, 'section_id', 'id');
     }
 
     // Helpers

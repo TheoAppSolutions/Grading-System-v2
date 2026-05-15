@@ -38,19 +38,4 @@ class SubjectUser extends Model
     {
         return !is_null($this->user2_id);
     }
-
-    public function scopeBySchoolYear($query, string $schoolyear)
-    {
-        return $query->where('school_year', $schoolyear);
-    }
-
-    public function scopeBySection($query, string $section)
-    {
-        return $query->where('section', $section);
-    }
-
-    public function scopeBySemester($query, string $semester)
-    {
-        return $query->where('semester', $semester);
-    }
 }

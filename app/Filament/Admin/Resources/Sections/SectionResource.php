@@ -5,12 +5,13 @@ namespace App\Filament\Admin\Resources\Sections;
 use App\Filament\Admin\Resources\Sections\Pages\CreateSection;
 use App\Filament\Admin\Resources\Sections\Pages\EditSection;
 use App\Filament\Admin\Resources\Sections\Pages\ListSections;
-use App\Filament\Admin\Resources\Sections\Pages\ViewSection;
+use App\Filament\Admin\Resources\Sections\RelationManagers;
 use App\Filament\Admin\Resources\Sections\Schemas\SectionForm;
 use App\Filament\Admin\Resources\Sections\Schemas\SectionInfolist;
 use App\Filament\Admin\Resources\Sections\Tables\SectionsTable;
 use App\Models\Section;
 use BackedEnum;
+use Filament\Resources\RelationManagers\RelationManager;
 use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -45,7 +46,7 @@ class SectionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\StudentSectionRelationManager::class,
         ];
     }
 
@@ -54,7 +55,6 @@ class SectionResource extends Resource
         return [
             'index' => ListSections::route('/'),
             'create' => CreateSection::route('/create'),
-            'view' => ViewSection::route('/{record}'),
             'edit' => EditSection::route('/{record}/edit'),
         ];
     }

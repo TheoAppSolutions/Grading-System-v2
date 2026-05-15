@@ -15,25 +15,19 @@ class SectionsTable
     {
         return $table
             ->columns([
-                TextColumn::make('grade_level')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('schoolYear.school_year')
+                    ->searchable(),
                 TextColumn::make('section')
                     ->searchable(),
-                TextColumn::make('school_year')
-                    ->searchable(),
+                TextColumn::make('gradeLevel.label')
+                    ->numeric()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

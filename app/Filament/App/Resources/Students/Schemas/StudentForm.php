@@ -25,7 +25,7 @@ class StudentForm
                 TextInput::make('suffix')
                     ->required()
                     ->default(''),
-                TextInput::make('section')
+                TextInput::make('section_id')
                     ->required()
                     ->default(''),
                 TextInput::make('gender')

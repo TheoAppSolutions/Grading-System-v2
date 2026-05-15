@@ -21,7 +21,7 @@ class EnrollmentsTable
                     ->searchable(),
                 TextColumn::make('grade_level')
                     ->searchable(),
-                TextColumn::make('section_or_strand')
+                TextColumn::make('section_id')
                     ->searchable(),
             ])
             ->filters([

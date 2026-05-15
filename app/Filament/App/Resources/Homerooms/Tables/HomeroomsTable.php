@@ -22,7 +22,7 @@ class HomeroomsTable
                 TextColumn::make('user2_id')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('section')
+                TextColumn::make('section.section')
                     ->searchable(),
                 TextColumn::make('school_year')
                     ->searchable(),
