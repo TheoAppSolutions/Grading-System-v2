@@ -18,16 +18,14 @@ class SchoolYearsTable
     {
         return $table
             ->columns([
-                TextColumn::make('school_year')
-                    ->searchable(),
+                TextColumn::make('school_year'),
                 TextColumn::make('coverage')
                     ->getStateUsing(function ($record) {
                         return MyTools::getMonths()[$record['school_year_start']] . ' - ' . MyTools::getMonths()[$record['school_year_end']];
                     })
                     ->label('Months')
                     ->sortable(false),
-                TextColumn::make('attendance_entries')
-                    ->searchable(),
+                TextColumn::make('attendance_entries'),
                 ToggleColumn::make('active')
                     ->disabled(fn($record) => $record->active)
                     ->beforeStateUpdated(function ($record, $state) {
@@ -43,11 +41,6 @@ class SchoolYearsTable
             ])
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }
