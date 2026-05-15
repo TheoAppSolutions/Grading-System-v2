@@ -5,7 +5,9 @@ namespace App\Filament\Admin\Resources\Users\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -14,38 +16,23 @@ class UsersTable
     {
         return $table
             ->columns([
+                TextColumn::make('honorifics')
+                    ->searchable(),
                 TextColumn::make('last_name')
                     ->searchable(),
                 TextColumn::make('first_name')
                     ->searchable(),
-                TextColumn::make('middle_name')
-                    ->searchable(),
-                TextColumn::make('suffix')
-                    ->searchable(),
-                TextColumn::make('honorifics')
-                    ->searchable(),
-                TextColumn::make('active')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
+                ToggleColumn::make('active')
+                    ->label('Active')
+                    ->disabled(fn($record) => $record->id === 1)
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }
