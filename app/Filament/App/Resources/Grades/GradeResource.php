@@ -9,6 +9,7 @@ use App\Filament\App\Resources\Grades\Schemas\GradeForm;
 use App\Filament\App\Resources\Grades\Tables\GradesTable;
 use App\Models\Grade;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -19,6 +20,10 @@ class GradeResource extends Resource
     protected static ?string $model = Grade::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Teacher Menu';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

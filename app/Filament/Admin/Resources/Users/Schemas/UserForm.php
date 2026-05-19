@@ -14,12 +14,16 @@ class UserForm
         return $schema
             ->columns(1)
             ->components([
+<<<<<<< Updated upstream
                 Select::make('honorifics')
                     ->options([
                         'Mr.' => 'Mr.',
                         'Ms.' => 'Ms.',
                         'Mrs.' => 'Mrs.',
                     ])
+=======
+                TextInput::make('honorifics')
+>>>>>>> Stashed changes
                     ->required(),
                 TextInput::make('last_name')
                     ->required(),

@@ -9,6 +9,7 @@ use App\Filament\App\Resources\Homerooms\Schemas\HomeroomForm;
 use App\Filament\App\Resources\Homerooms\Tables\HomeroomsTable;
 use App\Models\Homeroom;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -19,6 +20,10 @@ class HomeroomResource extends Resource
     protected static ?string $model = Homeroom::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

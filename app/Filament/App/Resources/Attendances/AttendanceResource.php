@@ -9,6 +9,7 @@ use App\Filament\App\Resources\Attendances\Schemas\AttendanceForm;
 use App\Filament\App\Resources\Attendances\Tables\AttendancesTable;
 use App\Models\Attendance;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -19,6 +20,10 @@ class AttendanceResource extends Resource
     protected static ?string $model = Attendance::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Homeroom Menu';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

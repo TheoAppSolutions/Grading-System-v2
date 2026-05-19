@@ -13,11 +13,9 @@ return new class extends Migration
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
-            $table->string('subject_id');
-            $table->string('subject_label');
-            $table->string('subject_title')->default('');
-            $table->string('grade_level');
-            $table->index('subject_id');
+            $table->integer('grade_level_id');
+            $table->integer('subject_category_id');
+            $table->string('subject_title');
             $table->timestamps();
         });
 

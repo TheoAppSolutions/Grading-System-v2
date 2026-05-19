@@ -48,6 +48,11 @@ class Subject extends Model
         return $this->hasMany(CommentMidquarter::class, 'subject_id', 'subject_id');
     }
 
+    public function subjectCategory(): BelongsTo
+    {
+        return $this->belongsTo(SubjectCategory::class, 'category_id', 'id');
+    }
+
     // Helpers
     public function getUnitsByYear(string $schoolyear): ?SubjectUnit
     {

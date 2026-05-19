@@ -11,6 +11,7 @@ use App\Filament\App\Resources\GradeCriterias\Schemas\GradeCriteriaInfolist;
 use App\Filament\App\Resources\GradeCriterias\Tables\GradeCriteriasTable;
 use App\Models\GradeCriteria;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,10 @@ class GradeCriteriaResource extends Resource
     protected static ?string $model = GradeCriteria::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

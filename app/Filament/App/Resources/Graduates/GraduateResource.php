@@ -11,6 +11,7 @@ use App\Filament\App\Resources\Graduates\Schemas\GraduateInfolist;
 use App\Filament\App\Resources\Graduates\Tables\GraduatesTable;
 use App\Models\Graduate;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,10 @@ class GraduateResource extends Resource
     protected static ?string $model = Graduate::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

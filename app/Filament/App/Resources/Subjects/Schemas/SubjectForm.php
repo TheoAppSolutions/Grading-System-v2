@@ -2,8 +2,11 @@
 
 namespace App\Filament\App\Resources\Subjects\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use App\Models\Config\SubjectCategory;
+use App\Models\Config\GradeLevel;
 
 class SubjectForm
 {
@@ -11,15 +14,21 @@ class SubjectForm
     {
         return $schema
             ->components([
-                TextInput::make('subject_id')
-                    ->required(),
-                TextInput::make('subject_label')
-                    ->required(),
+                Select::make('grade_level_id')
+                    ->required()
+                    ->searchable()
+                    ->label('Grade Level')
+                    ->options(GradeLevel::all()->sortBy('sort_order')->pluck('label', 'id')),
+                Select::make('subject_category_id')
+                    ->required()
+                    ->searchable()
+                    ->label('Subject Category')
+                    ->options(SubjectCategory::all()->pluck('label', 'id')),
                 TextInput::make('subject_title')
+                    ->label('Subject Title')
+                    ->columnSpanFull()
                     ->required()
                     ->default(''),
-                TextInput::make('grade_level')
-                    ->required(),
             ]);
     }
 }
