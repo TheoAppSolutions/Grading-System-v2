@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Sushi;
+namespace App\Models\Config;
 
 use App\Models\UserRole;
 use Illuminate\Database\Eloquent\Model;
