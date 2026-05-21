@@ -7,6 +7,8 @@ use Filament\Resources\Pages\CreateRecord;
 use App\Models\SchoolYearInfo;
 use App\Models\SchoolYearCardTemplate;
 use App\Models\Config\CardTemplate;
+use App\Models\Config\GradeLevel;
+use App\Models\Homeroom;
 use Filament\Actions\Action;
 use Override;
 
@@ -37,6 +39,14 @@ class CreateSchoolYear extends CreateRecord
             SchoolYearCardTemplate::create([
                 'school_year_id' => $record->id,
                 'category' => $category,
+            ]);
+        }
+
+        $gradeLevel = GradeLevel::all();
+        foreach ($gradeLevel as $level) {
+            Homeroom::create([
+                'school_year_id' => $record->id,
+                'grade_level_id' => $level->id,
             ]);
         }
     }

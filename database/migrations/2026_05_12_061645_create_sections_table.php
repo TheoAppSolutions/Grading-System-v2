@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
             $table->integer('grade_level_id');
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->string('section', 191);
-            $table->unsignedBigInteger('school_year_id');
             $table->timestamps();
 
             $table->unique(['grade_level', 'section', 'school_year_id']);

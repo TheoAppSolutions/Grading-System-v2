@@ -36,20 +36,4 @@ class SchoolYear extends Model
     {
         return $this->hasMany(Grade::class, 'school_year', 'school_year');
     }
-
-    // Helpers
-    public function isActive(): bool
-    {
-        return $this->active === '1' || $this->active === 'true';
-    }
-
-    public static function getActive(): ?static
-    {
-        return static::where('active', '1')->first();
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('active', '1');
-    }
 }

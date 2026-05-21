@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('homerooms', function (Blueprint $table) {
             $table->id();
-            $table->string('advisory')->default('');
+            $table->string('grade_level_id');
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
+            $table->string('section_id')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedBigInteger('user2_id')->nullable();
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();
-            $table->string('section')->default('');
-            $table->string('school_year')->nullable();
             $table->timestamps();
         });
     }

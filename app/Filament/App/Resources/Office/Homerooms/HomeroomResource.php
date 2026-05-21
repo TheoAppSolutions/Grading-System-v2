@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use MyTools;
+use Override;
 
 class HomeroomResource extends Resource
 {
@@ -24,6 +26,18 @@ class HomeroomResource extends Resource
     protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
 
     protected static ?int $navigationSort = 1;
+
+    #[Override]
+    public static function shouldRegisterNavigation(): bool
+    {
+        $schoolYear = MyTools::getSchoolYear();
+
+        if ($schoolYear): 
+            return true;
+        endif;
+
+        return false;
+    }
 
     public static function form(Schema $schema): Schema
     {

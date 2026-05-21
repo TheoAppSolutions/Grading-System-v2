@@ -30,6 +30,8 @@ class SectionResource extends Resource
 
     protected static ?string $label = 'Section / Strand';
 
+    protected static ?string $slug = 'section';
+
     public static function form(Schema $schema): Schema
     {
         return SectionForm::configure($schema);

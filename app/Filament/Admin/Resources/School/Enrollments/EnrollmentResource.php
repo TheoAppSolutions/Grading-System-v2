@@ -27,6 +27,8 @@ class EnrollmentResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    protected static ?string $slug = 'enrollment';
+
     public static function form(Schema $schema): Schema
     {
         return EnrollmentForm::configure($schema);

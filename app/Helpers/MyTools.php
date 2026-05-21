@@ -2,6 +2,8 @@
 
 use App\Models;
 use Illuminate\Support\Facades\Auth;
+use App\Filament\Admin\Resources\School\SchoolYears\SchoolYearResource;
+use Filament\Notifications\Notification;
 
 class MyTools
 {
@@ -37,10 +39,15 @@ class MyTools
         $schoolYear = Models\SchoolYear::where('active', 1)->first();
 
         if ($schoolYear === null) {
-            throw new \RuntimeException('No active school year found.');
+            Notification::make()
+                ->title('No active school year found.')
+                ->warning()
+                ->send();
+
+            return false;
         }
 
-        return $schoolYear->school_year;
+        return $schoolYear;
     }
 
     public static function ordinal(int $number): string

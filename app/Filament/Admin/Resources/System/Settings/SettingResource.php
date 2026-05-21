@@ -25,6 +25,8 @@ class SettingResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    protected static ?string $slug = 'setting';
+
     public static function form(Schema $schema): Schema
     {
         return SettingForm::configure($schema);
