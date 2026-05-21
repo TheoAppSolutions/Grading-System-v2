@@ -19,7 +19,7 @@ class GradeResource extends Resource
 {
     protected static ?string $model = Grade::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBarSquare;
 
     protected static string | UnitEnum | null $navigationGroup = 'Teacher Menu';
 

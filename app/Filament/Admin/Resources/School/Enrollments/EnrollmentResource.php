@@ -21,7 +21,7 @@ class EnrollmentResource extends Resource
 {
     protected static ?string $model = Enrollment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
     protected static string | UnitEnum | null $navigationGroup = 'School Settings';
 

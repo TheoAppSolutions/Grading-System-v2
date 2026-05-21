@@ -21,7 +21,7 @@ class GradeCriteriaResource extends Resource
 {
     protected static ?string $model = GradeCriteria::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenter;
 
     protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
 

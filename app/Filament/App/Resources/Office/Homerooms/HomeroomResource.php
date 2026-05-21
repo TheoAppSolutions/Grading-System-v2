@@ -19,7 +19,7 @@ class HomeroomResource extends Resource
 {
     protected static ?string $model = Homeroom::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
     protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
 
