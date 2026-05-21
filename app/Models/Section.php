@@ -16,7 +16,7 @@ class Section extends Model
     // Relationships
     public function gradeLevel(): BelongsTo
     {
-        return $this->belongsTo(Sushi\GradeLevel::class, 'grade_level_id', 'id');
+        return $this->belongsTo(Config\GradeLevel::class, 'grade_level_id', 'id');
     }
 
     public function schoolYear(): BelongsTo
