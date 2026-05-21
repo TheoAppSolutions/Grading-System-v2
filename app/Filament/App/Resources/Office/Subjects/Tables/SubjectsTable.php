@@ -2,11 +2,15 @@
 
 namespace App\Filament\App\Resources\Office\Subjects\Tables;
 
+use App\Models\Config\GradeLevel;
+use App\Models\Config\SubjectCategory;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 
 class SubjectsTable
 {
@@ -14,18 +18,25 @@ class SubjectsTable
     {
         return $table
             ->columns([
-                TextColumn::make('subject_id')
-                    ->searchable(),
-                TextColumn::make('subject_label')
-                    ->searchable(),
+                TextColumn::make('id')
+                    ->label('ID'),
                 TextColumn::make('subject_title')
+                    ->label('Title')
                     ->searchable(),
-                TextColumn::make('grade_level')
-                    ->searchable(),
+                TextColumn::make('subjectCategory.label')
+                    ->label('Category'),
+                TextColumn::make('gradeLevel.label'),
             ])
             ->filters([
-                //
-            ])
+                SelectFilter::make('grade_level_id')
+                    ->label('Grade Level')
+                    ->options(GradeLevel::all()->sortBy('sort_order')->pluck('label', 'id'))
+                    ->searchable(),
+                SelectFilter::make('subject_category_id')
+                    ->label('Category')
+                    ->options(SubjectCategory::all()->sortBy('sort_order')->pluck('label', 'id'))
+                    ->searchable()
+            ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),
             ])

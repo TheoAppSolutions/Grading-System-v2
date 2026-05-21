@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class StudentsTable
@@ -19,23 +20,19 @@ class StudentsTable
                     ->sortable(),
                 TextColumn::make('student_lrn')
                     ->searchable(),
-                TextColumn::make('name')
+                TextColumn::make('first_name')
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('firstname')
+                TextColumn::make('middle_name')
                     ->searchable(),
-                TextColumn::make('middlename')
-                    ->searchable(),
-                TextColumn::make('lastname')
+                TextColumn::make('last_name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('suffix')
                     ->searchable(),
-                TextColumn::make('section')
-                    ->searchable(),
                 TextColumn::make('gender')
-                    ->searchable(),
-                TextColumn::make('active')
-                    ->numeric()
-                    ->sortable(),
+                    ->formatStateUsing(fn($state) => strtoupper($state)),
+                ToggleColumn::make('active'),
             ])
             ->filters([
                 //

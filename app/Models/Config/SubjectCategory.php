@@ -12,13 +12,29 @@ class SubjectCategory extends Model
     protected function getRows(): array
     {
         return [
-            ['id' => 1, 'label' => 'English'],
-            ['id' => 2, 'label' => 'Filipino'],
-            ['id' => 3, 'label' => 'Mathematics'],
-            ['id' => 4, 'label' => 'Science'],
-            ['id' => 5, 'label' => 'Araling Panlipunan'],
-            ['id' => 7, 'label' => 'MAPEH'],
-            ['id' => 8, 'label' => 'TLE'],
+            // Primary (Grade 1–6)
+            ['id' => 1,  'label' => 'Language',              'category' => 'primary'],
+            ['id' => 2,  'label' => 'Reading / Writing',     'category' => 'primary'],
+
+            // Secondary (Grade 7–10)
+            ['id' => 3,  'label' => 'English',               'category' => 'secondary'],
+
+            // General Subjects for Priamry and Secondary
+            ['id' => 4,  'label' => 'Filipino',              'category' => 'general'],
+            ['id' => 5,  'label' => 'Mathematics',           'category' => 'general'],
+            ['id' => 6,  'label' => 'Science',               'category' => 'general'],
+            ['id' => 7,  'label' => 'Christian Formation',   'category' => 'general'],
+            ['id' => 8,  'label' => 'Physical Education',    'category' => 'general'],
+            ['id' => 9,  'label' => 'Art',                   'category' => 'general'],
+            ['id' => 10, 'label' => 'Music',                 'category' => 'general'],
+            ['id' => 11, 'label' => 'Computer',              'category' => 'general'],
+            ['id' => 12, 'label' => 'Civics and Culture',    'category' => 'general'],
+            ['id' => 13, 'label' => 'Livelihood',            'category' => 'general'],
+
+            // Senior High (Grade 11–12)
+            ['id' => 14, 'label' => 'General Subjects',      'category' => 'shs'],
+            ['id' => 15, 'label' => 'Applied Subjects',      'category' => 'shs'],
+            ['id' => 16, 'label' => 'Specialized Subjects',  'category' => 'shs'],
         ];
     }
 

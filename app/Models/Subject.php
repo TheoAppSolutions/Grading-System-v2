@@ -7,17 +7,13 @@ use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Config;
 
 #[Table('subjects')]
 #[Unguarded]
 class Subject extends Model
 {
     // Relationships
-    public function gradeLevel(): BelongsTo
-    {
-        return $this->belongsTo(GradeLevel::class, 'gradelevel', 'code');
-    }
-
     public function units(): HasMany
     {
         return $this->hasMany(SubjectUnit::class, 'subject_id', 'subject_id');
@@ -48,9 +44,15 @@ class Subject extends Model
         return $this->hasMany(CommentMidquarter::class, 'subject_id', 'subject_id');
     }
 
+    // Configs
+    public function gradeLevel(): BelongsTo
+    {
+        return $this->belongsTo(Config\GradeLevel::class, 'grade_level_id', 'id');
+    }
+
     public function subjectCategory(): BelongsTo
     {
-        return $this->belongsTo(SubjectCategory::class, 'category_id', 'id');
+        return $this->belongsTo(Config\SubjectCategory::class, 'subject_category_id', 'id');
     }
 
     // Helpers

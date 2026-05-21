@@ -18,10 +18,10 @@ class StudentForm
                     ->numeric(),
                 TextInput::make('student_lrn')
                     ->label('Student LRN'),
-                TextInput::make('firstname')
+                TextInput::make('first_name')
                     ->required(),
-                TextInput::make('middlename'),
-                TextInput::make('lastname')
+                TextInput::make('middle_name'),
+                TextInput::make('last_name')
                     ->required(),
                 TextInput::make('suffix'),
                 Select::make('gender')
