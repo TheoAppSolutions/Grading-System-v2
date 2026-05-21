@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\Grades\Tables;
+namespace App\Filament\App\Resources\Teacher\Grades\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;

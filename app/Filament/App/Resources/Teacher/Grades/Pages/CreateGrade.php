@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\Grades\Pages;
+namespace App\Filament\App\Resources\Teacher\Grades\Pages;
 
-use App\Filament\App\Resources\Office\Grades\GradeResource;
+use App\Filament\App\Resources\Teacher\Grades\GradeResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateGrade extends CreateRecord

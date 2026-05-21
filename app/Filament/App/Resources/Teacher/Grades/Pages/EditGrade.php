@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\Grades\Pages;
+namespace App\Filament\App\Resources\Teacher\Grades\Pages;
 
-use App\Filament\App\Resources\Office\Grades\GradeResource;
+use App\Filament\App\Resources\Teacher\Grades\GradeResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 

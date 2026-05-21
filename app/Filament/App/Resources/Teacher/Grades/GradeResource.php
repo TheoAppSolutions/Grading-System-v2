@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\Grades;
+namespace App\Filament\App\Resources\Teacher\Grades;
 
-use App\Filament\App\Resources\Office\Grades\Pages\CreateGrade;
-use App\Filament\App\Resources\Office\Grades\Pages\EditGrade;
-use App\Filament\App\Resources\Office\Grades\Pages\ListGrades;
-use App\Filament\App\Resources\Office\Grades\Schemas\GradeForm;
-use App\Filament\App\Resources\Office\Grades\Tables\GradesTable;
+use App\Filament\App\Resources\Teacher\Grades\Pages\CreateGrade;
+use App\Filament\App\Resources\Teacher\Grades\Pages\EditGrade;
+use App\Filament\App\Resources\Teacher\Grades\Pages\ListGrades;
+use App\Filament\App\Resources\Teacher\Grades\Schemas\GradeForm;
+use App\Filament\App\Resources\Teacher\Grades\Tables\GradesTable;
 use App\Models\Grade;
 use BackedEnum;
 use UnitEnum;
