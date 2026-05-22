@@ -27,11 +27,11 @@ class HomeroomsTable
                 TextColumn::make('section.section'),
                 SelectColumn::make('user_id')
                     ->label('Adviser')
-                    ->searchable()
+                    ->searchableOptions()
                     ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
                 SelectColumn::make('user2_id')
                     ->label('Co-Adviser')
-                    ->searchable()
+                    ->searchableOptions()
                     ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
             ])
             ->filters([

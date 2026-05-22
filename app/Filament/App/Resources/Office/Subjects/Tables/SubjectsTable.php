@@ -39,11 +39,6 @@ class SubjectsTable
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }
