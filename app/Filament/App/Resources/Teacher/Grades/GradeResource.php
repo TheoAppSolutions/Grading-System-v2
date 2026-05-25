@@ -21,7 +21,7 @@ class GradeResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBarSquare;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Teacher Menu';
+    protected static string|UnitEnum|null $navigationGroup = 'Teacher Menu';
 
     protected static ?int $navigationSort = 1;
 

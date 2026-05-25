@@ -41,6 +41,7 @@ class SchoolYearInfoRelationManager extends RelationManager
             $rangeMap[$index + 1] = $label;
         }
         return $table
+            ->heading('')
             ->columns([
                 TextColumn::make('coverage')
                     ->label('Coverage')

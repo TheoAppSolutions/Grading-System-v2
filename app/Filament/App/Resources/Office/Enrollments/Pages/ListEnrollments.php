@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\School\Enrollments\Pages;
+namespace App\Filament\App\Resources\Office\Enrollments\Pages;
 
-use App\Filament\Admin\Resources\School\Enrollments\EnrollmentResource;
+use App\Filament\App\Resources\Office\Enrollments\EnrollmentResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -12,8 +12,6 @@ class ListEnrollments extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
     }
 }

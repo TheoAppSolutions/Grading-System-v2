@@ -25,7 +25,7 @@ class SchoolYearResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'school_year';
 
-    protected static string | UnitEnum | null $navigationGroup = 'School Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'School Settings';
 
     protected static ?string $navigationLabel = "School Year";
 
@@ -48,6 +48,8 @@ class SchoolYearResource extends Resource
         return [
             RelationManagers\SchoolYearInfoRelationManager::class,
             RelationManagers\SchoolYearCardTemplateRelationManager::class,
+            RelationManagers\HomeroomRelationManager::class,
+            RelationManagers\SectionsRelationManager::class,
         ];
     }
 

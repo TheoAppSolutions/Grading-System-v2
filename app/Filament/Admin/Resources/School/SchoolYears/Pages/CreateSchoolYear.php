@@ -9,6 +9,7 @@ use App\Models\SchoolYearCardTemplate;
 use App\Models\Config\CardTemplate;
 use App\Models\Config\GradeLevel;
 use App\Models\Homeroom;
+use App\Models\SchoolYear;
 use Filament\Actions\Action;
 use Override;
 
@@ -19,7 +20,7 @@ class CreateSchoolYear extends CreateRecord
     #[Override]
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['active'] = 0;
+        $data['active'] = SchoolYear::where('active', 1)->exists() ? 0 : 1;
         return parent::mutateFormDataBeforeCreate($data);
     }
 

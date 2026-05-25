@@ -23,7 +23,7 @@ class StudentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
+    protected static string|UnitEnum|null $navigationGroup = 'Office Menu';
 
     protected static ?int $navigationSort = 1;
 

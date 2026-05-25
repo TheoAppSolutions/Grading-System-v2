@@ -15,63 +15,68 @@ class Student extends Model
     // Relationships
     public function info(): HasOne
     {
-        return $this->hasOne(StudentInfo::class, 'student_id', 'student_id');
+        return $this->hasOne(StudentInfo::class, 'student_id', 'id');
     }
 
     public function fields(): HasMany
     {
-        return $this->hasMany(StudentField::class, 'student_id', 'student_id');
+        return $this->hasMany(StudentField::class, 'student_id', 'id');
     }
 
     public function enrollments(): HasMany
     {
-        return $this->hasMany(Enrollment::class, 'student_id', 'student_id');
+        return $this->hasMany(Enrollment::class, 'student_id', 'id');
+    }
+
+    public function enrollmentLatest(): HasOne
+    {
+        return $this->hasOne(Enrollment::class)->latestOfMany();
     }
 
     public function grades(): HasMany
     {
-        return $this->hasMany(Grade::class, 'student_id', 'student_id');
+        return $this->hasMany(Grade::class, 'student_id', 'id');
     }
 
     public function attendance(): HasMany
     {
-        return $this->hasMany(Attendance::class, 'student_id', 'student_id');
+        return $this->hasMany(Attendance::class, 'student_id', 'id');
     }
 
     public function deportments(): HasMany
     {
-        return $this->hasMany(Deportment::class, 'student_id', 'student_id');
+        return $this->hasMany(Deportment::class, 'student_id', 'id');
     }
 
     public function awards(): HasMany
     {
-        return $this->hasMany(Award::class, 'student_id', 'student_id');
+        return $this->hasMany(Award::class, 'student_id', 'id');
     }
 
     public function graduate(): HasOne
     {
-        return $this->hasOne(Graduate::class, 'student_id', 'student_id');
+        return $this->hasOne(Graduate::class, 'student_id', 'id');
     }
 
     public function excludedSubjects(): HasMany
     {
-        return $this->hasMany(SubjectExcluded::class, 'student_id', 'student_id');
+        return $this->hasMany(SubjectExcluded::class, 'student_id', 'id');
     }
 
     public function midquarterComments(): HasMany
     {
-        return $this->hasMany(CommentMidquarter::class, 'student_id', 'student_id');
+        return $this->hasMany(CommentMidquarter::class, 'student_id', 'id');
     }
 
     public function quarterComments(): HasMany
     {
-        return $this->hasMany(CommentQuarter::class, 'student_id', 'student_id');
+        return $this->hasMany(CommentQuarter::class, 'student_id', 'id');
     }
 
     // Helpers
-    public function getFullNameAttribute(): string
+    public function full_name(): string
     {
-        return trim("{$this->firstname} {$this->middlename} {$this->lastname} {$this->suffix}");
+        return trim("{$this->lastname}, {$this->firstname} {$this->middlename} {$this->suffix}");
     }
 
     public function isActive(): bool

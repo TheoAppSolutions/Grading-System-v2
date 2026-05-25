@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('suffix')->nullable();
             $table->string('gender');
+            $table->integer('current_level')->nullable();
             $table->tinyInteger('active')->default(1);
             $table->timestamps();
         });

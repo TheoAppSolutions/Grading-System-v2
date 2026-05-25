@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources\School\Enrollments\Schemas;
+namespace App\Filament\App\Resources\Office\Enrollments\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;

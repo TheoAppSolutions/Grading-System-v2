@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\School\Enrollments\Pages;
+namespace App\Filament\App\Resources\Office\Enrollments\Pages;
 
-use App\Filament\Admin\Resources\School\Enrollments\EnrollmentResource;
+use App\Filament\App\Resources\Office\Enrollments\EnrollmentResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateEnrollment extends CreateRecord

@@ -23,7 +23,7 @@ class LogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static string | UnitEnum | null $navigationGroup = 'System Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'System Settings';
 
     protected static ?int $navigationSort = 2;
 

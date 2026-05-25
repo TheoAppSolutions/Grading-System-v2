@@ -23,7 +23,7 @@ class HomeroomResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
+    protected static string|UnitEnum|null $navigationGroup = 'Office Menu';
 
     protected static ?int $navigationSort = 1;
 

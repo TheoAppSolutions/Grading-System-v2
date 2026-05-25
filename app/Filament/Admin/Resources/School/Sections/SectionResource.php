@@ -24,7 +24,7 @@ class SectionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleGroup;
 
-    protected static string | UnitEnum | null $navigationGroup = 'School Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'School Settings';
 
     protected static ?int $navigationSort = 3;
 
@@ -35,11 +35,6 @@ class SectionResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return SectionForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return SectionInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

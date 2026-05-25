@@ -21,7 +21,7 @@ class AttendanceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Homeroom Menu';
+    protected static string|UnitEnum|null $navigationGroup = 'Homeroom Menu';
 
     protected static ?int $navigationSort = 1;
 

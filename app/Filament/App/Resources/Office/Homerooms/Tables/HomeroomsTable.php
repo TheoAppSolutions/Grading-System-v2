@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\Office\Homerooms\Tables;
 
+use App\Models\Homeroom;
 use App\Models\SchoolYear;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -14,15 +15,8 @@ class HomeroomsTable
 {
     public static function configure(Table $table): Table
     {
-        $schoolYear = MyTools::getSchoolYear() ?? '';
-
-        if (!$schoolYear) :
-            redirect('/app');
-        endif;
-
         return $table
             ->columns([
-                TextColumn::make('schoolYear.school_year'),
                 TextColumn::make('gradeLevel.label'),
                 TextColumn::make('section.section'),
                 SelectColumn::make('user_id')
@@ -33,11 +27,6 @@ class HomeroomsTable
                     ->label('Co-Adviser')
                     ->searchableOptions()
                     ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
-            ])
-            ->filters([
-                SelectFilter::make('school_year_id')
-                    ->default(fn($schoolYear) => $schoolYear->school_year_id ?? $schoolYear)
-                    ->options(fn() => SchoolYear::all()->pluck('school_year', 'id')->toArray()),
             ])
             ->recordUrl('');
     }

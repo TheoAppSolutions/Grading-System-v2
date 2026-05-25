@@ -23,7 +23,7 @@ class GradeCriteriaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenter;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
+    protected static string|UnitEnum|null $navigationGroup = 'Office Menu';
 
     protected static ?int $navigationSort = 2;
 

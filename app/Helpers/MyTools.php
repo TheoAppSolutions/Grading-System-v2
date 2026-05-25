@@ -36,7 +36,12 @@ class MyTools
             return (string) $_GET['school_year'];
         }
 
-        $schoolYear = Models\SchoolYear::where('active', 1)->first();
+        $schoolYear = Models\SchoolYear::where('active', 1)
+            ->select([
+                'id',
+                'school_year'
+            ])
+            ->first();
 
         if ($schoolYear === null) {
             Notification::make()

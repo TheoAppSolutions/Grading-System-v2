@@ -2,12 +2,12 @@
 
 namespace App\Filament\Admin\Resources\School\Sections\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\SchoolYear;
+use Filament\Tables\Enums\FiltersLayout;
 
 class SectionsTable
 {
@@ -15,17 +15,18 @@ class SectionsTable
     {
         return $table
             ->columns([
-                TextColumn::make('schoolYear.school_year')
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('section')
                     ->label('Section / Strand')
                     ->searchable(),
                 TextColumn::make('gradeLevel.label'),
             ])
             ->filters([
-                //
-            ])
+                SelectFilter::make('school_year_id')
+                    ->label('School Year')
+                    ->default(fn() => $schoolYears->school_year ?? '')
+                    ->selectablePlaceholder(false)
+                    ->options(fn() => SchoolYear::all()->pluck('school_year', 'id')->toArray()),
+            ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),
             ]);

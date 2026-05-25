@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\School\Enrollments\Pages;
+namespace App\Filament\App\Resources\Office\Enrollments\Pages;
 
-use App\Filament\Admin\Resources\School\Enrollments\EnrollmentResource;
+use App\Filament\App\Resources\Office\Enrollments\EnrollmentResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;

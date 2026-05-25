@@ -19,6 +19,7 @@ class SchoolYearCardTemplateRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->heading('')
             ->columns([
                 TextColumn::make('category')
                     ->label('Category'),

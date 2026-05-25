@@ -21,7 +21,7 @@ class AnnouncementResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookmarkSquare;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Office Menu';
+    protected static string|UnitEnum|null $navigationGroup = 'Office Menu';
 
     protected static ?int $navigationSort = 1;
 
