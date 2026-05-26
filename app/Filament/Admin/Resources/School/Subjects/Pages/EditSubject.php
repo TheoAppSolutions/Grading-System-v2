@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\Subjects\Pages;
+namespace App\Filament\Admin\Resources\School\Subjects\Pages;
 
-use App\Filament\App\Resources\Office\Subjects\SubjectResource;
+use App\Filament\Admin\Resources\School\Subjects\SubjectResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Actions\Action;

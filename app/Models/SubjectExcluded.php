@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Table('subject_excludes')]
+#[Table('subject_excluded')]
 #[Unguarded]
-class SubjectExlude extends Model
+class SubjectExcluded extends Model
 {
     // Relationships
     public function student(): BelongsTo

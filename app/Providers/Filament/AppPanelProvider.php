@@ -18,6 +18,15 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Filament\Navigation\NavigationBuilder;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
+use App\Filament\App\Resources\Teacher\Grades\GradeResource;
+use App\Models\SubjectUser;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Auth;
+use MyTools;
+
 class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -58,6 +67,67 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
+
+                $schoolYear = MyTools::getSchoolYear(); // move this up before it's used
+
+                $autoItems = collect(Filament::getResources())
+                    ->reject(fn($resource) => $resource === GradeResource::class)
+                    ->flatMap(fn($resource) => $resource::getNavigationItems())
+                    ->all();
+
+                $autoGroups = collect($autoItems)
+                    ->groupBy(fn($item) => $item->getGroup() ?? '')
+                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->all()))
+                    ->values()
+                    ->all();
+
+                $groups = [...$autoGroups];
+
+                if ($schoolYear) {
+                    $subjectGroups = $this->buildSubjectNavItems($schoolYear);
+
+                    if (!empty($subjectGroups)) {
+                        $groups = [...$subjectGroups, ...$groups]; // spread since it's now multiple groups
+                    }
+                }
+
+                return $builder->groups($groups);
+            });
+    }
+
+
+    private function buildSubjectNavItems($schoolYear): array
+    {
+        $subjects = SubjectUser::where([
+            'user_id' => Auth::id(),
+            'school_year_id' => $schoolYear->id,
+        ])->with('subject')->get();
+
+        if ($subjects->isEmpty()) {
+            return [];
+        }
+
+        return $subjects
+            ->groupBy(fn(SubjectUser $subjectUser) => $subjectUser->subject->subjectCategory->label)
+            ->map(function ($groupedSubjects, string $subjectTitle) {
+                $items = $groupedSubjects
+                    ->values()
+                    ->map(function (SubjectUser $subjectUser, int $index) {
+                        $subject = $subjectUser->subject;
+
+                        return NavigationItem::make(MyTools::ordinal($subject->grade_level_id) . ' Grade')
+                            ->url(GradeResource::getUrl('index') . '?sid=' . $subjectUser->subject_id)
+                            ->isActiveWhen(fn() => request()->is('app/teacher/grades*') && request('sid') == $subjectUser->subject_id)
+                            ->sort($index);
+                    })
+                    ->all();
+
+                return NavigationGroup::make($subjectTitle)
+                    ->items($items);
+            })
+            ->values()
+            ->all();
     }
 }

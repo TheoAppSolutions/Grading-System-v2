@@ -14,34 +14,34 @@ use App\Models\Config;
 class Subject extends Model
 {
     // Relationships
-    public function units(): HasMany
+    public function subjectUnit(): HasMany
     {
-        return $this->hasMany(SubjectUnit::class, 'subject_id', 'subject_id');
+        return $this->hasMany(SubjectUnit::class, 'subject_id', 'id');
     }
 
-    public function assignments(): HasMany
+    public function subjectUser(): HasMany
     {
-        return $this->hasMany(SubjectUser::class, 'subject_id', 'subject_id');
+        return $this->hasMany(SubjectUser::class, 'subject_id', 'id');
     }
 
-    public function excluded(): HasMany
+    public function subjectExcluded(): HasMany
     {
-        return $this->hasMany(SubjectExcluded::class, 'subject_id', 'subject_id');
+        return $this->hasMany(SubjectExcluded::class, 'subject_id', 'id');
     }
 
     public function grades(): HasMany
     {
-        return $this->hasMany(Grade::class, 'subject_id', 'subject_id');
+        return $this->hasMany(Grade::class, 'subject_id', 'id');
     }
 
     public function awards(): HasMany
     {
-        return $this->hasMany(Award::class, 'subject_id', 'subject_id');
+        return $this->hasMany(Award::class, 'subject_id', 'id');
     }
 
     public function midquarterComments(): HasMany
     {
-        return $this->hasMany(CommentMidquarter::class, 'subject_id', 'subject_id');
+        return $this->hasMany(CommentMidquarter::class, 'subject_id', 'id');
     }
 
     // Configs

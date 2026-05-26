@@ -15,7 +15,7 @@ class SubjectUser extends Model
     // Relationships
     public function subject(): BelongsTo
     {
-        return $this->belongsTo(Subject::class, 'subject_id', 'subject_id');
+        return $this->belongsTo(Subject::class, 'subject_id', 'id');
     }
 
     public function teacher(): BelongsTo
@@ -30,7 +30,7 @@ class SubjectUser extends Model
 
     public function grades(): HasMany
     {
-        return $this->hasMany(Grade::class, 'subject_id', 'subject_id');
+        return $this->hasMany(Grade::class, 'subject_id', 'id');
     }
 
     // Helpers

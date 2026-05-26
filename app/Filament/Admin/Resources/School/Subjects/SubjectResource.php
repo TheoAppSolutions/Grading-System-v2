@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\Subjects;
+namespace App\Filament\Admin\Resources\School\Subjects;
 
-use App\Filament\App\Resources\Office\Subjects\Pages\CreateSubject;
-use App\Filament\App\Resources\Office\Subjects\Pages\EditSubject;
-use App\Filament\App\Resources\Office\Subjects\Pages\ListSubjects;
-use App\Filament\App\Resources\Office\Subjects\Schemas\SubjectForm;
-use App\Filament\App\Resources\Office\Subjects\Tables\SubjectsTable;
+use App\Filament\Admin\Resources\School\Subjects\Pages\CreateSubject;
+use App\Filament\Admin\Resources\School\Subjects\Pages\EditSubject;
+use App\Filament\Admin\Resources\School\Subjects\Pages\ListSubjects;
+use App\Filament\Admin\Resources\School\Subjects\Schemas\SubjectForm;
+use App\Filament\Admin\Resources\School\Subjects\Tables\SubjectsTable;
+use App\Filament\Admin\Resources\School\Subjects\RelationManagers;
 use App\Models\Subject;
 use BackedEnum;
+use Filament\Resources\RelationManagers\RelationManager;
 use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -23,9 +25,9 @@ class SubjectResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'subject_title';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Office Menu';
+    protected static string|UnitEnum|null $navigationGroup = 'School Settings';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {
@@ -40,7 +42,7 @@ class SubjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\SubjectExcludedRelationManager::class,
         ];
     }
 

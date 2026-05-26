@@ -30,17 +30,14 @@ class MyTools
         ];
     }
 
-    public static function getSchoolYear(): string
+    public static function getSchoolYear()
     {
         if (isset($_GET['school_year'])) {
             return (string) $_GET['school_year'];
         }
 
         $schoolYear = Models\SchoolYear::where('active', 1)
-            ->select([
-                'id',
-                'school_year'
-            ])
+            ->select(['id', 'school_year'])
             ->first();
 
         if ($schoolYear === null) {

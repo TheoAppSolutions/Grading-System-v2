@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedBigInteger('user2_id')->nullable();
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();
-            $table->string('school_year');
+            $table->string('school_year_id');
             $table->string('section')->default('');
             $table->string('semester')->default('');
             $table->string('category')->default('');
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->id();
             $table->string('subject_id')->nullable();
             $table->float('units');
-            $table->string('school_year')->nullable();
+            $table->string('school_year_id')->nullable();
             $table->index('subject_id');
             $table->timestamps();
         });
@@ -46,7 +46,7 @@ return new class extends Migration
             $table->id();
             $table->integer('student_id')->index();
             $table->string('subject_id')->index();
-            $table->string('school_year');
+            $table->string('school_year_id');
             $table->timestamps();
         });
     }
