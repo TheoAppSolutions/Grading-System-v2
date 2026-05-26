@@ -9,11 +9,4 @@ use Filament\Resources\Pages\ListRecords;
 class ListGraduates extends ListRecords
 {
     protected static string $resource = GraduateResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            CreateAction::make(),
-        ];
-    }
 }
