@@ -28,6 +28,7 @@ class HomeroomsTable
                     ->searchableOptions()
                     ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
             ])
+            ->paginated(false)
             ->recordUrl('');
     }
 }

@@ -23,9 +23,7 @@ class SchoolYearsTable
                     ->getStateUsing(function ($record) {
                         return MyTools::getMonths()[$record['school_year_start']] . ' - ' . MyTools::getMonths()[$record['school_year_end']];
                     })
-                    ->label('Months')
-                    ->sortable(false),
-                TextColumn::make('attendance_entries'),
+                    ->label('Months'),
                 ToggleColumn::make('active')
                     ->disabled(fn($record) => $record->active)
                     ->beforeStateUpdated(function ($record, $state) {
@@ -33,8 +31,7 @@ class SchoolYearsTable
                             SchoolYear::query()->update(['active' => false]);
                         }
                     })
-                    ->label('Active')
-                    ->sortable(false),
+                    ->label('Active'),
             ])
             ->filters([
                 //

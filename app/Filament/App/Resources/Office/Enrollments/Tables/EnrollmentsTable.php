@@ -23,7 +23,6 @@ class EnrollmentsTable
 {
     public static function configure(Table $table): Table
     {
-        $test = [];
         return $table
             ->query(Student::where('active', 1))
             ->columns([
@@ -55,9 +54,9 @@ class EnrollmentsTable
                                 'not_enrolled' => 'Not Enrolled',
                             ])
                             ->afterStateUpdated(function (GET $get, Set $set) {
-                                if ($get('enrollment_status') == 'not_enrolled'):
+                                if ($get('enrollment_status') === 'not_enrolled') {
                                     $set('grade_level_id', '');
-                                endif;
+                                }
                             })
                             ->default('enrolled')
                             ->live(),
@@ -125,7 +124,8 @@ class EnrollmentsTable
                     ->deselectRecordsAfterCompletion()
                     ->requiresConfirmation()
                     ->modalHeading('Bulk Enroll Students')
-                    ->modalSubmitActionLabel('Enroll'),
+                    ->modalSubmitActionLabel('Enroll')
+                    ->visible(function () {return true;})
             ])
             ->recordUrl('');
     }
