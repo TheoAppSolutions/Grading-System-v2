@@ -118,7 +118,7 @@ class AppPanelProvider extends PanelProvider
                         $subject = $subjectUser->subject;
 
                         return NavigationItem::make(MyTools::ordinal($subject->grade_level_id) . ' Grade')
-                            ->url(GradeResource::getUrl('index') . '?sid=' . $subjectUser->subject_id)
+                            ->url(GradeResource::getUrl('index') . '?sid=' . $subjectUser->subject_id . '&gid=' . $subjectUser->subject->grade_level_id)
                             ->isActiveWhen(fn() => request()->is('app/teacher/grades*') && request('sid') == $subjectUser->subject_id)
                             ->sort($index);
                     })

@@ -31,6 +31,8 @@ class SubjectResource extends Resource
     protected static ?string $slug = 'subject_teacher';
 
     protected static ?int $navigationSort = 1;
+    
+    protected static ?string $navigationLabel = 'Subject Teacher';
 
     public static function form(Schema $schema): Schema
     {

@@ -16,18 +16,18 @@ return new class extends Migration
             $table->integer('student_id')->index();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('subject_id')->index();
-            $table->tinyInteger('grade_level');
+            $table->integer('grade_level_id');
             $table->tinyInteger('quarter');
-            $table->string('school_year')->default('0');
-            $table->double('midquarter')->default(0);
-            $table->double('final')->default(0);
-            $table->double('effort')->default(0);
-            $table->double('deportment')->default(0);
-            $table->string('remarks', 191)->default('PASSED');
+            $table->string('school_year_id');
+            $table->double('midquarter')->nullable();
+            $table->double('final')->nullable();
+            $table->double('effort')->nullable();
+            $table->double('deportment')->nullable();
+            $table->string('remarks', 191)->nullable();
             $table->timestamps();
 
-            $table->index(['student_id', 'grade_level', 'school_year']);
-            $table->index(['subject_id', 'grade_level', 'quarter']);
+            $table->index(['student_id', 'grade_level_id', 'school_year_id']);
+            $table->index(['subject_id', 'grade_level_id', 'quarter']);
         });
     }
 
