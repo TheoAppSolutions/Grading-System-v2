@@ -22,12 +22,15 @@ class UsersTable
                     ->searchable(),
                 TextColumn::make('last_name')
                     ->searchable(),
+                TextColumn::make('email')
+                    ->searchable(),
                 ToggleColumn::make('active')
                     ->disabled(fn($record) => Auth::id() === $record->id),
             ])
             ->filters([
                 //
             ])
+            ->defaultSort('active', 'DESC')
             ->recordActions([
                 EditAction::make(),
             ]);

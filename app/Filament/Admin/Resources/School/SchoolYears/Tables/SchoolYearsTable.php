@@ -36,6 +36,7 @@ class SchoolYearsTable
             ->filters([
                 //
             ])
+            ->defaultSort('id', 'DESC')
             ->recordActions([
                 EditAction::make(),
             ]);

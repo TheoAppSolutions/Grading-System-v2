@@ -6,11 +6,25 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Sushi\Sushi;
 
-#[Table('comments_midquarter')]
-#[Unguarded]
+// #[Table('comments_midquarter')]
+// #[Unguarded]
 class CommentMidquarter extends Model
 {
+    use \Sushi\Sushi;
+
+    protected $rows = [
+        [
+            'id' => 1,
+            'label' => 'Custom Field 1',
+        ],
+        [
+            'id' => 2,
+            'label' => 'Custom Field 2',
+        ],
+    ];
+
     // Relationships
     public function student(): BelongsTo
     {

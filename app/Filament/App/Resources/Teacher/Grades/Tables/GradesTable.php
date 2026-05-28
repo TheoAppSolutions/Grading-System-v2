@@ -2,21 +2,56 @@
 
 namespace App\Filament\App\Resources\Teacher\Grades\Tables;
 
+use App\Models\CommentMidquarter;
 use App\Models\Grade;
 use App\Models\Student;
 use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
+use Filament\Support\Enums\GridDirection;
 use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Auth;
 
 class GradesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(Student::query()->select('students.*'))
+            ->query(Student::query())
+            ->toolbarActions([
+                Action::make('midquarter_comments')
+                    ->label('Subject MidQuarter Comments')
+                    ->visible(fn($livewire) => $livewire->quarterType == 1)
+                    ->button()
+                    ->schema([
+                        Wizard::make(function () {
+                            $comments = CommentMidquarter::all();
+                            return $comments->map(function ($comment) {
+                                return Step::make($comment->label)
+                                    ->schema([
+                                        CheckboxList::make('comment_' . $comment->id)
+                                            ->label($comment->label)
+                                            ->options(
+                                                function ($livewire) {
+                                                    $options = [];
+                                                    $students = $livewire->students;
+                                                    foreach ($students as $student) {
+                                                        $options[] = $student->last_name;
+                                                    }
+
+                                                    return $options;
+                                                }
+                                            )
+                                            ->columns(2)
+                                            ->gridDirection(GridDirection::Row),
+                                    ]);
+                            })->toArray();
+                        })
+                    ])
+            ])
             ->columns([
                 TextColumn::make('full_name')
                     ->label('Name')
@@ -94,6 +129,7 @@ class GradesTable
                         $livewire->quarterType = 2;
                     }),
             ], position: HeaderActionsPosition::Bottom)
+            ->paginated(false)
             ->recordUrl('');
     }
 }

@@ -31,6 +31,25 @@ return [
     */
 
     'connections' => [
+        'old_db' => [
+            'driver'    => 'mysql',
+            'host'      => env('OLD_DB_HOST', '127.0.0.1'),
+            'database'  => env('OLD_DB_DATABASE'),
+            'username'  => env('OLD_DB_USERNAME'),
+            'password'  => env('OLD_DB_PASSWORD'),
+        ],
+
+        'new_db' => [
+            'driver'    => 'sqlite',
+            'url' => env('DB_URL'),
+            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
+            'transaction_mode' => 'DEFERRED',
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',
@@ -149,7 +168,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

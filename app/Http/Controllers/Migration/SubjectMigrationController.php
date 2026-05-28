@@ -1,0 +1,232 @@
+<?php
+
+namespace App\Http\Controllers\Migration;
+
+use App\Models\Config\GradeLevel;
+use App\Models\Config\SubjectCategory;
+use App\Models\Grade;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class SubjectMigrationController extends BaseMigrationController
+{
+    /**
+     * Migrates `subjects` from old MySQL → `subjects` in new SQLite.
+     *
+     * Routes:
+     *   GET    /migrate/subjects/preview  → preview()
+     *   POST   /migrate/subjects          → migrate()
+     *   GET    /migrate/subjects/unfilled → unfilledGradeLevels()
+     *   DELETE /migrate/subjects/reset    → reset()
+     *
+     * Column mapping (old → new):
+     *   subject_id    → subject_code     preserved varchar code (e.g. 'MATH-01')
+     *                                    used by subject_users and subject_units
+     *                                    to cross-reference this table
+     *   subjecttitle  → subject_title    falls back to subjectname if empty
+     *   gradelevel    → grade_level_id   looked up via new_db.grade_levels.label
+     *   subjectname   → (dropped)        only used as fallback for subject_title
+     *
+     * Generated / defaulted:
+     *   subject_category_id → null  (no equivalent in old schema)
+     *   timestamps          → now()
+     *
+     * ⚠ subject_code:
+     *   This is the critical link between subjects ↔ subject_users ↔ subject_units
+     *   ↔ subject_excluded. All those tables store subject_id as a varchar code.
+     *   Preserving it here as subject_code keeps that relationship intact.
+     *
+     * ⚠ grade_level_id:
+     *   Resolved by matching old `gradelevel` varchar against grade_levels.label.
+     *   Rows with no match get null — call GET /migrate/subjects/unfilled to list them.
+     */
+
+    private ?array $gradeLevelMap = null;
+    private ?array $subjectCategoryMap = null;
+
+    // -------------------------------------------------------------------------
+    // Preview
+    // -------------------------------------------------------------------------
+
+    public function preview(): JsonResponse
+    {
+        
+
+        return response()->json([
+            'table'           => 'subjects',
+            'old_count'       => DB::connection('old_db')->table('subjects')->count(),
+            'new_count'       => DB::connection('new_db')->table('subjects')->count(),
+            'grade_level_map' => $this->buildGradeLevelMap(),
+            'sample'          => DB::connection('old_db')
+                ->table('subjects')
+                ->limit(3)
+                ->get()
+                ->map(fn($r) => $this->mapRow($r)),
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Migrate
+    // -------------------------------------------------------------------------
+
+    public function migrate(): JsonResponse
+    {
+        
+        $this->buildGradeLevelMap();
+
+        $stats = $this->runMigration(
+            newTable: 'subjects',
+            oldTable: 'subjects',
+            orderColumn: 'entry_id',
+            mapper: fn($r) => $this->mapRow($r),
+            columnCount: 6,         // subject_code, grade_level_id, subject_category_id, subject_title, created_at, updated_at
+            dedupeKey: 'subject_id' // old varchar code — unique per subject
+        );
+
+        $unfilled = DB::connection('new_db')
+            ->table('subjects')
+            ->whereNull('grade_level_id')
+            ->count();
+
+        return response()->json([
+            'status'                  => empty($stats['errors']) ? 'done' : 'done_with_errors',
+            'unfilled_grade_level_id' => $unfilled,
+            'note'                    => $unfilled > 0
+                ? "{$unfilled} subject(s) have null grade_level_id. Call GET /migrate/subjects/unfilled."
+                : 'All grade_level_id values resolved successfully.',
+            ...$stats,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // List subjects with unresolved grade_level_id
+    // -------------------------------------------------------------------------
+
+    public function unfilledGradeLevels(): JsonResponse
+    {
+        $rows = DB::connection('new_db')
+            ->table('subjects')
+            ->whereNull('grade_level_id')
+            ->select(['id', 'subject_code', 'subject_title', 'grade_level_id', 'subject_category_id'])
+            ->get();
+
+        return response()->json([
+            'count'    => $rows->count(),
+            'subjects' => $rows,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Reset
+    // -------------------------------------------------------------------------
+
+    public function reset(): JsonResponse
+    {
+        $deleted = DB::connection('new_db')->table('subjects')->delete();
+
+        return response()->json(['status' => 'reset', 'deleted' => $deleted]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Row mapper
+    // -------------------------------------------------------------------------
+
+    private function mapRow(object $row): array
+    {
+        $now = now()->toDateTimeString();
+
+        return [
+            // Preserved varchar code — cross-reference key for subject_users,
+            // subject_units, and subject_excluded
+            'subject_code'        => $row->subject_id,
+            'grade_level_id'      => $this->resolveGradeLevel($row->gradelevel ?? null),
+            'subject_category_id' => $this->resolveSubjectCategory($row->subjecttitle ?? null),
+            'subject_title'       => Str::title($row->subjecttitle) ?: (Str::title($row->subjectname) ?? 0),
+            'created_at'          => $now,
+            'updated_at'          => $now,
+        ];
+        // 6 columns — keep in sync with columnCount above
+    }
+
+    // -------------------------------------------------------------------------
+    // Grade level lookup helpers
+    // -------------------------------------------------------------------------
+
+    private function buildGradeLevelMap(): array
+    {
+        if ($this->gradeLevelMap !== null) {
+            return $this->gradeLevelMap;
+        }
+        $this->gradeLevelMap = GradeLevel::get(['id', 'label'])
+            ->mapWithKeys(fn($r) => [(string) $r->id => (int) $r->id])
+            ->all();
+
+        return $this->gradeLevelMap;
+    }
+
+    /**
+     * Tries to resolve gradelevel varchar → grade_level_id integer.
+     *
+     * Strategy:
+     *   1. Exact match      '7'        → label '7'
+     *   2. Numeric extract  'Grade 7'  → label '7'
+     *   3. Null fallback    → flagged for manual fix
+     */
+    private function resolveGradeLevel(?string $gradelevel): ?int
+    {
+        if ($gradelevel === null || trim($gradelevel) === '') {
+            return null;
+        }
+
+        $map = $this->buildGradeLevelMap();
+        $key = trim($gradelevel);
+
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+
+        if (preg_match('/\d+/', $key, $matches) && isset($map[$matches[0]])) {
+            return $map[$matches[0]];
+        }
+
+        return null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Subject Category lookup helpers
+    // -------------------------------------------------------------------------
+
+    private function buildSubjectCategoryMap(): array
+    {
+        if ($this->subjectCategoryMap !== null) {
+            return $this->subjectCategoryMap;
+        }
+
+        $this->subjectCategoryMap = SubjectCategory::get(['id', 'label'])
+            ->mapWithKeys(fn($r) => [Str::upper($r->label) => (int) $r->id])
+            ->all();
+
+        return $this->subjectCategoryMap;
+    }
+
+    private function resolveSubjectCategory(?string $subjectName): ?int
+    {
+        if ($subjectName === null || trim($subjectName) === '') {
+            return null;
+        }
+
+        $map = $this->buildSubjectCategoryMap();
+        $key = trim($subjectName);
+
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+
+        if (preg_match('/\d+/', $key, $matches) && isset($map[$matches[0]])) {
+            return $map[$matches[0]];
+        }
+
+        return 0;
+    }
+}

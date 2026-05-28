@@ -4,13 +4,15 @@ namespace App\Filament\App\Resources\Teacher\Grades\Pages;
 
 use App\Filament\App\Resources\Teacher\Grades\GradeResource;
 use App\Models\Grade;
+use App\Models\Student;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use MyTools;
 
@@ -25,6 +27,7 @@ class ListGrades extends ListRecords
     public int $gradeLevelId = 0;
     public string $schoolYearId = '';
     public string $importCode = '';
+    public Collection $students;
 
     public function mount(): void
     {
@@ -33,6 +36,7 @@ class ListGrades extends ListRecords
         $this->subjectId = (int) request()->query('sid', 0);
         $this->gradeLevelId = (int) request()->query('gid', 0);
         $this->schoolYearId = MyTools::getSchoolYear()->id;
+        $this->students = Student::with('enrollmentLatest')->get();
     }
 
     protected function getHeaderActions(): array
