@@ -25,7 +25,7 @@ use App\Filament\App\Resources\Teacher\Grades\GradeResource;
 use App\Models\SubjectUser;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
-use MyTools;
+use App\Helpers\MyTools;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -100,10 +100,11 @@ class AppPanelProvider extends PanelProvider
 
     private function buildSubjectNavItems($schoolYear): array
     {
-        $subjects = SubjectUser::where([
-            'user_id' => Auth::id(),
-            'school_year_id' => $schoolYear->id,
-        ])->with('subject')->get();
+        $subjects = SubjectUser::query()
+            ->where('user_id', Auth::id())
+            ->where('school_year_id', $schoolYear->id)
+            ->with('subject')
+            ->get();
 
         if ($subjects->isEmpty()) {
             return [];

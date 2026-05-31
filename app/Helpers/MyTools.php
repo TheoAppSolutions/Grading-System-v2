@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Helpers;
+
 use App\Models;
 use Illuminate\Support\Facades\Auth;
 use App\Filament\Admin\Resources\School\SchoolYears\SchoolYearResource;

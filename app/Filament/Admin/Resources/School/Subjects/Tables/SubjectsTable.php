@@ -26,8 +26,7 @@ class SubjectsTable
                     ->searchable(),
                 TextColumn::make('subjectCategory.label')
                     ->label('Category'),
-                TextColumn::make('gradeLevel.label'),
-                TextColumn::make('teacher')
+                TextColumn::make('subject_code'),
             ])
             ->filters([
                 SelectFilter::make('grade_level_id')
@@ -41,6 +40,7 @@ class SubjectsTable
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),
-            ]);
+            ])
+            ->deferFilters(false);
     }
 }

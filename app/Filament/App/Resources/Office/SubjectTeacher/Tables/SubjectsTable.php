@@ -11,7 +11,7 @@ use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
-use MyTools;
+use App\Helpers\MyTools;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Set;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Migration;
 use App\Models\Config\GradeLevel;
 use App\Models\Config\SubjectCategory;
 use App\Models\Grade;
+use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -89,6 +90,26 @@ class SubjectMigrationController extends BaseMigrationController
             ->whereNull('grade_level_id')
             ->count();
 
+        $subjects = [
+            ['subject_code' => 'CHIN01', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 1],
+            ['subject_code' => 'CHIN02', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 2],
+            ['subject_code' => 'CHIN03', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 3],
+            ['subject_code' => 'CHIN04', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 4],
+            ['subject_code' => 'CHIN05', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 5],
+            ['subject_code' => 'CHIN06', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 6],
+            ['subject_code' => 'CHIN07', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 7],
+            ['subject_code' => 'CHIN08', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 8],
+            ['subject_code' => 'CHIN09', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 9],
+            ['subject_code' => 'CHIN10', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 10],
+        ];
+
+        foreach ($subjects as $subject) {
+            Subject::updateOrCreate(
+                ['subject_code' => $subject['subject_code']],
+                ['subject_title' => $subject['subject_title'], 'subject_category_id' => $subject['subject_category_id'], 'grade_level_id' => $subject['grade_level_id']]
+            );
+        }
+
         return response()->json([
             'status'                  => empty($stats['errors']) ? 'done' : 'done_with_errors',
             'unfilled_grade_level_id' => $unfilled,
@@ -124,6 +145,7 @@ class SubjectMigrationController extends BaseMigrationController
     public function reset(): JsonResponse
     {
         $deleted = DB::connection('new_db')->table('subjects')->delete();
+        DB::connection('new_db')->table('subjects')->truncate();
 
         return response()->json(['status' => 'reset', 'deleted' => $deleted]);
     }

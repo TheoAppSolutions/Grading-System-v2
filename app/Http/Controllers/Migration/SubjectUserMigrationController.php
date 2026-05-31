@@ -127,7 +127,7 @@ class SubjectUserMigrationController extends BaseMigrationController
         $now = now()->toDateTimeString();
 
         return [
-            'subject_id'     => $this->resolveSubject($row->subject_id) ?? null,
+            'subject_id'     => $this->resolveSubject($row->subject_id) ?? 'x' . $row->subject_id,
             'user_id'        => $this->resolveUser($row->user_id) ?? null,
             'user2_id'       => $this->resolveUser($row->user2_id) ?? null,
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
@@ -200,7 +200,7 @@ class SubjectUserMigrationController extends BaseMigrationController
         $map = $this->buildSubjectMap();
         $key = trim($subjectId);
 
-        if ($key == "FIL12"){
+        if ($key == "FILI12"){
             $key = "FILI12A";
         }
 

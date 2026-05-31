@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Filament\Admin\Resources\School\Subjects\RelationManagers;
+namespace App\Filament\App\Resources\Office\SubjectTeacher\RelationManagers;
 
-use App\Filament\Admin\Resources\School\Subjects\SubjectResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models\SubjectExcluded;
 use Filament\Actions\AssociateAction;
-use MyTools;
+use App\Helpers\MyTools;
 
 class SubjectExcludedRelationManager extends RelationManager
 {

@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\Filter;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use MyTools;
+use App\Helpers\MyTools;
 
 class EnrollmentsTable
 {
@@ -43,7 +43,7 @@ class EnrollmentsTable
                         Select::make('school_year_id')
                             ->label('School Year')
                             ->required()
-                            ->options(SchoolYear::pluck('school_year', 'id'))
+                            ->options(SchoolYear::orderBy('id', 'desc')->pluck('school_year', 'id'))
                             ->default(SchoolYear::where('active', 1)->first()?->id)
                             ->placeholder('Select School Year'),
                         Select::make('enrollment_status')
@@ -127,6 +127,7 @@ class EnrollmentsTable
                     ->modalSubmitActionLabel('Enroll')
                     ->visible(function () {return true;})
             ])
+            ->deferFilters(false)
             ->recordUrl('');
     }
 

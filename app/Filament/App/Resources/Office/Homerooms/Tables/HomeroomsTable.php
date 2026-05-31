@@ -9,7 +9,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models\User;
 use Filament\Tables\Filters\SelectFilter;
-use MyTools;
+use App\Helpers\MyTools;
 
 class HomeroomsTable
 {

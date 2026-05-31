@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Helpers;
+
 use App\Models\SubjectUnit;
 
 class Formulas

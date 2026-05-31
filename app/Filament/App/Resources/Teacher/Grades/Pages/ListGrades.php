@@ -14,7 +14,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use MyTools;
+use App\Helpers\MyTools;
 
 class ListGrades extends ListRecords
 {

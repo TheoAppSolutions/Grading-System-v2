@@ -6,7 +6,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
-use MyTools;
+use App\Helpers\MyTools;
 
 class SchoolYearInfoRelationManager extends RelationManager
 {

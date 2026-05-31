@@ -14,7 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use MyTools;
+use App\Helpers\MyTools;
 use Override;
 
 class HomeroomResource extends Resource
