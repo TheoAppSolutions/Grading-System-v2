@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('school_years', function (Blueprint $table) {
             $table->id();
             $table->string('school_year');
-            $table->string('school_year_start');
-            $table->string('school_year_end');
+            $table->string('month_start');
+            $table->string('month_end');
             $table->tinyInteger('active')->default(0);
             $table->integer('attendance_entries')->default(10);
             $table->integer('card_template_id')->nullable();

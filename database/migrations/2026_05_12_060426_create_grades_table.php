@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->integer('student_id')->index();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('subject_id')->index();
+            $table->integer('subject_id')->index();
             $table->integer('grade_level_id');
+            $table->integer('school_year_id');
             $table->tinyInteger('quarter');
-            $table->string('school_year_id');
             $table->double('midquarter')->nullable();
             $table->double('final')->nullable();
             $table->double('effort')->nullable();

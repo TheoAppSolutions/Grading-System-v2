@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class StudentMigrationController extends BaseMigrationController
 {
     /**
-     * Migrates `students` from old MySQL → new SQLite.
+     * Migrates `students` from old MySQL → `students` in new SQLite.
      *
      * Routes:
      *   GET    /migrate/students/preview  → preview()
@@ -16,13 +16,21 @@ class StudentMigrationController extends BaseMigrationController
      *   DELETE /migrate/students/reset    → reset()
      *
      * Column mapping (old → new):
-     *   firstname   → first_name
-     *   middlename  → middle_name
-     *   lastname    → last_name
-     *   suffix ''   → null  (new schema is nullable)
-     *   section     → (dropped)
-     *   (none)      → current_level  null
-     *   (none)      → timestamps
+     *   student_id  → student_id    (int, preserved)
+     *   student_lrn → student_lrn   (preserved)
+     *   firstname   → first_name    (renamed)
+     *   middlename  → middle_name   (renamed, nullable)
+     *   lastname    → last_name     (renamed)
+     *   suffix      → suffix        (empty string → null)
+     *   gender      → gender        (preserved)
+     *   active      → active        (int → tinyInteger)
+     *
+     * Dropped:
+     *   section     → moved to student_sections table
+     *
+     * Generated:
+     *   current_level → null  (no equivalent in old schema)
+     *   timestamps    → now()
      */
 
     // -------------------------------------------------------------------------
@@ -31,13 +39,11 @@ class StudentMigrationController extends BaseMigrationController
 
     public function preview(): JsonResponse
     {
-        
-
         return response()->json([
-            'table'      => 'students',
-            'old_count'  => DB::connection('old_db')->table('students')->count(),
-            'new_count'  => DB::table('students')->count(),
-            'sample'     => DB::connection('old_db')
+            'table'     => 'students',
+            'old_count' => DB::connection('old_db')->table('students')->count(),
+            'new_count' => DB::connection('new_db')->table('students')->count(),
+            'sample'    => DB::connection('old_db')
                 ->table('students')
                 ->limit(3)
                 ->get()
@@ -51,18 +57,17 @@ class StudentMigrationController extends BaseMigrationController
 
     public function migrate(): JsonResponse
     {
-        
-
         $stats = $this->runMigration(
             newTable: 'students',
             oldTable: 'students',
             orderColumn: 'entry_id',
             mapper: fn($r) => $this->mapRow($r),
-            columnCount: 11,       // number of columns in mapRow() return value
+            columnCount: 11, // student_id, student_lrn, first_name, middle_name, last_name, suffix, gender, current_level, active, created_at, updated_at
+            dedupeKey: 'student_id'
         );
 
         return response()->json([
-            'status'   => empty($stats['errors']) ? 'done' : 'done_with_errors',
+            'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
             ...$stats,
         ]);
     }
@@ -73,8 +78,8 @@ class StudentMigrationController extends BaseMigrationController
 
     public function reset(): JsonResponse
     {
-        $deleted = DB::table('students')->delete();
-        DB::table('students')->truncate();
+        $deleted = DB::connection('new_db')->table('students')->delete();
+        DB::connection('new_db')->table('students')->truncate();
 
         return response()->json(['status' => 'reset', 'deleted' => $deleted]);
     }
@@ -88,7 +93,7 @@ class StudentMigrationController extends BaseMigrationController
         $now = now()->toDateTimeString();
 
         return [
-            'student_id'    => (int) $row->student_id,
+            'id'            => (int) $row->student_id,
             'student_lrn'   => $row->student_lrn ?: null,
             'first_name'    => $row->firstname,
             'middle_name'   => $row->middlename  ?: null,

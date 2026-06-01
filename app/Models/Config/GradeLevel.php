@@ -27,22 +27,22 @@ class GradeLevel extends Model
     // Relationships
     public function sections(): HasMany
     {
-        return $this->hasMany(Section::class, 'grade_level', 'id');
+        return $this->hasMany(Section::class, 'grade_level_id', 'id');
     }
 
     public function subjects(): HasMany
     {
-        return $this->hasMany(Subject::class, 'grade_level', 'id');
+        return $this->hasMany(Subject::class, 'grade_level_id', 'id');
     }
 
     public function enrollments(): HasMany
     {
-        return $this->hasMany(Enrollment::class, 'grade_level', 'id');
+        return $this->hasMany(Enrollment::class, 'grade_level_id', 'id');
     }
 
     public function grades(): HasMany
     {
-        return $this->hasMany(Grade::class, 'grade_level', 'id');
+        return $this->hasMany(Grade::class, 'grade_level_id', 'id');
     }
 
     // Helpers

@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('awards', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id')->index();
-            $table->string('subject_id')->index();
-            $table->string('school_year');
+            $table->integer('subject_id')->index();
+            $table->integer('school_year_id');
             $table->string('gender');
-            $table->string('section')->default('');
             $table->timestamps();
         });
     }

@@ -17,8 +17,8 @@ class SchoolYearMigrationController extends BaseMigrationController
      *
      * Column mapping (old → new):
      *   schoolyear         → school_year
-     *   schoolyear_start   → school_year_start  (int → string)
-     *   schoolyear_end     → school_year_end    (int → string)
+     *   schoolyear_start   → month_start  (int → string)
+     *   schoolyear_end     → month_end    (int → string)
      *   active (varchar)   → active (tinyInteger) via coerceActive()
      *   school_days (JSON) → (dropped, no equivalent)
      *   days_settings      → attendance_entries  hardcoded to default 10
@@ -91,8 +91,8 @@ class SchoolYearMigrationController extends BaseMigrationController
 
         return [
             'school_year'        => $row->schoolyear,
-            'school_year_start'  => (string) ($row->schoolyear_start ?? ''),
-            'school_year_end'    => (string) ($row->schoolyear_end   ?? ''),
+            'month_start'  => (string) ($row->schoolyear_start ?? ''),
+            'month_end'    => (string) ($row->schoolyear_end   ?? ''),
             'active'             => $this->coerceActive($row->active),
             'attendance_entries' => 10,   // days_settings not directly mappable
             'card_template_id'   => null, // old value was a string path, not an int FK

@@ -16,8 +16,8 @@ class SchoolYearInfoRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        $startMonth = (int) $this->ownerRecord->school_year_start;
-        $endMonth = (int) $this->ownerRecord->school_year_end;
+        $startMonth = (int) $this->ownerRecord->month_start;
+        $endMonth = (int) $this->ownerRecord->month_end;
         $entries = (int) $this->ownerRecord->attendance_entries;
 
         $months = [];

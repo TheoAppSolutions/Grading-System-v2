@@ -22,12 +22,12 @@ return new class extends Migration
 
         Schema::create('subject_users', function (Blueprint $table) {
             $table->id();
-            $table->string('subject_id');
+            $table->integer('subject_id');
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedBigInteger('user2_id')->nullable();
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();
-            $table->string('school_year_id');
-            $table->string('section')->default('');
+            $table->integer('school_year_id');
+            $table->integer('section_id')->nullable();
             $table->string('semester')->default('');
             $table->string('category')->default('');
             $table->index('subject_id');
@@ -36,18 +36,18 @@ return new class extends Migration
 
         Schema::create('subject_units', function (Blueprint $table) {
             $table->id();
-            $table->string('subject_id')->nullable();
-            $table->float('units');
+            $table->integer('subject_id')->nullable();
             $table->string('school_year_id')->nullable();
             $table->index('subject_id');
+            $table->float('units');
             $table->timestamps();
         });
 
         Schema::create('subject_excluded', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id')->index();
-            $table->string('subject_id')->index();
-            $table->string('school_year_id');
+            $table->integer('subject_id')->index();
+            $table->integer('school_year_id');
             $table->timestamps();
         });
     }

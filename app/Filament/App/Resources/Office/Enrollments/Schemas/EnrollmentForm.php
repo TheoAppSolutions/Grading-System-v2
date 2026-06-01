@@ -12,7 +12,7 @@ class EnrollmentForm
     {
         return $schema
             ->components([
-                Select::make('student_id')
+                Select::make('id')
                     ->relationship('student', 'name')
                     ->required(),
                 TextInput::make('school_year')

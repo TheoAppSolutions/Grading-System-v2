@@ -58,11 +58,11 @@ class Subject extends Model
     // Helpers
     public function getUnitsByYear(string $schoolyear): ?SubjectUnit
     {
-        return $this->units()->where('school_year', $schoolyear)->first();
+        return $this->units()->where('school_year_id', $schoolyear)->first();
     }
 
     public function getTeachersByYear(string $schoolyear): HasMany
     {
-        return $this->assignments()->where('school_year', $schoolyear);
+        return $this->assignments()->where('school_year_id', $schoolyear);
     }
 }

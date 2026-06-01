@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('section', 191);
             $table->timestamps();
 
-            $table->unique(['grade_level', 'section', 'school_year_id']);
+            $table->unique(['grade_level_id', 'section', 'school_year_id']);
         });
     }
 

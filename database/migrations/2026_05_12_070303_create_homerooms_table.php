@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('homerooms', function (Blueprint $table) {
             $table->id();
-            $table->string('grade_level_id');
+            $table->integer('grade_level_id');
             $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
-            $table->string('section_id')->nullable();
+            $table->integer('section_id')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedBigInteger('user2_id')->nullable();
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();

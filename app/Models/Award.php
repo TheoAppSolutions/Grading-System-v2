@@ -14,7 +14,7 @@ class Award extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     public function subject(): BelongsTo

@@ -28,7 +28,7 @@ class CommentMidquarter extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     public function subject(): BelongsTo
@@ -44,7 +44,7 @@ class CommentMidquarter extends Model
     // Helpers
     public function scopeBySchoolYear($query, string $schoolyear)
     {
-        return $query->where('school_year', $schoolyear);
+        return $query->where('school_year_id', $schoolyear);
     }
 
     public function scopeByQuarter($query, int $quarter)
@@ -68,7 +68,7 @@ class CommentMidquarter extends Model
             ->where('subject_id', $subjectId)
             ->where('criteria_id', $criteriaId)
             ->where('quarter', $quarter)
-            ->where('school_year', $schoolyear)
+            ->where('school_year_id', $schoolyear)
             ->value('score');
     }
 }

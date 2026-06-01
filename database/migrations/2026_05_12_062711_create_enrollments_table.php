@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('enrollments', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id')->index();
-            $table->string('school_year_id')->default('2018');
-            $table->string('grade_level_id')->nullable();
+            $table->integer('school_year_id');
+            $table->string('grade_level_id');
             $table->integer('section_id')->nullable();
             $table->timestamps();
         });

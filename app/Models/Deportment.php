@@ -14,7 +14,7 @@ class Deportment extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     public function teacher(): BelongsTo
@@ -25,7 +25,7 @@ class Deportment extends Model
     // Helpers
     public function scopeBySchoolYear($query, string $schoolyear)
     {
-        return $query->where('school_year', $schoolyear);
+        return $query->where('school_year_id', $schoolyear);
     }
 
     public function scopeByQuarter($query, int $quarter)
@@ -42,7 +42,7 @@ class Deportment extends Model
         return static::where('student_id', $studentId)
             ->where('user_id', $userId)
             ->where('quarter', $quarter)
-            ->where('school_year', $schoolyear)
+            ->where('school_year_id', $schoolyear)
             ->value('deportment');
     }
 }

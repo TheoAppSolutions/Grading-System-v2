@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->integer('student_id')->unique();
+            $table->unsignedBigInteger('id')->autoIncrement(false)->primary();
             $table->string('student_lrn', 20)->nullable();
             $table->string('first_name');
             $table->string('middle_name')->nullable();
@@ -27,7 +26,7 @@ return new class extends Migration
 
         Schema::create('student_infos', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id')->unique();
+            $table->unsignedBigInteger('student_id')->unique();
             $table->date('birth_date')->nullable();
             $table->string('house_team')->nullable();
             $table->string('contact')->nullable();
@@ -38,17 +37,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('student_sections', function (Blueprint $table) {
-            $table->id();
-            $table->integer('student_id')->nullable()->index();
-            $table->string('section_id')->nullable();
-            $table->string('school_year_id')->nullable();
-            $table->timestamps();
-        });
-
         Schema::create('student_fields', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id')->nullable()->index();
+            $table->unsignedBigInteger('student_id')->nullable()->index();
             $table->string('field_name')->nullable();
             $table->string('field_value')->nullable();
             $table->timestamps();
@@ -62,7 +53,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('students');
         Schema::dropIfExists('student_infos');
-        Schema::dropIfExists('student_sections');
         Schema::dropIfExists('student_fields');
     }
 };

@@ -21,7 +21,7 @@ class SchoolYearsTable
                 TextColumn::make('school_year'),
                 TextColumn::make('coverage')
                     ->getStateUsing(function ($record) {
-                        return MyTools::getMonths()[$record['school_year_start']] . ' - ' . MyTools::getMonths()[$record['school_year_end']];
+                        return MyTools::getMonths()[$record['month_start']] . ' - ' . MyTools::getMonths()[$record['month_end']];
                     })
                     ->label('Months'),
                 ToggleColumn::make('active')

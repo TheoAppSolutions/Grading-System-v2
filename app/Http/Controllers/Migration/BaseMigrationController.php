@@ -7,24 +7,140 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
+use App\Models\Config\GradeLevel;
+
 abstract class BaseMigrationController extends Controller
 {
     protected const CHUNK_SIZE  = 200;
-    protected const SQLITE_VARS = 999; // SQLite max bound variables per statement
+    protected const SQLITE_VARS = 999;
 
     // -------------------------------------------------------------------------
-    // Generic migration runner — shared by all migration controllers
+    // Shared lookup caches
+    // -------------------------------------------------------------------------
+
+    private ?array $schoolYearMap = null;
+    private ?array $gradeLevelMap = null;
+    private ?array $sectionMap = null;
+
+    // -------------------------------------------------------------------------
+    // School year lookup — usable by any child controller
     // -------------------------------------------------------------------------
 
     /**
-     * @param string   $newTable     Target table in new_db
-     * @param string   $oldTable     Source table in old_db
-     * @param string   $orderColumn  Column to order source rows by
-     * @param callable $mapper       Transforms an old row → new row array
-     * @param int      $columnCount  Number of columns in mapped row (for SQLite batch limit)
-     * @param string|null $dedupeKey Old column name used for duplicate detection.
-     *                               Defaults to the first key of the mapped row.
+     * Builds a map of school_year string → id integer from the new DB.
+     * e.g. ['2023-2024' => 3, '2024-2025' => 4]
+     *
+     * Cached after first call — only one query per migration run.
      */
+    protected function buildSchoolYearMap(): array
+    {
+        if ($this->schoolYearMap !== null) {
+            return $this->schoolYearMap;
+        }
+
+        $this->schoolYearMap = DB::connection('new_db')
+            ->table('school_years')
+            ->get(['id', 'school_year'])
+            ->mapWithKeys(fn($r) => [(string) $r->school_year => (int) $r->id])
+            ->all();
+
+        return $this->schoolYearMap;
+    }
+
+    /**
+     * Resolves an old `schoolyear` varchar → new `school_year_id` integer.
+     *
+     * Usage in any child controller mapRow():
+     *   'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
+     *
+     * Returns null if the value is empty or no matching school_year is found.
+     * Pre-load the map before chunking for best performance:
+     *   $this->buildSchoolYearMap();  ← call this in migrate() before runMigration()
+     */
+    protected function resolveSchoolYear(?string $schoolyear): ?int
+    {
+        if ($schoolyear === null || trim($schoolyear) === '') {
+            return null;
+        }
+
+        return $this->buildSchoolYearMap()[trim($schoolyear)] ?? null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Grade level lookup  (gradelevel varchar → grade_levels.id)
+    // -------------------------------------------------------------------------
+
+    protected function buildGradeLevelMap(): array
+    {
+        if ($this->gradeLevelMap !== null) {
+            return $this->gradeLevelMap;
+        }
+
+        $this->gradeLevelMap = GradeLevel::get('id')
+            ->mapWithKeys(fn($r) => [(int) $r->id => (int) $r->id])
+            ->all();
+
+        return $this->gradeLevelMap;
+    }
+
+    /**
+     * Strategy:
+     *   1. Exact match     '7'       → label '7'
+     *   2. Numeric extract 'Grade 7' → label '7'
+     *   3. Null fallback
+     */
+    protected function resolveGradeLevel(?string $gradelevel): ?int
+    {
+        if ($gradelevel === null || trim($gradelevel) === '') {
+            return null;
+        }
+
+        $map = $this->buildGradeLevelMap();
+        $key = trim($gradelevel);
+
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+
+        if (preg_match('/\d+/', $key, $matches) && isset($map[$matches[0]])) {
+            return $map[$matches[0]];
+        }
+
+        return null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Section lookup  (section_or_strand varchar → sections.id)
+    // -------------------------------------------------------------------------
+
+    protected function buildSectionMap(): array
+    {
+        if ($this->sectionMap !== null) {
+            return $this->sectionMap;
+        }
+
+        $this->sectionMap = DB::connection('new_db')
+            ->table('sections')
+            ->get(['id', 'section'])
+            ->mapWithKeys(fn($r) => [(string) $r->section => (int) $r->id])
+            ->all();
+
+        return $this->sectionMap;
+    }
+
+    protected function resolveSection(?string $section): ?int
+    {
+        if ($section === null || trim($section) === '') {
+            return null;
+        }
+
+        return $this->buildSectionMap()[trim($section)] ?? null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Generic migration runner
+    // -------------------------------------------------------------------------
+
     protected function runMigration(
         string   $newTable,
         string   $oldTable,
@@ -37,13 +153,23 @@ abstract class BaseMigrationController extends Controller
         $batchSize = (int) floor(self::SQLITE_VARS / $columnCount);
 
         DB::transaction(function () use (
-            $newTable, $oldTable, $orderColumn, $mapper, $batchSize, $dedupeKey, &$stats
+            $newTable,
+            $oldTable,
+            $orderColumn,
+            $mapper,
+            $batchSize,
+            $dedupeKey,
+            &$stats
         ) {
             DB::connection('old_db')
                 ->table($oldTable)
                 ->orderBy($orderColumn)
                 ->chunk(self::CHUNK_SIZE, function ($rows) use (
-                    $newTable, $mapper, $batchSize, $dedupeKey, &$stats
+                    $newTable,
+                    $mapper,
+                    $batchSize,
+                    $dedupeKey,
+                    &$stats
                 ) {
                     $firstMapped  = $mapper($rows->first());
                     $newDedupeKey = array_key_first($firstMapped);
@@ -90,7 +216,6 @@ abstract class BaseMigrationController extends Controller
                             DB::table($newTable)->insert($batch);
                             $stats['inserted'] += count($batch);
                         } catch (Throwable $e) {
-                            // Fallback: row-by-row so one bad record doesn't discard the batch
                             foreach ($batch as $mapped) {
                                 try {
                                     DB::table($newTable)->insert($mapped);
@@ -117,10 +242,6 @@ abstract class BaseMigrationController extends Controller
     // Shared helpers
     // -------------------------------------------------------------------------
 
-    /**
-     * Old `active` columns are sometimes varchar ('1', '0', 'yes', etc.).
-     * New schema uses tinyInteger — coerce to 0 or 1.
-     */
     protected function coerceActive(mixed $value): int
     {
         if (is_null($value)) {
@@ -132,15 +253,5 @@ abstract class BaseMigrationController extends Controller
         return in_array($lower, ['1', 'yes', 'true', 'active'], strict: true) ? 1 : 0;
     }
 
-    /**
-     * SQLite requires the .sqlite file to physically exist before connecting.
-     */
-    protected function ensureSqliteFileExists(): void
-    {
-        // $path = config('database.connections.new_db.database');
-
-        // if ($path !== ':memory:' && ! file_exists($path)) {
-        //     abort(500, "SQLite file not found at [{$path}]. Run: touch {$path}");
-        // }
-    }
+    protected function ensureSqliteFileExists(): void {}
 }

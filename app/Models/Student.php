@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Unguarded]
 class Student extends Model
 {
+    public $incrementing = false;
+
     // Relationships
     public function info(): HasOne
     {
@@ -96,7 +98,7 @@ class Student extends Model
 
     public function getGradesByYear(string $schoolyear): HasMany
     {
-        return $this->grades()->where('school_year', $schoolyear);
+        return $this->grades()->where('school_year_id', $schoolyear);
     }
 
     public function scopeActive($query)

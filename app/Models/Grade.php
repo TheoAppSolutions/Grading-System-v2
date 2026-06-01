@@ -14,12 +14,12 @@ class Grade extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function subject(): BelongsTo
@@ -29,7 +29,7 @@ class Grade extends Model
 
     public function gradeLevel(): BelongsTo
     {
-        return $this->belongsTo(GradeLevel::class, 'grade_level', 'id');
+        return $this->belongsTo(GradeLevel::class, 'grade_level_id', 'id');
     }
 
     // Helpers
@@ -40,7 +40,7 @@ class Grade extends Model
 
     public function scopeBySchoolYear($query, string $schoolyear)
     {
-        return $query->where('school_year', $schoolyear);
+        return $query->where('school_year_id', $schoolyear);
     }
 
     public function scopeByQuarter($query, int $quarter)
@@ -50,7 +50,7 @@ class Grade extends Model
 
     public function scopeByGradeLevel($query, int $gradeLevel)
     {
-        return $query->where('grade_level', $gradeLevel);
+        return $query->where('grade_level_id', $gradeLevel);
     }
 
     public function scopeBySubject($query, string $subjectId)

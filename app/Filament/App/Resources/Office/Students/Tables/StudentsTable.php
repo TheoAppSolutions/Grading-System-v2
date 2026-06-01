@@ -15,8 +15,7 @@ class StudentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('student_id')
-                    ->numeric()
+                TextColumn::make('id')
                     ->sortable(),
                 TextColumn::make('student_lrn')
                     ->searchable(),
@@ -40,6 +39,8 @@ class StudentsTable
             ->recordActions([
                 EditAction::make(),
             ])
+            ->defaultSort('last_name')
+            ->defaultPaginationPageOption(25)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->integer('student_id')->index();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->integer('school_year_id');
             $table->float('deportment')->nullable();
             $table->tinyInteger('quarter');
-            $table->string('school_year', 191);
             $table->timestamps();
         });
     }

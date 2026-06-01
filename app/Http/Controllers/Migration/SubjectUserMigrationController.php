@@ -89,24 +89,6 @@ class SubjectUserMigrationController extends BaseMigrationController
     }
 
     // -------------------------------------------------------------------------
-    // List rows with unresolved school_year_id
-    // -------------------------------------------------------------------------
-
-    public function unfilledSchoolYears(): JsonResponse
-    {
-        $rows = DB::connection('new_db')
-            ->table('subject_users')
-            ->whereNull('school_year_id')
-            ->select(['id', 'subject_id', 'user_id', 'school_year_id'])
-            ->get();
-
-        return response()->json([
-            'count' => $rows->count(),
-            'rows'  => $rows,
-        ]);
-    }
-
-    // -------------------------------------------------------------------------
     // Reset
     // -------------------------------------------------------------------------
 
@@ -138,38 +120,6 @@ class SubjectUserMigrationController extends BaseMigrationController
             'updated_at'     => $now,
         ];
         // 9 columns — keep in sync with columnCount above
-    }
-
-    // -------------------------------------------------------------------------
-    // School year lookup helpers
-    // -------------------------------------------------------------------------
-
-    private function buildSchoolYearMap(): array
-    {
-        if ($this->schoolYearMap !== null) {
-            return $this->schoolYearMap;
-        }
-
-        // Map: school_year string → id  (e.g. '2023-2024' → 3)
-        $this->schoolYearMap = DB::connection('new_db')
-            ->table('school_years')
-            ->get(['id', 'school_year'])
-            ->mapWithKeys(fn($r) => [(string) $r->school_year => (int) $r->id])
-            ->all();
-
-        return $this->schoolYearMap;
-    }
-
-    private function resolveSchoolYear(?string $schoolyear): ?int
-    {
-        if ($schoolyear === null || trim($schoolyear) === '') {
-            return null;
-        }
-
-        $map = $this->buildSchoolYearMap();
-        $key = trim($schoolyear);
-
-        return $map[$key] ?? null;
     }
 
     // -------------------------------------------------------------------------

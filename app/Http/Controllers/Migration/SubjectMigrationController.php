@@ -43,7 +43,6 @@ class SubjectMigrationController extends BaseMigrationController
      *   Rows with no match get null — call GET /migrate/subjects/unfilled to list them.
      */
 
-    private ?array $gradeLevelMap = null;
     private ?array $subjectCategoryMap = null;
 
     // -------------------------------------------------------------------------
@@ -52,8 +51,6 @@ class SubjectMigrationController extends BaseMigrationController
 
     public function preview(): JsonResponse
     {
-        
-
         return response()->json([
             'table'           => 'subjects',
             'old_count'       => DB::connection('old_db')->table('subjects')->count(),
@@ -73,7 +70,6 @@ class SubjectMigrationController extends BaseMigrationController
 
     public function migrate(): JsonResponse
     {
-        
         $this->buildGradeLevelMap();
 
         $stats = $this->runMigration(
@@ -90,25 +86,7 @@ class SubjectMigrationController extends BaseMigrationController
             ->whereNull('grade_level_id')
             ->count();
 
-        $subjects = [
-            ['subject_code' => 'CHIN01', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 1],
-            ['subject_code' => 'CHIN02', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 2],
-            ['subject_code' => 'CHIN03', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 3],
-            ['subject_code' => 'CHIN04', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 4],
-            ['subject_code' => 'CHIN05', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 5],
-            ['subject_code' => 'CHIN06', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 6],
-            ['subject_code' => 'CHIN07', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 7],
-            ['subject_code' => 'CHIN08', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 8],
-            ['subject_code' => 'CHIN09', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 9],
-            ['subject_code' => 'CHIN10', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 10],
-        ];
-
-        foreach ($subjects as $subject) {
-            Subject::updateOrCreate(
-                ['subject_code' => $subject['subject_code']],
-                ['subject_title' => $subject['subject_title'], 'subject_category_id' => $subject['subject_category_id'], 'grade_level_id' => $subject['grade_level_id']]
-            );
-        }
+        $this->insertChineseSubject();
 
         return response()->json([
             'status'                  => empty($stats['errors']) ? 'done' : 'done_with_errors',
@@ -117,24 +95,6 @@ class SubjectMigrationController extends BaseMigrationController
                 ? "{$unfilled} subject(s) have null grade_level_id. Call GET /migrate/subjects/unfilled."
                 : 'All grade_level_id values resolved successfully.',
             ...$stats,
-        ]);
-    }
-
-    // -------------------------------------------------------------------------
-    // List subjects with unresolved grade_level_id
-    // -------------------------------------------------------------------------
-
-    public function unfilledGradeLevels(): JsonResponse
-    {
-        $rows = DB::connection('new_db')
-            ->table('subjects')
-            ->whereNull('grade_level_id')
-            ->select(['id', 'subject_code', 'subject_title', 'grade_level_id', 'subject_category_id'])
-            ->get();
-
-        return response()->json([
-            'count'    => $rows->count(),
-            'subjects' => $rows,
         ]);
     }
 
@@ -172,50 +132,6 @@ class SubjectMigrationController extends BaseMigrationController
     }
 
     // -------------------------------------------------------------------------
-    // Grade level lookup helpers
-    // -------------------------------------------------------------------------
-
-    private function buildGradeLevelMap(): array
-    {
-        if ($this->gradeLevelMap !== null) {
-            return $this->gradeLevelMap;
-        }
-        $this->gradeLevelMap = GradeLevel::get(['id', 'label'])
-            ->mapWithKeys(fn($r) => [(string) $r->id => (int) $r->id])
-            ->all();
-
-        return $this->gradeLevelMap;
-    }
-
-    /**
-     * Tries to resolve gradelevel varchar → grade_level_id integer.
-     *
-     * Strategy:
-     *   1. Exact match      '7'        → label '7'
-     *   2. Numeric extract  'Grade 7'  → label '7'
-     *   3. Null fallback    → flagged for manual fix
-     */
-    private function resolveGradeLevel(?string $gradelevel): ?int
-    {
-        if ($gradelevel === null || trim($gradelevel) === '') {
-            return null;
-        }
-
-        $map = $this->buildGradeLevelMap();
-        $key = trim($gradelevel);
-
-        if (isset($map[$key])) {
-            return $map[$key];
-        }
-
-        if (preg_match('/\d+/', $key, $matches) && isset($map[$matches[0]])) {
-            return $map[$matches[0]];
-        }
-
-        return null;
-    }
-
-    // -------------------------------------------------------------------------
     // Subject Category lookup helpers
     // -------------------------------------------------------------------------
 
@@ -250,5 +166,32 @@ class SubjectMigrationController extends BaseMigrationController
         }
 
         return 0;
+    }
+
+    private function insertChineseSubject(): void
+    {
+        $subjects = [
+            ['subject_code' => 'CHIN01', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 1],
+            ['subject_code' => 'CHIN02', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 2],
+            ['subject_code' => 'CHIN03', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 3],
+            ['subject_code' => 'CHIN04', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 4],
+            ['subject_code' => 'CHIN05', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 5],
+            ['subject_code' => 'CHIN06', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 6],
+            ['subject_code' => 'CHIN07', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 7],
+            ['subject_code' => 'CHIN08', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 8],
+            ['subject_code' => 'CHIN09', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 9],
+            ['subject_code' => 'CHIN10', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 10],
+        ];
+
+        foreach ($subjects as $subject) {
+            Subject::updateOrCreate(
+                ['subject_code' => $subject['subject_code']],
+                [
+                    'subject_title' => $subject['subject_title'],
+                    'subject_category_id' => $subject['subject_category_id'],
+                    'grade_level_id' => $subject['grade_level_id']
+                ]
+            );
+        }
     }
 }

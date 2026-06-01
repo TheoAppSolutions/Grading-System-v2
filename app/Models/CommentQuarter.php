@@ -14,7 +14,7 @@ class CommentQuarter extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     public function criteria(): BelongsTo
@@ -25,7 +25,7 @@ class CommentQuarter extends Model
     // Helpers
     public function scopeBySchoolYear($query, string $schoolyear)
     {
-        return $query->where('school_year', $schoolyear);
+        return $query->where('school_year_id', $schoolyear);
     }
 
     public static function getScore(
@@ -35,7 +35,7 @@ class CommentQuarter extends Model
     ): ?string {
         return static::where('student_id', $studentId)
             ->where('criteria_id', $criteriaId)
-            ->where('school_year', $schoolyear)
+            ->where('school_year_id', $schoolyear)
             ->value('score');
     }
 }

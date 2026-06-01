@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->integer('student_id')->index();
-            $table->string('schoolyear', 20);
+            $table->integer('school_year_id')->index();
             $table->tinyInteger('month');
             $table->decimal('days_present', 5, 1)->default(0);
             $table->decimal('days_tardiness', 5, 1)->default(0);

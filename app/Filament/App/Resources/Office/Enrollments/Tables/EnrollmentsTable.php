@@ -26,7 +26,7 @@ class EnrollmentsTable
         return $table
             ->query(Student::where('active', 1))
             ->columns([
-                TextColumn::make('student_id')
+                TextColumn::make('id')
                     ->label('ID'),
                 TextColumn::make('name')
                     ->getStateUsing(fn($record) => $record['last_name'] . ', ' . $record['first_name'])

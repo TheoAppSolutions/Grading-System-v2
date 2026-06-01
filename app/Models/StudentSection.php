@@ -14,19 +14,19 @@ class StudentSection extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     // Helpers
     public function scopeBySchoolYear($query, string $schoolyear)
     {
-        return $query->where('school_year', $schoolyear);
+        return $query->where('school_year_id', $schoolyear);
     }
 
     public static function getCurrentSection(int $studentId, string $schoolyear): ?string
     {
         return static::where('student_id', $studentId)
-            ->where('school_year', $schoolyear)
+            ->where('school_year_id', $schoolyear)
             ->value('section');
     }
 }

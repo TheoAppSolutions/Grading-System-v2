@@ -84,24 +84,6 @@ class SubjectUnitMigrationController extends BaseMigrationController
     }
 
     // -------------------------------------------------------------------------
-    // List rows with unresolved school_year_id
-    // -------------------------------------------------------------------------
-
-    public function unfilledSchoolYears(): JsonResponse
-    {
-        $rows = DB::connection('new_db')
-            ->table('subject_units')
-            ->whereNull('school_year_id')
-            ->select(['id', 'subject_id', 'units', 'school_year_id'])
-            ->get();
-
-        return response()->json([
-            'count' => $rows->count(),
-            'rows'  => $rows,
-        ]);
-    }
-
-    // -------------------------------------------------------------------------
     // Reset
     // -------------------------------------------------------------------------
 
@@ -128,33 +110,5 @@ class SubjectUnitMigrationController extends BaseMigrationController
             'updated_at'     => $now,
         ];
         // 5 columns — keep in sync with columnCount above
-    }
-
-    // -------------------------------------------------------------------------
-    // School year lookup helpers
-    // -------------------------------------------------------------------------
-
-    private function buildSchoolYearMap(): array
-    {
-        if ($this->schoolYearMap !== null) {
-            return $this->schoolYearMap;
-        }
-
-        $this->schoolYearMap = DB::connection('new_db')
-            ->table('school_years')
-            ->get(['id', 'school_year'])
-            ->mapWithKeys(fn ($r) => [(string) $r->school_year => (int) $r->id])
-            ->all();
-
-        return $this->schoolYearMap;
-    }
-
-    private function resolveSchoolYear(?string $schoolyear): ?int
-    {
-        if ($schoolyear === null || trim($schoolyear) === '') {
-            return null;
-        }
-
-        return $this->buildSchoolYearMap()[trim($schoolyear)] ?? null;
     }
 }

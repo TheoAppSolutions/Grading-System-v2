@@ -17,10 +17,10 @@ class SchoolYearForm
                 TextInput::make('school_year')
                     ->placeholder('e.g., 2026-2027')
                     ->required(),
-                Select::make('school_year_start')
+                Select::make('month_start')
                     ->options(MyTools::getMonths())
                     ->required(),
-                Select::make('school_year_end')
+                Select::make('month_end')
                     ->options(MyTools::getMonths())
                     ->required(),
                 TextInput::make('attendance_entries')

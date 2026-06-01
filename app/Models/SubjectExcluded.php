@@ -14,7 +14,7 @@ class SubjectExcluded extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     public function subject(): BelongsTo
@@ -27,7 +27,7 @@ class SubjectExcluded extends Model
     {
         return static::where('student_id', $studentId)
             ->where('subject_id', $subjectId)
-            ->where('school_year', $schoolyear)
+            ->where('school_year_id', $schoolyear)
             ->exists();
     }
 }

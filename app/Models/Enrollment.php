@@ -15,17 +15,17 @@ class Enrollment extends Model
     // Relationships
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id', 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
     public function gradeLevel(): BelongsTo
     {
-        return $this->belongsTo(GradeLevel::class, 'grade_level_id', 'label');
+        return $this->belongsTo(GradeLevel::class, 'grade_level_id', 'id');
     }
 
     public function schoolYear(): BelongsTo
     {
-        return $this->belongsTo(Schoolyear::class, 'id', 'school_year_id');
+        return $this->belongsTo(Schoolyear::class, 'school_year_id', 'id');
     }
 
     public function section(): BelongsTo
