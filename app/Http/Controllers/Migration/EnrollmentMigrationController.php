@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Migration;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class EnrollmentMigrationController extends BaseMigrationController
 {
@@ -34,17 +36,17 @@ class EnrollmentMigrationController extends BaseMigrationController
     public function preview(): JsonResponse
     {
         return response()->json([
-            'table'           => 'enrollments',
-            'old_count'       => DB::connection('old_db')->table('enrollment')->count(),
-            'new_count'       => DB::connection('new_db')->table('enrollments')->count(),
+            'table' => 'enrollments',
+            'old_count' => DB::connection('old_db')->table('enrollment')->count(),
+            'new_count' => DB::connection('new_db')->table('enrollments')->count(),
             'school_year_map' => $this->buildSchoolYearMap(),
             'grade_level_map' => $this->buildGradeLevelMap(),
-            'section_map'     => $this->buildSectionMap(),
-            'sample'          => DB::connection('old_db')
+            'section_map' => $this->buildSectionMap(),
+            'sample' => DB::connection('old_db')
                 ->table('enrollment')
                 ->limit(3)
                 ->get()
-                ->map(fn($r) => $this->mapRow($r)),
+                ->map(fn ($r) => $this->mapRow($r)),
         ]);
     }
 
@@ -63,7 +65,7 @@ class EnrollmentMigrationController extends BaseMigrationController
             newTable: 'enrollments',
             oldTable: 'enrollment',
             orderColumn: 'entry_id',
-            mapper: fn($r) => $this->mapRow($r),
+            mapper: fn ($r) => $this->mapRow($r),
             columnCount: 6, // student_id, school_year_id, grade_level_id, section_id, created_at, updated_at
             dedupeKey: 'entry_id'
         );
@@ -71,7 +73,7 @@ class EnrollmentMigrationController extends BaseMigrationController
         $unfilled = DB::connection('new_db')
             ->table('enrollments')
             ->where(
-                fn($q) => $q
+                fn ($q) => $q
                     ->whereNull('school_year_id')
                     ->orWhereNull('grade_level_id')
                     ->orWhereNull('section_id')
@@ -79,9 +81,9 @@ class EnrollmentMigrationController extends BaseMigrationController
             ->count();
 
         return response()->json([
-            'status'   => empty($stats['errors']) ? 'done' : 'done_with_errors',
+            'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
             'unfilled' => $unfilled,
-            'note'     => $unfilled > 0
+            'note' => $unfilled > 0
                 ? "{$unfilled} row(s) have unresolved FKs. Call GET /migrate/enrollments/unfilled."
                 : 'All FKs resolved successfully.',
             ...$stats,
@@ -97,7 +99,7 @@ class EnrollmentMigrationController extends BaseMigrationController
         $rows = DB::connection('new_db')
             ->table('enrollments')
             ->where(
-                fn($q) => $q
+                fn ($q) => $q
                     ->whereNull('school_year_id')
                     ->orWhereNull('grade_level_id')
                     ->orWhereNull('section_id')
@@ -107,7 +109,7 @@ class EnrollmentMigrationController extends BaseMigrationController
 
         return response()->json([
             'count' => $rows->count(),
-            'rows'  => $rows,
+            'rows' => $rows,
         ]);
     }
 
@@ -132,12 +134,12 @@ class EnrollmentMigrationController extends BaseMigrationController
         $now = now()->toDateTimeString();
 
         return [
-            'student_id'     => (int) $row->student_id,
+            'student_id' => (int) $row->student_id,
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
             'grade_level_id' => $this->resolveGradeLevel($row->gradelevel ?? null),
-            'section_id'     => $this->resolveSection($row->section_or_strand ?? null),
-            'created_at'     => $now,
-            'updated_at'     => $now,
+            'section_id' => $this->resolveSection($row->section_or_strand ?? null),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
         // 6 columns — keep in sync with columnCount above
     }
@@ -163,9 +165,9 @@ class EnrollmentMigrationController extends BaseMigrationController
      */
     public function syncCurrentLevels(): JsonResponse
     {
-        $updated  = 0;
-        $skipped  = 0;
-        $errors   = [];
+        $updated = 0;
+        $skipped = 0;
+        $errors = [];
 
         // Fetch the latest enrollment per student:
         // latest = enrollment with the highest school_year_id for that student.
@@ -180,7 +182,7 @@ class EnrollmentMigrationController extends BaseMigrationController
                     ->whereNotNull('grade_level_id')
                     ->groupBy('student_id'),
                 'latest',
-                fn($join) => $join
+                fn ($join) => $join
                     ->on('e.student_id', '=', 'latest.student_id')
                     ->on('e.school_year_id', '=', 'latest.max_sy_id')
             )
@@ -190,6 +192,7 @@ class EnrollmentMigrationController extends BaseMigrationController
         foreach ($latestEnrollments as $enrollment) {
             if ($enrollment->grade_level_id === null) {
                 $skipped++;
+
                 continue;
             }
 
@@ -203,20 +206,20 @@ class EnrollmentMigrationController extends BaseMigrationController
             } catch (Throwable $e) {
                 $errors[] = [
                     'student_id' => $enrollment->student_id,
-                    'message'    => $e->getMessage(),
+                    'message' => $e->getMessage(),
                 ];
                 Log::error('syncCurrentLevels error', [
                     'student_id' => $enrollment->student_id,
-                    'error'      => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         return response()->json([
-            'status'  => empty($errors) ? 'done' : 'done_with_errors',
+            'status' => empty($errors) ? 'done' : 'done_with_errors',
             'updated' => $updated,
             'skipped' => $skipped,
-            'errors'  => $errors,
+            'errors' => $errors,
         ]);
     }
 }

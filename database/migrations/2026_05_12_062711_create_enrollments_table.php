@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('student_id')->index();
             $table->integer('school_year_id');
-            $table->string('grade_level_id');
+            $table->string('grade_level_id')->nullable();
             $table->integer('section_id')->nullable();
             $table->timestamps();
         });

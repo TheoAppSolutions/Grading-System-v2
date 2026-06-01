@@ -32,9 +32,8 @@ class SubjectUserMigrationController extends BaseMigrationController
      *   Unmatched rows are inserted with school_year_id = null.
      *   Call GET /migrate/subject-users/unfilled to list them.
      */
-
-    private ?array $schoolYearMap = null;
     private ?array $subjectMap = null;
+
     private ?array $userMap = null;
 
     // -------------------------------------------------------------------------
@@ -44,15 +43,15 @@ class SubjectUserMigrationController extends BaseMigrationController
     public function preview(): JsonResponse
     {
         return response()->json([
-            'table'           => 'subject_users',
-            'old_count'       => DB::connection('old_db')->table('subjects_user')->count(),
-            'new_count'       => DB::connection('new_db')->table('subject_users')->count(),
+            'table' => 'subject_users',
+            'old_count' => DB::connection('old_db')->table('subjects_user')->count(),
+            'new_count' => DB::connection('new_db')->table('subject_users')->count(),
             'school_year_map' => $this->buildSchoolYearMap(),
-            'sample'          => DB::connection('old_db')
+            'sample' => DB::connection('old_db')
                 ->table('subjects_user')
                 ->limit(3)
                 ->get()
-                ->map(fn($r) => $this->mapRow($r)),
+                ->map(fn ($r) => $this->mapRow($r)),
         ]);
     }
 
@@ -68,7 +67,7 @@ class SubjectUserMigrationController extends BaseMigrationController
             newTable: 'subject_users',
             oldTable: 'subjects_user',
             orderColumn: 'id',
-            mapper: fn($r) => $this->mapRow($r),
+            mapper: fn ($r) => $this->mapRow($r),
             columnCount: 9, // subject_id, user_id, user2_id, school_year_id, section, semester, category, created_at, updated_at
             dedupeKey: 'id'
         );
@@ -79,9 +78,9 @@ class SubjectUserMigrationController extends BaseMigrationController
             ->count();
 
         return response()->json([
-            'status'                   => empty($stats['errors']) ? 'done' : 'done_with_errors',
-            'unfilled_school_year_id'  => $unfilled,
-            'note'                     => $unfilled > 0
+            'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
+            'unfilled_school_year_id' => $unfilled,
+            'note' => $unfilled > 0
                 ? "{$unfilled} row(s) have null school_year_id. Call GET /migrate/subject-users/unfilled."
                 : 'All school_year_id values resolved successfully.',
             ...$stats,
@@ -109,15 +108,15 @@ class SubjectUserMigrationController extends BaseMigrationController
         $now = now()->toDateTimeString();
 
         return [
-            'subject_id'     => $this->resolveSubject($row->subject_id) ?? 'x' . $row->subject_id,
-            'user_id'        => $this->resolveUser($row->user_id) ?? null,
-            'user2_id'       => $this->resolveUser($row->user2_id) ?? null,
+            'subject_id' => $this->resolveSubject($row->subject_id) ?? 'x'.$row->subject_id,
+            'user_id' => $this->resolveUser($row->user_id) ?? null,
+            'user2_id' => $this->resolveUser($row->user2_id) ?? null,
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
-            'section'        => $row->section  ?? '',
-            'semester'       => $row->semester ?? '',
-            'category'       => $row->category ?? '',
-            'created_at'     => $now,
-            'updated_at'     => $now,
+            'section_id' => $this->resolveSection($row->section ?? null),
+            'semester' => $row->semester ?? '',
+            'category' => $row->category ?? '',
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
         // 9 columns — keep in sync with columnCount above
     }
@@ -135,7 +134,7 @@ class SubjectUserMigrationController extends BaseMigrationController
         $this->subjectMap = DB::connection('new_db')
             ->table('subjects')
             ->get(['id', 'subject_code'])
-            ->mapWithKeys(fn($r) => [(string) $r->subject_code => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->subject_code => (int) $r->id])
             ->all();
 
         return $this->subjectMap;
@@ -150,8 +149,8 @@ class SubjectUserMigrationController extends BaseMigrationController
         $map = $this->buildSubjectMap();
         $key = trim($subjectId);
 
-        if ($key == "FILI12"){
-            $key = "FILI12A";
+        if ($key == 'FILI12') {
+            $key = 'FILI12A';
         }
 
         return $map[$key] ?? null;
@@ -161,7 +160,7 @@ class SubjectUserMigrationController extends BaseMigrationController
     // User lookup helpers
     // -------------------------------------------------------------------------
 
-    private function buildUsertMap(): array
+    private function buildUserMap(): array
     {
         if ($this->userMap !== null) {
             return $this->userMap;
@@ -170,7 +169,7 @@ class SubjectUserMigrationController extends BaseMigrationController
         $this->userMap = DB::connection('new_db')
             ->table('users')
             ->get(['old_id', 'id'])
-            ->mapWithKeys(fn($r) => [(string) $r->old_id => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->old_id => (int) $r->id])
             ->all();
 
         return $this->userMap;
@@ -182,7 +181,7 @@ class SubjectUserMigrationController extends BaseMigrationController
             return null;
         }
 
-        $map = $this->buildUsertMap();
+        $map = $this->buildUserMap();
         $key = trim($userId);
 
         return $map[$key] ?? null;
