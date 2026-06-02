@@ -13,6 +13,7 @@ use App\Http\Controllers\Migration\UserMigrationController;
 use App\Models\Config\Migration;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -56,10 +57,10 @@ class MigrationPage extends Page implements HasTable
                 TextColumn::make('description'),
                 TextColumn::make('old_database')
                     ->label('Old Database')
-                    ->getStateUsing(fn (Migration $record) => DB::connection('old_db')->table($record->old_table)->count()),
+                    ->getStateUsing(fn(Migration $record) => DB::connection('old_db')->table($record->old_table)->count()),
                 TextColumn::make('new_database')
                     ->label('New Database')
-                    ->getStateUsing(fn (Migration $record) => DB::table($record->new_table)->count()),
+                    ->getStateUsing(fn(Migration $record) => DB::table($record->new_table)->count()),
             ])
             ->recordActions([
                 Action::make('migrate')
@@ -77,45 +78,53 @@ class MigrationPage extends Page implements HasTable
                     })
                     ->button(),
 
-                Action::make('reset')
-                    ->label('Reset')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->modalDescription('This will delete all migrated data. Are you sure?')
-                    ->action(function (Migration $record) {
-                        $controller = $this->resolveController($record->new_table);
-                        if (! $controller) {
-                            return;
-                        }
+                ActionGroup::make([
+                    Action::make('reset')
+                        ->label('Reset')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalDescription('This will delete all migrated data. Are you sure?')
+                        ->action(function (Migration $record) {
+                            $controller = $this->resolveController($record->new_table);
+                            if (! $controller) {
+                                return;
+                            }
 
-                        $result = $controller->reset();
-                        $this->output = "{$result}";
+                            $result = $controller->reset();
+                            $this->output = "{$result}";
 
-                        Notification::make()->title('Reset complete')->success()->send();
-                    })
-                    ->button(),
+                            Notification::make()->title('Reset complete')->success()->send();
+                        }),
 
-                Action::make('additional')
-                    ->label(fn (Migration $record) => str($record->additional)->headline()->toString())
-                    ->visible(fn (Migration $record) => ! empty($record->additional))
-                    ->action(function (Migration $record) {
-                        $controller = $this->resolveController($record->new_table);
-                        if (! $controller || ! method_exists($controller, $record->additional)) {
-                            return;
-                        }
+                    Action::make('additional')
+                        ->label(fn(Migration $record) => str($record->additional)->headline()->toString())
+                        ->visible(fn(Migration $record) => ! empty($record->additional))
+                        ->color('info')
+                        ->action(function (Migration $record) {
+                            $controller = $this->resolveController($record->new_table);
+                            if (! $controller || ! method_exists($controller, $record->additional)) {
+                                return;
+                            }
 
-                        $result = $controller->{$record->additional}();
-                        $this->output = "{$result}";
+                            $result = $controller->{$record->additional}();
+                            $this->output = "{$result}";
 
-                        Notification::make()->title('Complete')->success()->send();
-                    })
-                    ->button(),
+                            Notification::make()->title('Complete')->success()->send();
+                        }),
+                ])
+                    ->label('Actions')
+                    ->icon('heroicon-o-arrow-down-on-square')
+                    ->color('')
+                    ->button()
+
             ])
             ->emptyStateIcon('heroicon-o-server')
-            ->when(! $oldDbAvailable, fn (Table $table) => $table
-                ->emptyStateHeading('Old database unavailable')
-                ->emptyStateDescription('Could not connect to the old database. Check your DB_OLD_* credentials in .env.')
-                ->query(Migration::query()->whereRaw('1 = 0')) // force empty
+            ->when(
+                ! $oldDbAvailable,
+                fn(Table $table) => $table
+                    ->emptyStateHeading('Old database unavailable')
+                    ->emptyStateDescription('Could not connect to the old database. Check your DB_OLD_* credentials in .env.')
+                    ->query(Migration::query()->whereRaw('1 = 0')) // force empty
             )
             ->paginated(false);
     }
