@@ -41,9 +41,6 @@ class SubjectsTable
                     ->label('Title')
                     ->searchable(),
 
-                TextColumn::make('subjectCategory.label')
-                    ->label('Category'),
-
                 SelectColumn::make('teacher')
                     ->label('Teacher')
                     ->searchableOptions()

@@ -92,6 +92,10 @@ class StudentMigrationController extends BaseMigrationController
     {
         $now = now()->toDateTimeString();
 
+        if($row->student_id === 12341) {
+            return []; // skip this record due to test data
+        }
+
         return [
             'id'            => (int) $row->student_id,
             'student_lrn'   => $row->student_lrn ?: null,

@@ -26,6 +26,8 @@ use App\Models\SubjectUser;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\MyTools;
+use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -35,7 +37,7 @@ class AppPanelProvider extends PanelProvider
             ->default()
             ->id('app')
             ->path('app')
-            ->login()
+            ->login(Login::class)
             ->colors([
                 'primary' => Color::Amber,
                 'secondary' => Color::Slate,
@@ -49,6 +51,7 @@ class AppPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
+            ->pages([Pages\Dashboard::class,])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
             ->widgets([
                 AccountWidget::class,

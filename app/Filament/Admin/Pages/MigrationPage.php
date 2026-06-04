@@ -10,6 +10,7 @@ use App\Http\Controllers\Migration\SubjectMigrationController;
 use App\Http\Controllers\Migration\SubjectUnitMigrationController;
 use App\Http\Controllers\Migration\SubjectUserMigrationController;
 use App\Http\Controllers\Migration\UserMigrationController;
+use App\Http\Controllers\Migration\GradeMigrationController;
 use App\Models\Config\Migration;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -71,7 +72,23 @@ class MigrationPage extends Page implements HasTable
                             return;
                         }
 
-                        $result = $controller->migrate();
+                        if($record->new_table === 'grades') {
+                            try {
+                                $result = $controller->migrateTable(str_replace('grades_', '', $record->old_table));
+                            } catch (\Exception $e) {
+                                $this->output = "Error migrating {$record->old_table}: {$e->getMessage()}";
+                                Notification::make()->title('Migration failed')->danger()->send();
+                                return;
+                            }
+                        } else {
+                            try {
+                                $result = $controller->migrate();
+                            } catch (\Exception $e) {
+                                $this->output = "Error migrating {$record->old_table}: {$e->getMessage()}";
+                                Notification::make()->title('Migration failed')->danger()->send();
+                                return;
+                            }
+                        }
                         $this->output = "{$result}";
 
                         Notification::make()->title('Migration complete')->success()->send();
@@ -154,6 +171,7 @@ class MigrationPage extends Page implements HasTable
             'subject_users' => new SubjectUserMigrationController,
             'subject_units' => new SubjectUnitMigrationController,
             'enrollments' => new EnrollmentMigrationController,
+            'grades' => new GradeMigrationController,
             default => null,
         };
     }

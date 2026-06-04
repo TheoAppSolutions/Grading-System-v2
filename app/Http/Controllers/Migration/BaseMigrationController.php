@@ -21,6 +21,8 @@ abstract class BaseMigrationController extends Controller
     private ?array $schoolYearMap = null;
     private ?array $gradeLevelMap = null;
     private ?array $sectionMap = null;
+    private ?array $userMap = null;
+    private ?array $subjectMap = null;
 
     // -------------------------------------------------------------------------
     // School year lookup — usable by any child controller
@@ -135,6 +137,63 @@ abstract class BaseMigrationController extends Controller
         }
 
         return $this->buildSectionMap()[trim($section)] ?? null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Section lookup  (section_or_strand varchar → sections.id)
+    // -------------------------------------------------------------------------
+
+    protected function buildUserMap(): array
+    {
+        if ($this->userMap !== null) {
+            return $this->userMap;
+        }
+
+        $this->userMap = DB::connection('new_db')
+            ->table('users')
+            ->get(['id', 'old_id'])
+            ->mapWithKeys(fn($r) => [(string) $r->old_id => (int) $r->id])
+            ->all();
+
+        return $this->userMap;
+    }
+
+    protected function resolveUser(?string $old_id): ?int
+    {
+        if ($old_id === null || trim($old_id) === '') {
+            return null;
+        }
+
+        return $this->buildUserMap()[trim($old_id)] ?? null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Subject lookup  (varchar code → subjects.id via subject_code)
+    // -------------------------------------------------------------------------
+
+    protected function buildSubjectMap(): array
+    {
+        if ($this->subjectMap !== null) {
+            return $this->subjectMap;
+        }
+
+        $this->subjectMap = DB::connection('new_db')
+            ->table('subjects')
+            ->whereNotNull('subject_code')
+            ->get(['id', 'subject_code'])
+            ->mapWithKeys(fn($r) => [(string) $r->subject_code => (int) $r->id])
+            ->all();
+
+        return $this->subjectMap;
+    }
+
+    protected function resolveSubject(?string $subjectCode): ?int
+    {
+        if ($subjectCode === null || trim($subjectCode) === '') {
+            return null;
+        }
+
+        return $this->buildSubjectMap()[trim($subjectCode)] ?? null;
     }
 
     // -------------------------------------------------------------------------

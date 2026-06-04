@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Filament\Pages\Auth;
+
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+use Filament\Auth\Pages\Login as BaseLogin;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
+
+class Login extends BaseLogin
+{
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->schema([
+                TextInput::make('name')
+                    ->label('Username')
+                    ->required()
+                    ->autocomplete('name')
+                    ->autofocus()
+                    ->extraInputAttributes(['tabindex' => 1]),
+
+                $this->getPasswordFormComponent(),
+                $this->getRememberFormComponent(),
+            ])
+            ->statePath('data');
+    }
+
+    protected function getCredentialsFromFormData(array $data): array
+    {
+        $user = User::where('name', $data['name'])->first();
+
+        return [
+            'name'    => $user?->name ?? $data['name'], // fallback gracefully
+            'password' => $data['password'],
+        ];
+    }
+
+    protected function throwFailureValidationException(): never
+    {
+        throw ValidationException::withMessages([
+            'data.name' => "The provided username is incorrect.",
+            'data.password' => "The provided password is incorrect.",
+        ]);
+    }
+}

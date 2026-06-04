@@ -36,6 +36,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function getAuthIdentifierName(): string
+    {
+        return 'name';
+    }
+
     // Relationships
     public function info(): HasOne
     {
