@@ -86,6 +86,8 @@ class SubjectMigrationController extends BaseMigrationController
             ->whereNull('grade_level_id')
             ->count();
 
+        $this->insertChineseSubject();
+
         return response()->json([
             'status'                  => empty($stats['errors']) ? 'done' : 'done_with_errors',
             'unfilled_grade_level_id' => $unfilled,
@@ -122,7 +124,7 @@ class SubjectMigrationController extends BaseMigrationController
             'subject_code'        => $row->subject_id,
             'grade_level_id'      => $this->resolveGradeLevel($row->gradelevel ?? null),
             'subject_category_id' => $this->resolveSubjectCategory($row->subjecttitle ?? null),
-            'subject_title'       => Str::title($row->subjecttitle) ?: (Str::title($row->subjectname) ?? 0),
+            'subject_title'       => Str::title($row->subjectname) ?: (Str::title($row->subjectname) ?? 0),
             'created_at'          => $now,
             'updated_at'          => $now,
         ];

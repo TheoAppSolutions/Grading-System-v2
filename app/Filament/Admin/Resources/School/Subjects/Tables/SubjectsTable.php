@@ -21,12 +21,12 @@ class SubjectsTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID'),
+                TextColumn::make('subject_code'),
                 TextColumn::make('subject_title')
                     ->label('Title')
                     ->searchable(),
                 TextColumn::make('subjectCategory.label')
                     ->label('Category'),
-                TextColumn::make('subject_code'),
             ])
             ->filters([
                 SelectFilter::make('grade_level_id')

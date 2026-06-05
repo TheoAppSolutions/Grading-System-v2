@@ -36,10 +36,10 @@ class User extends Authenticatable
         ];
     }
 
-    public function getAuthIdentifierName(): string
-    {
-        return 'name';
-    }
+    // public function getAuthIdentifierName(): string
+    // {
+    //     return 'name';
+    // }
 
     // Relationships
     public function info(): HasOne
@@ -82,7 +82,7 @@ class User extends Authenticatable
         return $this->hasMany(AnnouncementRecipient::class);
     }
 
-    public function notifications(): HasMany
+    public function announcementNotification(): HasMany
     {
         return $this->hasMany(AnnouncementNotification::class, 'to_user_id');
     }

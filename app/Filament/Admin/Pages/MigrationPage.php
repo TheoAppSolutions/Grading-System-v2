@@ -58,9 +58,23 @@ class MigrationPage extends Page implements HasTable
                 TextColumn::make('description'),
                 TextColumn::make('old_database')
                     ->label('Old Database')
-                    ->getStateUsing(fn(Migration $record) => DB::connection('old_db')->table($record->old_table)->count()),
+                    ->formatStateUsing(fn($state) => number_format($state))
+                    ->getStateUsing(function (Migration $record) {
+                        if ($record->description === 'Grades') {
+                            return cache()->remember(
+                                'old_db_grades_total',
+                                now()->addMinutes(5),
+                                fn() =>
+                                collect(range(1, 12))
+                                    ->sum(fn(int $n) => DB::connection('old_db')->table("grades_{$n}")->count())
+                            );
+                        }
+
+                        return DB::connection('old_db')->table($record->old_table)->count();
+                    }),
                 TextColumn::make('new_database')
                     ->label('New Database')
+                    ->formatStateUsing(fn($state) => number_format($state))
                     ->getStateUsing(fn(Migration $record) => DB::table($record->new_table)->count()),
             ])
             ->recordActions([
@@ -72,26 +86,37 @@ class MigrationPage extends Page implements HasTable
                             return;
                         }
 
-                        if($record->new_table === 'grades') {
-                            try {
-                                $result = $controller->migrateTable(str_replace('grades_', '', $record->old_table));
-                            } catch (\Exception $e) {
-                                $this->output = "Error migrating {$record->old_table}: {$e->getMessage()}";
-                                Notification::make()->title('Migration failed')->danger()->send();
-                                return;
-                            }
-                        } else {
-                            try {
-                                $result = $controller->migrate();
-                            } catch (\Exception $e) {
-                                $this->output = "Error migrating {$record->old_table}: {$e->getMessage()}";
-                                Notification::make()->title('Migration failed')->danger()->send();
-                                return;
-                            }
-                        }
-                        $this->output = "{$result}";
+                        try {
+                            if ($record->new_table === 'grades') {
+                                $this->output = 'Grades Migration can only be run as a artisan command due to the large data volume. Please run "php artisan migrate:grades" in your terminal.';
+                            } else {
+                                $response     = $controller->migrate();
+                                $data         = $response->getData(assoc: true);
+                                $this->output = sprintf(
+                                    "Inserted: %d | Skipped: %d | Errors: %d",
+                                    $data['inserted'] ?? 0,
+                                    $data['skipped']  ?? 0,
+                                    count($data['errors'] ?? []),
+                                );
 
-                        Notification::make()->title('Migration complete')->success()->send();
+                                // Surface errors in notification body if any
+                                if (! empty($data['errors'])) {
+                                    Notification::make()
+                                        ->title('Migration completed with errors')
+                                        ->body($this->output)
+                                        ->warning()
+                                        ->persistent()
+                                        ->send();
+                                    return;
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            $this->output = "Error migrating {$record->old_table}: {$e->getMessage()}";
+                            Notification::make()->title('Migration failed')->danger()->send();
+                            return;
+                        }
+
+                        Notification::make()->title('Migration complete')->body($this->output)->success()->send();
                     })
                     ->button(),
 
@@ -107,8 +132,8 @@ class MigrationPage extends Page implements HasTable
                                 return;
                             }
 
-                            $result = $controller->reset();
-                            $this->output = "{$result}";
+                            $controller->reset();
+                            $this->output = "Table reset: " . $record->new_table . " table now has empty records.";
 
                             Notification::make()->title('Reset complete')->success()->send();
                         }),

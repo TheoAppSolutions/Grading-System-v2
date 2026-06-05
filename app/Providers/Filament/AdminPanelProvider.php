@@ -17,8 +17,15 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+use Filament\Navigation\NavigationBuilder;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
+use App\Filament\App\Resources\Teacher\Grades\GradeResource;
+use Filament\Facades\Filament;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages;
+use Filament\Support\Icons\Heroicon;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -38,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Gray,
             ])
             ->breadcrumbs(false)
+            ->databaseNotifications()
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
@@ -60,6 +68,32 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
+                $autoItems = collect(Filament::getResources())
+                    ->flatMap(fn($resource) => $resource::getNavigationItems())
+                    ->all();
+
+                $autoGroups = collect($autoItems)
+                    ->groupBy(fn($item) => $item->getGroup() ?? '')
+                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->all()))
+                    ->values()
+                    ->all();
+
+                $groups = [...$autoGroups];
+
+                $groups[] = NavigationGroup::make('Developer Tools')->items([
+                    NavigationItem::make('Migrations')
+                        ->icon(Heroicon::ArrowPathRoundedSquare)
+                        ->url('/admin/migrations')
+                        ->isActiveWhen(fn() => request()->is('admin/migrations')),
+                    NavigationItem::make('Logs')
+                        ->icon(Heroicon::ExclamationTriangle)
+                        ->url('/telescope')
+                        ->openUrlInNewTab(),
+                ]);
+
+                return $builder->groups($groups);
+            });
     }
 }

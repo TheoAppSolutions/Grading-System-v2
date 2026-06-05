@@ -164,6 +164,14 @@ abstract class BaseMigrationController extends Controller
             return null;
         }
 
+        if (!isset($this->buildUserMap()[trim($old_id)])) {
+            if ($old_id == 188) {
+                $old_id = 114; // special case for duplicate teacher
+            } else {
+                Log::warning("User old_id [{$old_id}] not found in new DB user_map");
+            }
+        }
+
         return $this->buildUserMap()[trim($old_id)] ?? null;
     }
 
@@ -193,7 +201,15 @@ abstract class BaseMigrationController extends Controller
             return null;
         }
 
-        return $this->buildSubjectMap()[trim($subjectCode)] ?? null;
+        if (!isset($this->buildSubjectMap()[trim($subjectCode)])) {
+            if (trim($subjectCode) == 'FILI12') {
+                $subjectCode = 'FILI12A'; // special case for old code that was duplicated and had to be changed in new DB
+            } else {
+                Log::warning("Subject code [{$subjectCode}] not found in new DB subject_map");
+            }
+        }
+
+        return $this->buildSubjectMap()[trim($subjectCode)] ?? 999;
     }
 
     // -------------------------------------------------------------------------
