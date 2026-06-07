@@ -3,15 +3,13 @@
 namespace App\Filament\Admin\Resources\School\Subjects\Tables;
 
 use App\Models\Config\GradeLevel;
+use App\Models\Config\SettingSchema;
 use App\Models\Config\SubjectCategory;
-use App\Models\SubjectUser;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
 class SubjectsTable
 {
@@ -21,12 +19,13 @@ class SubjectsTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID'),
-                TextColumn::make('subject_code'),
+                // TextColumn::make('subject_code'),
                 TextColumn::make('subject_title')
                     ->label('Title')
                     ->searchable(),
                 TextColumn::make('subjectCategory.label')
-                    ->label('Category'),
+                    ->label('Category')
+                    ->visible(SettingSchema::isEnabled('Subject Category')),
             ])
             ->filters([
                 SelectFilter::make('grade_level_id')

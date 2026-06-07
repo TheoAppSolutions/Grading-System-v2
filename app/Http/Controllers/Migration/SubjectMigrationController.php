@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Migration;
 
 use App\Models\Config\GradeLevel;
 use App\Models\Config\SubjectCategory;
-use App\Models\Grade;
 use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +41,6 @@ class SubjectMigrationController extends BaseMigrationController
      *   Resolved by matching old `gradelevel` varchar against grade_levels.label.
      *   Rows with no match get null — call GET /migrate/subjects/unfilled to list them.
      */
-
     private ?array $subjectCategoryMap = null;
 
     // -------------------------------------------------------------------------
@@ -52,15 +50,15 @@ class SubjectMigrationController extends BaseMigrationController
     public function preview(): JsonResponse
     {
         return response()->json([
-            'table'           => 'subjects',
-            'old_count'       => DB::connection('old_db')->table('subjects')->count(),
-            'new_count'       => DB::connection('new_db')->table('subjects')->count(),
+            'table' => 'subjects',
+            'old_count' => DB::connection('old_db')->table('subjects')->count(),
+            'new_count' => DB::connection('new_db')->table('subjects')->count(),
             'grade_level_map' => $this->buildGradeLevelMap(),
-            'sample'          => DB::connection('old_db')
+            'sample' => DB::connection('old_db')
                 ->table('subjects')
                 ->limit(3)
                 ->get()
-                ->map(fn($r) => $this->mapRow($r)),
+                ->map(fn ($r) => $this->mapRow($r)),
         ]);
     }
 
@@ -76,7 +74,7 @@ class SubjectMigrationController extends BaseMigrationController
             newTable: 'subjects',
             oldTable: 'subjects',
             orderColumn: 'entry_id',
-            mapper: fn($r) => $this->mapRow($r),
+            mapper: fn ($r) => $this->mapRow($r),
             columnCount: 6,         // subject_code, grade_level_id, subject_category_id, subject_title, created_at, updated_at
             dedupeKey: 'subject_id' // old varchar code — unique per subject
         );
@@ -86,12 +84,12 @@ class SubjectMigrationController extends BaseMigrationController
             ->whereNull('grade_level_id')
             ->count();
 
-        $this->insertChineseSubject();
+        // $this->insertChineseSubject();
 
         return response()->json([
-            'status'                  => empty($stats['errors']) ? 'done' : 'done_with_errors',
+            'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
             'unfilled_grade_level_id' => $unfilled,
-            'note'                    => $unfilled > 0
+            'note' => $unfilled > 0
                 ? "{$unfilled} subject(s) have null grade_level_id. Call GET /migrate/subjects/unfilled."
                 : 'All grade_level_id values resolved successfully.',
             ...$stats,
@@ -121,12 +119,12 @@ class SubjectMigrationController extends BaseMigrationController
         return [
             // Preserved varchar code — cross-reference key for subject_users,
             // subject_units, and subject_excluded
-            'subject_code'        => $row->subject_id,
-            'grade_level_id'      => $this->resolveGradeLevel($row->gradelevel ?? null),
+            'subject_code' => $row->subject_id,
+            'grade_level_id' => $this->resolveGradeLevel($row->gradelevel ?? null),
             'subject_category_id' => $this->resolveSubjectCategory($row->subjecttitle ?? null),
-            'subject_title'       => Str::title($row->subjectname) ?: (Str::title($row->subjectname) ?? 0),
-            'created_at'          => $now,
-            'updated_at'          => $now,
+            'subject_title' => Str::title($row->subjectname) ?: (Str::title($row->subjectname) ?? 0),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
         // 6 columns — keep in sync with columnCount above
     }
@@ -142,7 +140,7 @@ class SubjectMigrationController extends BaseMigrationController
         }
 
         $this->subjectCategoryMap = SubjectCategory::get(['id', 'label'])
-            ->mapWithKeys(fn($r) => [Str::upper($r->label) => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [Str::upper($r->label) => (int) $r->id])
             ->all();
 
         return $this->subjectCategoryMap;
@@ -189,7 +187,7 @@ class SubjectMigrationController extends BaseMigrationController
                 [
                     'subject_title' => $subject['subject_title'],
                     'subject_category_id' => $subject['subject_category_id'],
-                    'grade_level_id' => $subject['grade_level_id']
+                    'grade_level_id' => $subject['grade_level_id'],
                 ]
             );
         }

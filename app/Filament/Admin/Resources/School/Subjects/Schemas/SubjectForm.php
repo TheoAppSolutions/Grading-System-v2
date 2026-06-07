@@ -2,11 +2,12 @@
 
 namespace App\Filament\Admin\Resources\School\Subjects\Schemas;
 
+use App\Models\Config\GradeLevel;
+use App\Models\Config\SettingSchema;
+use App\Models\Config\SubjectCategory;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use App\Models\Config\SubjectCategory;
-use App\Models\Config\GradeLevel;
 
 class SubjectForm
 {
@@ -20,7 +21,7 @@ class SubjectForm
                     ->label('Grade Level')
                     ->options(GradeLevel::all()->sortBy('sort_order')->pluck('label', 'id'))
                     ->live()
-                    ->afterStateUpdated(fn(callable $set) => $set('subject_category_id', null)),
+                    ->afterStateUpdated(fn (callable $set) => $set('subject_category_id', null)),
                 Select::make('subject_category_id')
                     ->required()
                     ->searchable()
@@ -28,13 +29,13 @@ class SubjectForm
                     ->options(function (callable $get) {
                         $gradeLevelId = $get('grade_level_id');
 
-                        if (!$gradeLevelId) {
+                        if (! $gradeLevelId) {
                             return SubjectCategory::all()->pluck('label', 'id');
                         }
 
                         $gradeLevel = GradeLevel::find($gradeLevelId);
 
-                        if (!$gradeLevel) {
+                        if (! $gradeLevel) {
                             return [];
                         }
 
@@ -49,7 +50,8 @@ class SubjectForm
                             ->pluck('label', 'id');
                     })
                     ->live()
-                    ->disabled(fn(callable $get) => !$get('grade_level_id')),
+                    ->visible(SettingSchema::isEnabled('Subject Category'))
+                    ->disabled(fn (callable $get) => ! $get('grade_level_id')),
                 TextInput::make('subject_title')
                     ->label('Subject Title')
                     ->columnSpanFull()

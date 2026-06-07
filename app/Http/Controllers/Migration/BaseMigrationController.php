@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\Controller;
+use App\Models\Config\GradeLevel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-use App\Models\Config\GradeLevel;
-
 abstract class BaseMigrationController extends Controller
 {
-    protected const CHUNK_SIZE  = 200;
+    protected const CHUNK_SIZE = 200;
+
     protected const SQLITE_VARS = 999;
 
     // -------------------------------------------------------------------------
@@ -19,9 +19,13 @@ abstract class BaseMigrationController extends Controller
     // -------------------------------------------------------------------------
 
     private ?array $schoolYearMap = null;
+
     private ?array $gradeLevelMap = null;
+
     private ?array $sectionMap = null;
+
     private ?array $userMap = null;
+
     private ?array $subjectMap = null;
 
     // -------------------------------------------------------------------------
@@ -43,7 +47,7 @@ abstract class BaseMigrationController extends Controller
         $this->schoolYearMap = DB::connection('new_db')
             ->table('school_years')
             ->get(['id', 'school_year'])
-            ->mapWithKeys(fn($r) => [(string) $r->school_year => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->school_year => (int) $r->id])
             ->all();
 
         return $this->schoolYearMap;
@@ -79,7 +83,7 @@ abstract class BaseMigrationController extends Controller
         }
 
         $this->gradeLevelMap = GradeLevel::get('id')
-            ->mapWithKeys(fn($r) => [(int) $r->id => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(int) $r->id => (int) $r->id])
             ->all();
 
         return $this->gradeLevelMap;
@@ -99,6 +103,14 @@ abstract class BaseMigrationController extends Controller
 
         $map = $this->buildGradeLevelMap();
         $key = trim($gradelevel);
+
+        if ($key === 'Kindy') {
+            $key = 11;
+        }
+
+        if ($key === 'Prep') {
+            $key = 12;
+        }
 
         if (isset($map[$key])) {
             return $map[$key];
@@ -124,7 +136,7 @@ abstract class BaseMigrationController extends Controller
         $this->sectionMap = DB::connection('new_db')
             ->table('sections')
             ->get(['id', 'section'])
-            ->mapWithKeys(fn($r) => [(string) $r->section => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->section => (int) $r->id])
             ->all();
 
         return $this->sectionMap;
@@ -152,7 +164,7 @@ abstract class BaseMigrationController extends Controller
         $this->userMap = DB::connection('new_db')
             ->table('users')
             ->get(['id', 'old_id'])
-            ->mapWithKeys(fn($r) => [(string) $r->old_id => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->old_id => (int) $r->id])
             ->all();
 
         return $this->userMap;
@@ -164,7 +176,7 @@ abstract class BaseMigrationController extends Controller
             return null;
         }
 
-        if (!isset($this->buildUserMap()[trim($old_id)])) {
+        if (! isset($this->buildUserMap()[trim($old_id)])) {
             if ($old_id == 188) {
                 $old_id = 114; // special case for duplicate teacher
             } else {
@@ -189,7 +201,7 @@ abstract class BaseMigrationController extends Controller
             ->table('subjects')
             ->whereNotNull('subject_code')
             ->get(['id', 'subject_code'])
-            ->mapWithKeys(fn($r) => [(string) $r->subject_code => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->subject_code => (int) $r->id])
             ->all();
 
         return $this->subjectMap;
@@ -201,7 +213,7 @@ abstract class BaseMigrationController extends Controller
             return null;
         }
 
-        if (!isset($this->buildSubjectMap()[trim($subjectCode)])) {
+        if (! isset($this->buildSubjectMap()[trim($subjectCode)])) {
             if (trim($subjectCode) == 'FILI12') {
                 $subjectCode = 'FILI12A'; // special case for old code that was duplicated and had to be changed in new DB
             } else {
@@ -217,14 +229,14 @@ abstract class BaseMigrationController extends Controller
     // -------------------------------------------------------------------------
 
     protected function runMigration(
-        string   $newTable,
-        string   $oldTable,
-        string   $orderColumn,
+        string $newTable,
+        string $oldTable,
+        string $orderColumn,
         callable $mapper,
-        int      $columnCount,
-        ?string  $dedupeKey = null
+        int $columnCount,
+        ?string $dedupeKey = null
     ): array {
-        $stats     = ['inserted' => 0, 'skipped' => 0, 'errors' => []];
+        $stats = ['inserted' => 0, 'skipped' => 0, 'errors' => []];
         $batchSize = (int) floor(self::SQLITE_VARS / $columnCount);
 
         DB::transaction(function () use (
@@ -246,7 +258,7 @@ abstract class BaseMigrationController extends Controller
                     $dedupeKey,
                     &$stats
                 ) {
-                    $firstMapped  = $mapper($rows->first());
+                    $firstMapped = $mapper($rows->first());
                     $newDedupeKey = array_key_first($firstMapped);
                     $oldDedupeKey = $dedupeKey ?? $newDedupeKey;
 
@@ -265,6 +277,7 @@ abstract class BaseMigrationController extends Controller
 
                         if (isset($existingVals[$sourceVal])) {
                             $stats['skipped']++;
+
                             continue;
                         }
 
@@ -272,7 +285,7 @@ abstract class BaseMigrationController extends Controller
                             $toInsert[] = $mapper($row);
                         } catch (Throwable $e) {
                             $stats['errors'][] = [
-                                'row'     => $sourceVal,
+                                'row' => $sourceVal,
                                 'message' => $e->getMessage(),
                             ];
                             Log::error("Migration mapping error [{$newTable}]", [
@@ -297,7 +310,7 @@ abstract class BaseMigrationController extends Controller
                                     $stats['inserted']++;
                                 } catch (Throwable $rowError) {
                                     $stats['errors'][] = [
-                                        'row'     => $mapped[$newDedupeKey] ?? null,
+                                        'row' => $mapped[$newDedupeKey] ?? null,
                                         'message' => $rowError->getMessage(),
                                     ];
                                     Log::error("Migration insert error [{$newTable}]", [
