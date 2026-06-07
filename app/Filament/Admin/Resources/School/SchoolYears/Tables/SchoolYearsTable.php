@@ -2,15 +2,12 @@
 
 namespace App\Filament\Admin\Resources\School\SchoolYears\Tables;
 
+use App\Helpers\MyTools;
 use App\Models\SchoolYear;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
-use App\Helpers\MyTools;
 
 class SchoolYearsTable
 {
@@ -21,11 +18,11 @@ class SchoolYearsTable
                 TextColumn::make('school_year'),
                 TextColumn::make('coverage')
                     ->getStateUsing(function ($record) {
-                        return MyTools::getMonths()[$record['month_start']] . ' - ' . MyTools::getMonths()[$record['month_end']];
+                        return MyTools::getMonths()[$record['month_start']].' - '.MyTools::getMonths()[$record['month_end']];
                     })
                     ->label('Months'),
                 ToggleColumn::make('active')
-                    ->disabled(fn($record) => $record->active)
+                    ->disabled(fn ($record) => $record->active)
                     ->beforeStateUpdated(function ($record, $state) {
                         if ($state) {
                             SchoolYear::query()->update(['active' => false]);

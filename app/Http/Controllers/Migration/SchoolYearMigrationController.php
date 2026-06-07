@@ -89,8 +89,8 @@ class SchoolYearMigrationController extends BaseMigrationController
 
         return [
             'school_year' => $row->schoolyear,
-            'month_start' => (string) ($row->schoolyear_start ?? ''),
-            'month_end' => (string) ($row->schoolyear_end ?? ''),
+            'month_start' => (string) ($row->schoolyear_start ?? 1),
+            'month_end' => (string) ($row->schoolyear_end ?? 12),
             'active' => $this->coerceActive($row->active),
             'attendance_entries' => 10,   // days_settings not directly mappable
             'card_template_id' => null, // old value was a string path, not an int FK

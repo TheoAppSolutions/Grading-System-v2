@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Pages;
 
 use App\Http\Controllers\Migration\EnrollmentMigrationController;
+use App\Http\Controllers\Migration\GradeMigrationController;
 use App\Http\Controllers\Migration\SchoolYearMigrationController;
 use App\Http\Controllers\Migration\SectionMigrationController;
 use App\Http\Controllers\Migration\StudentMigrationController;
@@ -10,7 +11,6 @@ use App\Http\Controllers\Migration\SubjectMigrationController;
 use App\Http\Controllers\Migration\SubjectUnitMigrationController;
 use App\Http\Controllers\Migration\SubjectUserMigrationController;
 use App\Http\Controllers\Migration\UserMigrationController;
-use App\Http\Controllers\Migration\GradeMigrationController;
 use App\Models\Config\Migration;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -58,15 +58,14 @@ class MigrationPage extends Page implements HasTable
                 TextColumn::make('description'),
                 TextColumn::make('old_database')
                     ->label('Old Database')
-                    ->formatStateUsing(fn($state) => number_format($state))
+                    ->formatStateUsing(fn ($state) => number_format($state))
                     ->getStateUsing(function (Migration $record) {
                         if ($record->description === 'Grades') {
                             return cache()->remember(
                                 'old_db_grades_total',
                                 now()->addMinutes(5),
-                                fn() =>
-                                collect(range(1, 12))
-                                    ->sum(fn(int $n) => DB::connection('old_db')->table("grades_{$n}")->count())
+                                fn () => collect(range(1, 12))
+                                    ->sum(fn (int $n) => DB::connection('old_db')->table("grades_{$n}")->count())
                             );
                         }
 
@@ -74,8 +73,8 @@ class MigrationPage extends Page implements HasTable
                     }),
                 TextColumn::make('new_database')
                     ->label('New Database')
-                    ->formatStateUsing(fn($state) => number_format($state))
-                    ->getStateUsing(fn(Migration $record) => DB::table($record->new_table)->count()),
+                    ->formatStateUsing(fn ($state) => number_format($state))
+                    ->getStateUsing(fn (Migration $record) => DB::table($record->new_table)->count()),
             ])
             ->recordActions([
                 Action::make('migrate')
@@ -90,12 +89,12 @@ class MigrationPage extends Page implements HasTable
                             if ($record->new_table === 'grades') {
                                 $this->output = 'Grades Migration can only be run as a artisan command due to the large data volume. Please run "php artisan migrate:grades" in your terminal.';
                             } else {
-                                $response     = $controller->migrate();
-                                $data         = $response->getData(assoc: true);
+                                $response = $controller->migrate();
+                                $data = $response->getData(assoc: true);
                                 $this->output = sprintf(
-                                    "Inserted: %d | Skipped: %d | Errors: %d",
+                                    'Inserted: %d | Skipped: %d | Errors: %d',
                                     $data['inserted'] ?? 0,
-                                    $data['skipped']  ?? 0,
+                                    $data['skipped'] ?? 0,
                                     count($data['errors'] ?? []),
                                 );
 
@@ -107,12 +106,14 @@ class MigrationPage extends Page implements HasTable
                                         ->warning()
                                         ->persistent()
                                         ->send();
+
                                     return;
                                 }
                             }
                         } catch (\Exception $e) {
                             $this->output = "Error migrating {$record->old_table}: {$e->getMessage()}";
                             Notification::make()->title('Migration failed')->danger()->send();
+
                             return;
                         }
 
@@ -133,14 +134,14 @@ class MigrationPage extends Page implements HasTable
                             }
 
                             $controller->reset();
-                            $this->output = "Table reset: " . $record->new_table . " table now has empty records.";
+                            $this->output = 'Table reset: '.$record->new_table.' table now has empty records.';
 
                             Notification::make()->title('Reset complete')->success()->send();
                         }),
 
                     Action::make('additional')
-                        ->label(fn(Migration $record) => str($record->additional)->headline()->toString())
-                        ->visible(fn(Migration $record) => ! empty($record->additional))
+                        ->label(fn (Migration $record) => str($record->additional)->headline()->toString())
+                        ->visible(fn (Migration $record) => ! empty($record->additional))
                         ->color('info')
                         ->action(function (Migration $record) {
                             $controller = $this->resolveController($record->new_table);
@@ -157,13 +158,13 @@ class MigrationPage extends Page implements HasTable
                     ->label('Actions')
                     ->icon('heroicon-o-arrow-down-on-square')
                     ->color('')
-                    ->button()
+                    ->button(),
 
             ])
             ->emptyStateIcon('heroicon-o-server')
             ->when(
                 ! $oldDbAvailable,
-                fn(Table $table) => $table
+                fn (Table $table) => $table
                     ->emptyStateHeading('Old database unavailable')
                     ->emptyStateDescription('Could not connect to the old database. Check your DB_OLD_* credentials in .env.')
                     ->query(Migration::query()->whereRaw('1 = 0')) // force empty
