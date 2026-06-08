@@ -114,7 +114,7 @@ class SubjectUserMigrationController extends BaseMigrationController
             if (!HCGS::subjectIdChecker($row)) {
                 return [];
             }
-            if (!HCGS::userIdChecker($row->user_id)) {
+            if (!HCGS::userIdChecker($row)) {
                 return [];
             }
         }
