@@ -123,4 +123,10 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    'system_features' => [
+        'sections' => env('FEATURE_SECTION', false),
+        'grade_import' => env('FEATURE_GRADE_IMPORT', false),
+        'card_template' => env('FEATURE_CARD_TEMPLATE', false),
+    ]
 ];

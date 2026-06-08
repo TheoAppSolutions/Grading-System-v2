@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\School\Sections\SectionResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class SectionsRelationManager extends RelationManager
 {
@@ -26,5 +27,11 @@ class SectionsRelationManager extends RelationManager
             ])
             ->filters([])
             ->paginated(false);
+    }
+
+    #[Override]
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return config('app.system_features.sections');
     }
 }

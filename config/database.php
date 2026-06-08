@@ -32,17 +32,21 @@ return [
 
     'connections' => [
         'old_db' => [
-            'driver'    => 'mysql',
-            'host'      => env('OLD_DB_HOST', '127.0.0.1'),
-            'database'  => env('OLD_DB_DATABASE'),
-            'username'  => env('OLD_DB_USERNAME'),
-            'password'  => env('OLD_DB_PASSWORD'),
+            'driver' => env('OLD_DB_CONNECTION'),
+            'url' => env('OLD_DB_URL'),
+            'database' => env('OLD_DB_DATABASE'),
+            'prefix' => '',
+            'foreign_key_constraints' => env('OLD_DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
+            'transaction_mode' => 'DEFERRED',
         ],
 
         'new_db' => [
-            'driver'    => 'sqlite',
+            'driver' => env('DB_CONNECTION'),
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => env('DB_DATABASE'),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,

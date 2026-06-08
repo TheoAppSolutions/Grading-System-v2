@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Migration;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\HCGS;
 
 class SubjectUserMigrationController extends BaseMigrationController
 {
@@ -32,9 +34,6 @@ class SubjectUserMigrationController extends BaseMigrationController
      *   Unmatched rows are inserted with school_year_id = null.
      *   Call GET /migrate/subject-users/unfilled to list them.
      */
-    private ?array $subjectMap = null;
-
-    private ?array $userMap = null;
 
     // -------------------------------------------------------------------------
     // Preview
@@ -51,7 +50,7 @@ class SubjectUserMigrationController extends BaseMigrationController
                 ->table('subjects_user')
                 ->limit(3)
                 ->get()
-                ->map(fn ($r) => $this->mapRow($r)),
+                ->map(fn($r) => $this->mapRow($r)),
         ]);
     }
 
@@ -67,7 +66,7 @@ class SubjectUserMigrationController extends BaseMigrationController
             newTable: 'subject_users',
             oldTable: 'subjects_user',
             orderColumn: 'id',
-            mapper: fn ($r) => $this->mapRow($r),
+            mapper: fn($r) => $this->mapRow($r),
             columnCount: 9, // subject_id, user_id, user2_id, school_year_id, section, semester, category, created_at, updated_at
             dedupeKey: 'id'
         );
@@ -107,8 +106,21 @@ class SubjectUserMigrationController extends BaseMigrationController
     {
         $now = now()->toDateTimeString();
 
+        if (!$row->user_id) {
+            return [];
+        }
+
+        if (HCGS::isHCGS()) {
+            if (!HCGS::subjectIdChecker($row)) {
+                return [];
+            }
+            if (!HCGS::userIdChecker($row->user_id)) {
+                return [];
+            }
+        }
+
         return [
-            'subject_id' => $this->resolveSubject($row->subject_id) ?? 'x'.$row->subject_id,
+            'subject_id' => $this->resolveSubject($row->subject_id) ?? 'x' . $row->subject_id,
             'user_id' => $this->resolveUser($row->user_id) ?? null,
             'user2_id' => $this->resolveUser($row->user2_id) ?? null,
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
@@ -120,5 +132,4 @@ class SubjectUserMigrationController extends BaseMigrationController
         ];
         // 9 columns — keep in sync with columnCount above
     }
-
 }

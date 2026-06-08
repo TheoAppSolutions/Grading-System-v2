@@ -7,6 +7,7 @@ use App\Models\Config\GradeLevel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use App\Helpers\HCGS;
 
 abstract class BaseMigrationController extends Controller
 {
@@ -47,7 +48,7 @@ abstract class BaseMigrationController extends Controller
         $this->schoolYearMap = DB::connection('new_db')
             ->table('school_years')
             ->get(['id', 'school_year'])
-            ->mapWithKeys(fn ($r) => [(string) $r->school_year => (int) $r->id])
+            ->mapWithKeys(fn($r) => [(string) $r->school_year => (int) $r->id])
             ->all();
 
         return $this->schoolYearMap;
@@ -83,7 +84,7 @@ abstract class BaseMigrationController extends Controller
         }
 
         $this->gradeLevelMap = GradeLevel::get('id')
-            ->mapWithKeys(fn ($r) => [(int) $r->id => (int) $r->id])
+            ->mapWithKeys(fn($r) => [(int) $r->id => (int) $r->id])
             ->all();
 
         return $this->gradeLevelMap;
@@ -104,12 +105,8 @@ abstract class BaseMigrationController extends Controller
         $map = $this->buildGradeLevelMap();
         $key = trim($gradelevel);
 
-        if ($key === 'Kindy') {
-            $key = 11;
-        }
-
-        if ($key === 'Prep') {
-            $key = 12;
+        if (HCGS::isHCGS() && HCGS::gradeLevelChecker($key) !== $key) {
+             $key = HCGS::gradeLevelChecker($key);
         }
 
         if (isset($map[$key])) {
@@ -136,7 +133,7 @@ abstract class BaseMigrationController extends Controller
         $this->sectionMap = DB::connection('new_db')
             ->table('sections')
             ->get(['id', 'section'])
-            ->mapWithKeys(fn ($r) => [(string) $r->section => (int) $r->id])
+            ->mapWithKeys(fn($r) => [(string) $r->section => (int) $r->id])
             ->all();
 
         return $this->sectionMap;
@@ -164,7 +161,7 @@ abstract class BaseMigrationController extends Controller
         $this->userMap = DB::connection('new_db')
             ->table('users')
             ->get(['id', 'old_id'])
-            ->mapWithKeys(fn ($r) => [(string) $r->old_id => (int) $r->id])
+            ->mapWithKeys(fn($r) => [(string) $r->old_id => (int) $r->id])
             ->all();
 
         return $this->userMap;
@@ -176,15 +173,35 @@ abstract class BaseMigrationController extends Controller
             return null;
         }
 
-        if (! isset($this->buildUserMap()[trim($old_id)])) {
-            if ($old_id == 188) {
-                $old_id = 114; // special case for duplicate teacher
-            } else {
-                Log::warning("User old_id [{$old_id}] not found in new DB user_map");
-            }
+        $old_id = trim($old_id);
+        $userMap = $this->buildUserMap();
+
+        // Direct map hit — return immediately
+        if (isset($userMap[$old_id])) {
+            return $userMap[$old_id];
         }
 
-        return $this->buildUserMap()[trim($old_id)] ?? null;
+        // Fallback: known ID remaps not in the auto-generated map
+        $new_id = match (config('app.name')) {
+            'BIS'  => match ($old_id) {
+                '188' => 114,
+                default => null,
+            },
+            'HCGS' => match ($old_id) {
+                '45'  => 6,
+                '47'  => 19,
+                '53'  => 7,
+                default => null,
+            },
+            default => null,
+        };
+
+        if ($new_id === null) {
+            Log::warning("User old_id [{$old_id}] not found in new DB user_map");
+            return null;
+        }
+
+        return $userMap[$new_id] ?? null;
     }
 
     // -------------------------------------------------------------------------
@@ -201,7 +218,7 @@ abstract class BaseMigrationController extends Controller
             ->table('subjects')
             ->whereNotNull('subject_code')
             ->get(['id', 'subject_code'])
-            ->mapWithKeys(fn ($r) => [(string) $r->subject_code => (int) $r->id])
+            ->mapWithKeys(fn($r) => [(string) $r->subject_code => (int) $r->id])
             ->all();
 
         return $this->subjectMap;
@@ -288,7 +305,7 @@ abstract class BaseMigrationController extends Controller
                                 'row' => $sourceVal,
                                 'message' => $e->getMessage(),
                             ];
-                            Log::error("Migration mapping error [{$newTable}]", [
+                            Log::channel('migrationlog')->info("Migration mapping error [{$newTable}]", [
                                 'value' => $sourceVal,
                                 'error' => $e->getMessage(),
                             ]);
@@ -313,7 +330,7 @@ abstract class BaseMigrationController extends Controller
                                         'row' => $mapped[$newDedupeKey] ?? null,
                                         'message' => $rowError->getMessage(),
                                     ];
-                                    Log::error("Migration insert error [{$newTable}]", [
+                                    Log::channel('migrationlog')->info("Migration insert error [{$newTable}]", [
                                         'error' => $rowError->getMessage(),
                                     ]);
                                 }

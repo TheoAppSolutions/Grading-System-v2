@@ -32,6 +32,12 @@ class SectionResource extends Resource
 
     protected static ?string $slug = 'section';
 
+    #[Override]
+    public static function shouldRegisterNavigation(): bool
+    {
+        return config('app.system_features.sections');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return SectionForm::configure($schema);

@@ -46,6 +46,7 @@ class ListGrades extends ListRecords
                 ->label('Import Grades')
                 ->button()
                 ->color('secondary')
+                ->visible(config('app.system_features.grade_import'))
                 ->schema([
                     Textarea::make('import_grades')
                         ->label('Paste the import code below'),

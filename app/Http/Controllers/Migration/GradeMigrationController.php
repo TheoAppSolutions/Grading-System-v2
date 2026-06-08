@@ -28,8 +28,6 @@ class GradeMigrationController extends BaseMigrationController
     private const GRADE_TABLES   = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private const COLUMN_COUNT   = 13;
 
-    private ?array $gradeLevelMap = null;
-    private ?array $subjectMap    = null;
 
     // -------------------------------------------------------------------------
     // Preview
@@ -243,7 +241,7 @@ class GradeMigrationController extends BaseMigrationController
             'effort'         => ($row->effort     != 0) ? (float) $row->effort     : null,
             'deportment'     => ($row->deportment != 0) ? (float) $row->deportment : null,
 
-            'remarks'        => ($row->remarks !== '' && $row->remarks !== null) ? $row->remarks : null,
+            'remarks'        => isset($row->remarks) ? $row->remarks : null,
             'created_at'     => $row->created_at ?? $now,
             'updated_at'     => $row->updated_at ?? $now,
         ];

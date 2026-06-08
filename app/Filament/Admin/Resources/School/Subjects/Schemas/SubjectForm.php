@@ -3,7 +3,6 @@
 namespace App\Filament\Admin\Resources\School\Subjects\Schemas;
 
 use App\Models\Config\GradeLevel;
-use App\Models\Config\SettingSchema;
 use App\Models\Config\SubjectCategory;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -50,7 +49,7 @@ class SubjectForm
                             ->pluck('label', 'id');
                     })
                     ->live()
-                    ->visible(SettingSchema::isEnabled('Subject Category'))
+                    ->visible(config('app.system_features.sections'))
                     ->disabled(fn (callable $get) => ! $get('grade_level_id')),
                 TextInput::make('subject_title')
                     ->label('Subject Title')

@@ -8,6 +8,7 @@ use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Helpers\HCGS;
 
 class SubjectMigrationController extends BaseMigrationController
 {
@@ -58,7 +59,7 @@ class SubjectMigrationController extends BaseMigrationController
                 ->table('subjects')
                 ->limit(3)
                 ->get()
-                ->map(fn ($r) => $this->mapRow($r)),
+                ->map(fn($r) => $this->mapRow($r)),
         ]);
     }
 
@@ -74,7 +75,7 @@ class SubjectMigrationController extends BaseMigrationController
             newTable: 'subjects',
             oldTable: 'subjects',
             orderColumn: 'entry_id',
-            mapper: fn ($r) => $this->mapRow($r),
+            mapper: fn($r) => $this->mapRow($r),
             columnCount: 6,         // subject_code, grade_level_id, subject_category_id, subject_title, created_at, updated_at
             dedupeKey: 'subject_id' // old varchar code — unique per subject
         );
@@ -116,6 +117,10 @@ class SubjectMigrationController extends BaseMigrationController
     {
         $now = now()->toDateTimeString();
 
+        if (HCGS::isHCGS() && !HCGS::subjectIdChecker($row)) {
+            return [];
+        }
+
         return [
             // Preserved varchar code — cross-reference key for subject_users,
             // subject_units, and subject_excluded
@@ -140,7 +145,7 @@ class SubjectMigrationController extends BaseMigrationController
         }
 
         $this->subjectCategoryMap = SubjectCategory::get(['id', 'label'])
-            ->mapWithKeys(fn ($r) => [Str::upper($r->label) => (int) $r->id])
+            ->mapWithKeys(fn($r) => [Str::upper($r->label) => (int) $r->id])
             ->all();
 
         return $this->subjectCategoryMap;

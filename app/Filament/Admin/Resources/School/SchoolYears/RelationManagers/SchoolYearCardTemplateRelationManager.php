@@ -9,6 +9,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class SchoolYearCardTemplateRelationManager extends RelationManager
 {
@@ -27,5 +28,11 @@ class SchoolYearCardTemplateRelationManager extends RelationManager
                     ->options(fn($record) => CardTemplate::where('category', $record->category)->pluck('template', 'id')->toArray())
                     ->label('Template'),
             ]);
+    }
+
+    #[Override]
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return config('app.system_features.sections');
     }
 }

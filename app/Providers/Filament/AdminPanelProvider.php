@@ -71,6 +71,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $autoItems = collect(Filament::getResources())
+                    ->filter(fn($resource) => $resource::shouldRegisterNavigation())
                     ->flatMap(fn($resource) => $resource::getNavigationItems())
                     ->all();
 

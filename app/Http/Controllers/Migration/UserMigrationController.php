@@ -121,6 +121,16 @@ class UserMigrationController extends BaseMigrationController
         $lastName   = Str::title(str_replace('?', 'ñ', trim($row->lastname) ?? ''));
         $middleName = Str::title(str_replace('?', 'ñ', trim($row->middlename) ?? ''));
 
+        if (config('app.name') === 'HCGS') { // #HCGS - duplicate issue
+            if (in_array($row->id, [6, 19, 7])) {
+                $row->active = true;
+            }
+
+            if (in_array($row->id, [45, 47, 53])) { // Duplicates ()
+                return [];
+            }
+        }
+
         return [
             'old_id' => $row->id,
 

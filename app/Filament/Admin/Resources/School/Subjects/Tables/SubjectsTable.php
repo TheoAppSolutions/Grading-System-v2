@@ -3,7 +3,6 @@
 namespace App\Filament\Admin\Resources\School\Subjects\Tables;
 
 use App\Models\Config\GradeLevel;
-use App\Models\Config\SettingSchema;
 use App\Models\Config\SubjectCategory;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -25,7 +24,7 @@ class SubjectsTable
                     ->searchable(),
                 TextColumn::make('subjectCategory.label')
                     ->label('Category')
-                    ->visible(SettingSchema::isEnabled('Subject Category')),
+                    ->visible(config('app.system_features.sections')),
             ])
             ->filters([
                 SelectFilter::make('grade_level_id')
