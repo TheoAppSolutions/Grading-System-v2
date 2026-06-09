@@ -7,6 +7,7 @@ use App\Models\Config\GradeLevel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use App\Helpers\MigrationTools;
 use App\Helpers\HCGS;
 
 abstract class BaseMigrationController extends Controller
@@ -106,7 +107,7 @@ abstract class BaseMigrationController extends Controller
         $key = trim($gradelevel);
 
         if (HCGS::isHCGS() && HCGS::gradeLevelChecker($key) !== $key) {
-             $key = HCGS::gradeLevelChecker($key);
+            $key = HCGS::gradeLevelChecker($key);
         }
 
         if (isset($map[$key])) {
@@ -182,19 +183,7 @@ abstract class BaseMigrationController extends Controller
         }
 
         // Fallback: known ID remaps not in the auto-generated map
-        $new_id = match (config('app.name')) {
-            'BIS'  => match ($old_id) {
-                '188' => 114,
-                default => null,
-            },
-            'HCGS' => match ($old_id) {
-                '45'  => 6,
-                '47'  => 19,
-                '53'  => 7,
-                default => null,
-            },
-            default => null,
-        };
+        $new_id = MigrationTools::replaceUserId($old_id);
 
         if ($new_id === null) {
             Log::warning("User old_id [{$old_id}] not found in new DB user_map");
@@ -218,7 +207,9 @@ abstract class BaseMigrationController extends Controller
             ->table('subjects')
             ->whereNotNull('subject_code')
             ->get(['id', 'subject_code'])
-            ->mapWithKeys(fn($r) => [(string) $r->subject_code => (int) $r->id])
+            ->mapWithKeys(fn($r) => [
+                (string) MigrationTools::replaceSubjectId($r->subject_code) => (int) $r->id
+            ])
             ->all();
 
         return $this->subjectMap;
@@ -230,15 +221,10 @@ abstract class BaseMigrationController extends Controller
             return null;
         }
 
-        if (! isset($this->buildSubjectMap()[trim($subjectCode)])) {
-            if (trim($subjectCode) == 'FILI12') {
-                $subjectCode = 'FILI12A'; // special case for old code that was duplicated and had to be changed in new DB
-            } else {
-                Log::warning("Subject code [{$subjectCode}] not found in new DB subject_map");
-            }
-        }
+        $subjectMap = $this->buildSubjectMap();
+        $subjectCode = MigrationTools::replaceSubjectId($subjectCode);
 
-        return $this->buildSubjectMap()[trim($subjectCode)] ?? 999;
+        return $subjectMap[trim($subjectCode)] ?? 999;
     }
 
     // -------------------------------------------------------------------------
@@ -293,6 +279,9 @@ abstract class BaseMigrationController extends Controller
                         $sourceVal = $row->{$oldDedupeKey};
 
                         if (isset($existingVals[$sourceVal])) {
+                            Log::channel('migrationlog')->info("Skipping in [{$newTable}]", [
+                                'value' => $row,
+                            ]);
                             $stats['skipped']++;
 
                             continue;
@@ -330,6 +319,7 @@ abstract class BaseMigrationController extends Controller
                                         'row' => $mapped[$newDedupeKey] ?? null,
                                         'message' => $rowError->getMessage(),
                                     ];
+                                    dd($mapped);
                                     Log::channel('migrationlog')->info("Migration insert error [{$newTable}]", [
                                         'error' => $rowError->getMessage(),
                                     ]);

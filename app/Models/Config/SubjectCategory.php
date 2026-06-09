@@ -12,7 +12,7 @@ class SubjectCategory extends Model
     protected function getRows(): array
     {
         return [
-            ['id' => 0,  'label' => 'Uncategorized',           'category' => 'others'],
+            ['id' => 0,  'label' => 'Uncategorized',         'category' => 'others'],
 
             // Primary (Grade 1–6)
             ['id' => 1,  'label' => 'Language',              'category' => 'primary'],
