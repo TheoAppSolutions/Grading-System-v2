@@ -88,6 +88,12 @@ class GradeMigrationController extends BaseMigrationController
         $this->buildSchoolYearMap();
 
         $gradeLevelId = $this->resolveGradeLevel($num);
+        if($num === 11){
+            $num = "kindy";
+        } elseif($num === 12){
+            $num = "prep";
+        }
+
         $oldTable     = "grades_{$num}";
 
         $stats = $this->runMigration(
@@ -223,7 +229,7 @@ class GradeMigrationController extends BaseMigrationController
     // Row mapper
     // -------------------------------------------------------------------------
 
-    private function mapRow(object $row, int $tableNum, ?int $gradeLevelId = null): array
+    private function mapRow($row, $tableNum, $gradeLevelId = null): array
     {
         $now = now()->toDateTimeString();
 
