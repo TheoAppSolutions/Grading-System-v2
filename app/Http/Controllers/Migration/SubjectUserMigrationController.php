@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Migration;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Helpers\HCGS;
+use App\Helpers\MigrationTools;
 
 class SubjectUserMigrationController extends BaseMigrationController
 {
@@ -15,7 +15,6 @@ class SubjectUserMigrationController extends BaseMigrationController
      * Routes:
      *   GET    /migrate/subject-users/preview  → preview()
      *   POST   /migrate/subject-users          → migrate()
-     *   GET    /migrate/subject-users/unfilled → unfilledSchoolYears()
      *   DELETE /migrate/subject-users/reset    → reset()
      *
      * Column mapping (old → new):
@@ -32,7 +31,6 @@ class SubjectUserMigrationController extends BaseMigrationController
      *   Resolved by matching old `schoolyear` varchar against
      *   new_db.school_years.school_year column.
      *   Unmatched rows are inserted with school_year_id = null.
-     *   Call GET /migrate/subject-users/unfilled to list them.
      */
 
     // -------------------------------------------------------------------------
@@ -71,17 +69,8 @@ class SubjectUserMigrationController extends BaseMigrationController
             dedupeKey: 'id'
         );
 
-        $unfilled = DB::connection('new_db')
-            ->table('subject_users')
-            ->whereNull('school_year_id')
-            ->count();
-
         return response()->json([
             'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
-            'unfilled_school_year_id' => $unfilled,
-            'note' => $unfilled > 0
-                ? "{$unfilled} row(s) have null school_year_id. Call GET /migrate/subject-users/unfilled."
-                : 'All school_year_id values resolved successfully.',
             ...$stats,
         ]);
     }
@@ -110,13 +99,8 @@ class SubjectUserMigrationController extends BaseMigrationController
             return [];
         }
 
-        if (HCGS::isHCGS()) {
-            if (!HCGS::subjectIdChecker($row)) {
-                return [];
-            }
-            if (!HCGS::userIdChecker($row)) {
-                return [];
-            }
+        if (MigrationTools::skipSubjectId($row->subject_id)) {
+            return [];
         }
 
         return [

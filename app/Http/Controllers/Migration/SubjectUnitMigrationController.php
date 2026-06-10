@@ -13,7 +13,6 @@ class SubjectUnitMigrationController extends BaseMigrationController
      * Routes:
      *   GET    /migrate/subject-units/preview  → preview()
      *   POST   /migrate/subject-units          → migrate()
-     *   GET    /migrate/subject-units/unfilled → unfilledSchoolYears()
      *   DELETE /migrate/subject-units/reset    → reset()
      *
      * Column mapping (old → new):
@@ -24,7 +23,6 @@ class SubjectUnitMigrationController extends BaseMigrationController
      *
      * ⚠ school_year_id:
      *   Same lookup strategy as SubjectUserMigrationController.
-     *   Unmatched rows get null. Call GET /migrate/subject-units/unfilled to list them.
      */
 
     private ?array $schoolYearMap = null;
@@ -68,17 +66,8 @@ class SubjectUnitMigrationController extends BaseMigrationController
             dedupeKey:   'entry_id'
         );
 
-        $unfilled = DB::connection('new_db')
-            ->table('subject_units')
-            ->whereNull('school_year_id')
-            ->count();
-
         return response()->json([
             'status'                  => empty($stats['errors']) ? 'done' : 'done_with_errors',
-            'unfilled_school_year_id' => $unfilled,
-            'note'                    => $unfilled > 0
-                ? "{$unfilled} row(s) have null school_year_id. Call GET /migrate/subject-units/unfilled."
-                : 'All school_year_id values resolved successfully.',
             ...$stats,
         ]);
     }

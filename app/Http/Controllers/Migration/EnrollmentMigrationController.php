@@ -46,7 +46,7 @@ class EnrollmentMigrationController extends BaseMigrationController
                 ->table('enrollment')
                 ->limit(3)
                 ->get()
-                ->map(fn ($r) => $this->mapRow($r)),
+                ->map(fn($r) => $this->mapRow($r)),
         ]);
     }
 
@@ -65,7 +65,7 @@ class EnrollmentMigrationController extends BaseMigrationController
             newTable: 'enrollments',
             oldTable: 'enrollment',
             orderColumn: 'entry_id',
-            mapper: fn ($r) => $this->mapRow($r),
+            mapper: fn($r) => $this->mapRow($r),
             columnCount: 6, // student_id, school_year_id, grade_level_id, section_id, created_at, updated_at
             dedupeKey: 'entry_id'
         );
@@ -73,10 +73,9 @@ class EnrollmentMigrationController extends BaseMigrationController
         $unfilled = DB::connection('new_db')
             ->table('enrollments')
             ->where(
-                fn ($q) => $q
+                fn($q) => $q
                     ->whereNull('school_year_id')
                     ->orWhereNull('grade_level_id')
-                    ->orWhereNull('section_id')
             )
             ->count();
 
@@ -99,10 +98,9 @@ class EnrollmentMigrationController extends BaseMigrationController
         $rows = DB::connection('new_db')
             ->table('enrollments')
             ->where(
-                fn ($q) => $q
+                fn($q) => $q
                     ->whereNull('school_year_id')
                     ->orWhereNull('grade_level_id')
-                    ->orWhereNull('section_id')
             )
             ->select(['id', 'student_id', 'school_year_id', 'grade_level_id', 'section_id'])
             ->get();
@@ -132,6 +130,10 @@ class EnrollmentMigrationController extends BaseMigrationController
     private function mapRow(object $row): array
     {
         $now = now()->toDateTimeString();
+
+        if (!$row->gradelevel) {
+            return [];
+        }
 
         return [
             'student_id' => (int) $row->student_id,
@@ -182,7 +184,7 @@ class EnrollmentMigrationController extends BaseMigrationController
                     ->whereNotNull('grade_level_id')
                     ->groupBy('student_id'),
                 'latest',
-                fn ($join) => $join
+                fn($join) => $join
                     ->on('e.student_id', '=', 'latest.student_id')
                     ->on('e.school_year_id', '=', 'latest.max_sy_id')
             )

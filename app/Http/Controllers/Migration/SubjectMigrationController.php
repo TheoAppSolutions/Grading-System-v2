@@ -8,7 +8,7 @@ use App\Models\Subject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Helpers\HCGS;
+use App\Helpers\MigrationTools;
 
 class SubjectMigrationController extends BaseMigrationController
 {
@@ -18,7 +18,6 @@ class SubjectMigrationController extends BaseMigrationController
      * Routes:
      *   GET    /migrate/subjects/preview  → preview()
      *   POST   /migrate/subjects          → migrate()
-     *   GET    /migrate/subjects/unfilled → unfilledGradeLevels()
      *   DELETE /migrate/subjects/reset    → reset()
      *
      * Column mapping (old → new):
@@ -40,7 +39,6 @@ class SubjectMigrationController extends BaseMigrationController
      *
      * ⚠ grade_level_id:
      *   Resolved by matching old `gradelevel` varchar against grade_levels.label.
-     *   Rows with no match get null — call GET /migrate/subjects/unfilled to list them.
      */
     private ?array $subjectCategoryMap = null;
 
@@ -80,19 +78,10 @@ class SubjectMigrationController extends BaseMigrationController
             dedupeKey: 'subject_id' // old varchar code — unique per subject
         );
 
-        $unfilled = DB::connection('new_db')
-            ->table('subjects')
-            ->whereNull('grade_level_id')
-            ->count();
-
         $this->insertMissingSubjects();
 
         return response()->json([
             'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
-            'unfilled_grade_level_id' => $unfilled,
-            'note' => $unfilled > 0
-                ? "{$unfilled} subject(s) have null grade_level_id. Call GET /migrate/subjects/unfilled."
-                : 'All grade_level_id values resolved successfully.',
             ...$stats,
         ]);
     }
@@ -117,13 +106,11 @@ class SubjectMigrationController extends BaseMigrationController
     {
         $now = now()->toDateTimeString();
 
-        if (HCGS::isHCGS() && !HCGS::subjectIdChecker($row)) {
+        if (MigrationTools::skipSubjectId($row->subject_id)) {
             return [];
         }
 
         return [
-            // Preserved varchar code — cross-reference key for subject_users,
-            // subject_units, and subject_excluded
             'subject_code' => $row->subject_id,
             'grade_level_id' => $this->resolveGradeLevel($row->gradelevel ?? null),
             'subject_category_id' => $this->resolveSubjectCategory($row->subjecttitle ?? null),
@@ -173,25 +160,7 @@ class SubjectMigrationController extends BaseMigrationController
 
     public function insertMissingSubjects(): void
     {
-        $subjects = [];
-        if (config('app.name') === 'BIS') :
-            $subjects = [
-                ['subject_code' => 'CHIN01', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 1],
-                ['subject_code' => 'CHIN02', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 2],
-                ['subject_code' => 'CHIN03', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 3],
-                ['subject_code' => 'CHIN04', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 4],
-                ['subject_code' => 'CHIN05', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 5],
-                ['subject_code' => 'CHIN06', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 6],
-                ['subject_code' => 'CHIN07', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 7],
-                ['subject_code' => 'CHIN08', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 8],
-                ['subject_code' => 'CHIN09', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 9],
-                ['subject_code' => 'CHIN10', 'subject_title' => 'Chinese', 'subject_category_id' => 15, 'grade_level_id' => 10],
-            ];
-        elseif (config('app.name') === 'HCGS'):
-            $subjects = [
-                ['subject_code' => 'CIVI07', 'subject_title' => 'Civics/Geography', 'subject_category_id' => 0, 'grade_level_id' => 7],
-            ];
-        endif;
+        $subjects = MigrationTools::missingSubjects();
 
         foreach ($subjects as $subject) {
             Subject::updateOrCreate(

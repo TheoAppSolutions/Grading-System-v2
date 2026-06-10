@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Helpers\MigrationTools;
-use App\Helpers\HCGS;
 
 abstract class BaseMigrationController extends Controller
 {
@@ -106,8 +105,8 @@ abstract class BaseMigrationController extends Controller
         $map = $this->buildGradeLevelMap();
         $key = trim($gradelevel);
 
-        if (HCGS::isHCGS() && HCGS::gradeLevelChecker($key) !== $key) {
-            $key = HCGS::gradeLevelChecker($key);
+        if (MigrationTools::gradeLevelChecker($key) !== $key) {
+            $key = MigrationTools::gradeLevelChecker($key);
         }
 
         if (isset($map[$key])) {
@@ -240,6 +239,7 @@ abstract class BaseMigrationController extends Controller
         ?string $dedupeKey = null
     ): array {
         $stats = ['inserted' => 0, 'skipped' => 0, 'errors' => []];
+        $skippedRecords = [];
         $batchSize = (int) floor(self::SQLITE_VARS / $columnCount);
 
         DB::transaction(function () use (
@@ -249,6 +249,7 @@ abstract class BaseMigrationController extends Controller
             $mapper,
             $batchSize,
             $dedupeKey,
+            &$skippedRecords,
             &$stats
         ) {
             DB::connection('old_db')
@@ -259,6 +260,8 @@ abstract class BaseMigrationController extends Controller
                     $mapper,
                     $batchSize,
                     $dedupeKey,
+                    $oldTable,
+                    &$skippedRecords,
                     &$stats
                 ) {
                     $firstMapped = $mapper($rows->first());
@@ -279,11 +282,8 @@ abstract class BaseMigrationController extends Controller
                         $sourceVal = $row->{$oldDedupeKey};
 
                         if (isset($existingVals[$sourceVal])) {
-                            Log::channel('migrationlog')->info("Skipping in [{$newTable}]", [
-                                'value' => $row,
-                            ]);
+                            $skippedRecords[$oldTable][] = $row;
                             $stats['skipped']++;
-
                             continue;
                         }
 
@@ -319,7 +319,7 @@ abstract class BaseMigrationController extends Controller
                                         'row' => $mapped[$newDedupeKey] ?? null,
                                         'message' => $rowError->getMessage(),
                                     ];
-                                    dd($mapped);
+                                    // dd($mapped);
                                     Log::channel('migrationlog')->info("Migration insert error [{$newTable}]", [
                                         'error' => $rowError->getMessage(),
                                     ]);
@@ -329,7 +329,11 @@ abstract class BaseMigrationController extends Controller
                     }
                 });
         });
-
+        if ($skippedRecords) {
+            Log::channel('migrationlog')->info("Duplicate record in [{$newTable}]", [
+                'value' => $skippedRecords,
+            ]);
+        }
         return $stats;
     }
 
