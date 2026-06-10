@@ -18,7 +18,10 @@ class SubjectsTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID'),
-                // TextColumn::make('subject_code'),
+                TextColumn::make('subject_code')
+                    ->label('Subject Code'),
+                TextColumn::make('gradeLevel.label')
+                    ->label('Grade Level'),
                 TextColumn::make('subject_title')
                     ->label('Title')
                     ->searchable(),

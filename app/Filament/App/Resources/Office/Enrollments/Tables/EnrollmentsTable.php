@@ -27,13 +27,26 @@ class EnrollmentsTable
             ->query(Student::where('active', 1))
             ->columns([
                 TextColumn::make('id')
-                    ->label('ID'),
+                    ->label('Record #'),
                 TextColumn::make('name')
                     ->getStateUsing(fn($record) => $record['last_name'] . ', ' . $record['first_name'])
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('current_level')
-                    ->formatStateUsing(fn($state) => $state ? MyTools::ordinal($state) . ' Grade' : 'No Records'),
+                    ->label('Current Grade')
+                    ->getStateUsing(function ($record) {
+                        $grade_level_id = $record->enrollments()->first()?->grade_level_id;
+                        $school_year = $record->enrollments()
+                            ->latest()
+                            ->first()?->schoolYear?->school_year;
+
+                        if (!$grade_level_id) {
+                            return 'No Records';
+                        }
+                        $grade = GradeLevel::find($grade_level_id);
+                        return $grade ? MyTools::ordinal($grade->sort_order) . ' Grade (S.Y. ' . $school_year . ')' : 'No Records';
+                    })
+                    // ->formatStateUsing(fn($state) => $state ? MyTools::ordinal($state) . ' Grade' : 'No Records'),
             ])
             ->filters([
                 Filter::make('enrollment')
@@ -43,8 +56,10 @@ class EnrollmentsTable
                         Select::make('school_year_id')
                             ->label('School Year')
                             ->required()
+                            ->searchable()
                             ->options(SchoolYear::orderBy('id', 'desc')->pluck('school_year', 'id'))
                             ->default(SchoolYear::where('active', 1)->first()?->id)
+                            ->selectablePlaceholder(false)
                             ->placeholder('Select School Year'),
                         Select::make('enrollment_status')
                             ->label('Enrollment Status')
@@ -62,7 +77,8 @@ class EnrollmentsTable
                             ->live(),
                         Select::make('grade_level_id')
                             ->label('Grade Level')
-                            ->options(GradeLevel::pluck('label', 'id'))
+                            ->options(GradeLevel::orderBy('sort_order', 'asc')->pluck('label', 'id'))
+                            ->searchable()
                             ->visible(fn(Get $get) => $get('enrollment_status') === 'enrolled')
                             ->placeholder('All Grade Level')
                     ])
@@ -128,6 +144,7 @@ class EnrollmentsTable
                     ->visible(function () {return true;})
             ])
             ->deferFilters(false)
+            ->hiddenFilterIndicators(true)
             ->recordUrl('');
     }
 

@@ -138,9 +138,9 @@ class HomeroomMigrationController extends BaseMigrationController
         return [
             'grade_level_id' => $this->resolveGradeLevel($row->advisory ?? null),
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null), // from base
-            'section_id'     => $this->resolveSection($row->section ?? 999),
-            'user_id'        => $row->user_id  ?? null,
-            'user2_id'       => $row->user2_id ?? 999,
+            'section_id'     => $this->resolveSection($row->section ?? null),
+            'user_id'        => $this->resolveUser($row->user_id  ?? null),
+            'user2_id'       => $this->resolveUser($row->user2_id ?? null),
             'created_at'     => $now,
             'updated_at'     => $now,
         ];

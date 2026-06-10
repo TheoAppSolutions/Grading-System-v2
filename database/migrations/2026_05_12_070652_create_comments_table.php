@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grade_criteria', function (Blueprint $table) {
+        Schema::create('comments_criteria', function (Blueprint $table) {
             $table->id();
             $table->string('code', 10);
             $table->string('label');

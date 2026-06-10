@@ -15,7 +15,7 @@ class SchoolYearInfoRelationManager extends RelationManager
     protected static ?string $relationshipTitle = 'No. Calendar Days';
 
     public function table(Table $table): Table
-    {
+    {// Todo by Semester, by Month (2 entries), by Month (4 entries), by Month (10 entries)
         $startMonth = (int) $this->ownerRecord->month_start;
         $endMonth = (int) $this->ownerRecord->month_end;
         $entries = (int) $this->ownerRecord->attendance_entries;

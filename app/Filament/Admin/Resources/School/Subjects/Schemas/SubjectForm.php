@@ -51,6 +51,10 @@ class SubjectForm
                     ->live()
                     ->visible(config('app.system_features.sections'))
                     ->disabled(fn (callable $get) => ! $get('grade_level_id')),
+                TextInput::make('subject_code')
+                    ->label('Subject Code')
+                    ->required()
+                    ->helperText('Unique code used for cross-referencing (e.g. MATH01 [First 4 Charcters of the Subject Title + Grade Level])'),
                 TextInput::make('subject_title')
                     ->label('Subject Title')
                     ->columnSpanFull()

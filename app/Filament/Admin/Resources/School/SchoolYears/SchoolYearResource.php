@@ -46,9 +46,9 @@ class SchoolYearResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\HomeroomRelationManager::class,
             RelationManagers\SchoolYearInfoRelationManager::class,
             RelationManagers\SchoolYearCardTemplateRelationManager::class,
-            RelationManagers\HomeroomRelationManager::class,
             RelationManagers\SectionsRelationManager::class,
         ];
     }

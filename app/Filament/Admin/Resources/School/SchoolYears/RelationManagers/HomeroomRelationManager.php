@@ -21,20 +21,22 @@ class HomeroomRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        $schoolYears = $this->ownerRecord->school_year;
-
+        $schoolYears = $this->ownerRecord->active;
         return $table
             ->heading('')
             ->columns([
                 TextColumn::make('gradeLevel.label'),
-                TextColumn::make('section.section'),
+                TextColumn::make('section.section')
+                    ->visible(config('app.system_features.sections')),
                 SelectColumn::make('user_id')
                     ->label('Adviser')
                     ->searchableOptions()
+                    ->disabled(function () use ($schoolYears) { return $schoolYears != 1; })
                     ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
                 SelectColumn::make('user2_id')
                     ->label('Co-Adviser')
                     ->searchableOptions()
+                    ->disabled(function () use ($schoolYears) { return $schoolYears != 1; })
                     ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
             ])
             ->paginated(false)

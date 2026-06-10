@@ -2,11 +2,10 @@
 
 namespace App\Filament\Admin\Resources\School\SchoolYears\Schemas;
 
+use App\Helpers\MyTools;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use App\Helpers\MyTools;
 
 class SchoolYearForm
 {
@@ -17,14 +16,23 @@ class SchoolYearForm
                 TextInput::make('school_year')
                     ->placeholder('e.g., 2026-2027')
                     ->required(),
+                Select::make('attendance_entries')
+                    ->label('Attendance Entries')
+                    ->options([
+                        2 => 'By Semester (2 entries)',
+                        5 => 'By Quarter (4 entries)',
+                        10 => 'By Month (10 entries)',
+                    ])
+                    ->required(),
                 Select::make('month_start')
+                    ->label('Start Month')
+                    ->searchable()
                     ->options(MyTools::getMonths())
                     ->required(),
                 Select::make('month_end')
+                    ->label('End Month')
+                    ->searchable()
                     ->options(MyTools::getMonths())
-                    ->required(),
-                TextInput::make('attendance_entries')
-                    ->integer()
                     ->required(),
             ]);
     }

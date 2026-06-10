@@ -84,6 +84,9 @@ class AdminPanelProvider extends PanelProvider
                 $groups = [...$autoGroups];
 
                 $groups[] = NavigationGroup::make('Developer Tools')->items([
+                    NavigationItem::make('Office Page')
+                        ->icon(Heroicon::BuildingOffice2)
+                        ->url('/app'),
                     NavigationItem::make('Migrations')
                         ->icon(Heroicon::ArrowPathRoundedSquare)
                         ->url('/admin/migrations')
