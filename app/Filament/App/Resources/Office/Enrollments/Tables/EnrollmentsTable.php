@@ -27,26 +27,40 @@ class EnrollmentsTable
             ->query(Student::where('active', 1))
             ->columns([
                 TextColumn::make('id')
-                    ->label('Record #'),
+                    ->searchable()
+                    ->label('Student ID'),
                 TextColumn::make('name')
                     ->getStateUsing(fn($record) => $record['last_name'] . ', ' . $record['first_name'])
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('current_level')
                     ->label('Current Grade')
-                    ->getStateUsing(function ($record) {
-                        $grade_level_id = $record->enrollments()->first()?->grade_level_id;
-                        $school_year = $record->enrollments()
-                            ->latest()
-                            ->first()?->schoolYear?->school_year;
+                    ->state(function ($record, $livewire) {
+                        $filters = $livewire->tableFilters['enrollment'] ?? [];
+                        $schoolYearId = $filters['school_year_id'] ?? null;
+                        $enrollmentStatus = $filters['enrollment_status'] ?? null;
 
-                        if (!$grade_level_id) {
-                            return 'No Records';
+                        if ($enrollmentStatus === 'enrolled' && $schoolYearId) {
+                            return $record->enrollments()
+                                ->where('school_year_id', $schoolYearId)
+                                ->first()?->gradeLevel?->label;
                         }
-                        $grade = GradeLevel::find($grade_level_id);
-                        return $grade ? MyTools::ordinal($grade->sort_order) . ' Grade (S.Y. ' . $school_year . ')' : 'No Records';
+
+                        // Get latest enrollment by school year relationship, not created_at
+                        $latest = $record->enrollments()
+                            ->with(['gradeLevel', 'schoolYear'])
+                            ->whereHas('schoolYear')
+                            ->join('school_years', 'enrollments.school_year_id', '=', 'school_years.id')
+                            ->orderByDesc('school_years.school_year')
+                            ->first();
+
+                        if (! $latest) {
+                            return '—';
+                        }
+
+                        return $latest->gradeLevel?->label
+                            . ' (S.Y. ' . $latest->schoolYear?->school_year . ')';
                     })
-                    // ->formatStateUsing(fn($state) => $state ? MyTools::ordinal($state) . ' Grade' : 'No Records'),
             ])
             ->filters([
                 Filter::make('enrollment')
@@ -74,6 +88,7 @@ class EnrollmentsTable
                                 }
                             })
                             ->default('enrolled')
+                            ->selectablePlaceholder(false)
                             ->live(),
                         Select::make('grade_level_id')
                             ->label('Grade Level')
@@ -124,24 +139,43 @@ class EnrollmentsTable
             ], FiltersLayout::AboveContent)
             ->toolbarActions([
                 BulkAction::make('bulk_enroll')
-                    ->label('Bulk Enroll')
-                    ->schema([
-                        Select::make('grade_level_id')
-                            ->label('Grade Level')
-                            ->options(GradeLevel::pluck('label', 'id'))
-                            ->required(),
-                        Select::make('school_year_id')
-                            ->label('School Year')
-                            ->options(SchoolYear::pluck('school_year', 'id'))
-                            ->default(SchoolYear::where('active', 1)->first()?->id)
-                            ->required(),
-                    ])
+                    ->label('Enroll Student')
+                    ->schema(
+                        function (Collection $records) {
+                            $gradeLevelOptions = $records
+                                ->flatMap(fn($student) => $student->enrollments)
+                                ->map(fn($enrollment) => $enrollment->gradeLevel)
+                                ->filter()
+                                ->unique('id')
+                                ->pluck('id')
+                                ->toArray();
+
+                            if (count($gradeLevelOptions) > 1) :
+                                return [
+                                    
+                                ];
+                            endif;
+
+                            return [
+                                Select::make('grade_level_id')
+                                    ->label('Grade Level')
+                                    ->searchable()
+                                    ->options(GradeLevel::orderBy('sort_order')->pluck('label', 'id'))
+                                    ->required(),
+                            ];
+                        }
+                    )
                     ->action(fn(Collection $records, array $data) => static::enrollStudents($records, $data))
                     ->deselectRecordsAfterCompletion()
                     ->requiresConfirmation()
                     ->modalHeading('Bulk Enroll Students')
                     ->modalSubmitActionLabel('Enroll')
-                    ->visible(function () {return true;})
+                    ->visible(function ($livewire) {
+                        if ($livewire->tableFilters['enrollment']['school_year_id'] == SchoolYear::getActive()->id) {
+                            return true;
+                        }
+                        return false;
+                    })
             ])
             ->deferFilters(false)
             ->hiddenFilterIndicators(true)
@@ -150,7 +184,7 @@ class EnrollmentsTable
 
     public static function enrollStudents(Collection $records, array $data): void
     {
-        $alreadyEnrolled = Enrollment::where('school_year_id', $data['school_year_id'])
+        $alreadyEnrolled = Enrollment::where('school_year_id', SchoolYear::getActive())
             ->whereIn('student_id', $records->pluck('id'))
             ->pluck('student_id')
             ->toArray();

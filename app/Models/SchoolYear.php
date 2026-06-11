@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Unguarded]
 class SchoolYear extends Model
 {
+    public static function getActive(): ?self
+    {
+        return static::where('active', 1)->first();
+    }
+
     // Relationships
     public function schoolYearInfo(): HasMany
     {
