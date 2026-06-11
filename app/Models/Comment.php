@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Table('comments_quarter')]
+#[Table('comments')]
 #[Unguarded]
-class CommentQuarter extends Model
+class Comment extends Model
 {
     // Relationships
     public function student(): BelongsTo
@@ -19,7 +19,7 @@ class CommentQuarter extends Model
 
     public function criteria(): BelongsTo
     {
-        return $this->belongsTo(GradeCriteria::class, 'criteria_id');
+        return $this->belongsTo(CommentCriteria::class, 'criteria_id');
     }
 
     // Helpers

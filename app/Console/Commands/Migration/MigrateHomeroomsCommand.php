@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 class MigrateHomeroomsCommand extends Command
 {
     protected $signature = 'migrate:homeroom
-                            {--fresh : Reset sections table before migrating}';
+                            {--fresh : Reset homerooms table before migrating}';
 
     protected $description = 'Migrate sections from old MySQL to new SQLite';
 

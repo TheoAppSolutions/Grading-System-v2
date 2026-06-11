@@ -141,8 +141,8 @@ class HomeroomMigrationController extends BaseMigrationController
             'section_id'     => $this->resolveSection($row->section ?? null),
             'user_id'        => $this->resolveUser($row->user_id  ?? null),
             'user2_id'       => $this->resolveUser($row->user2_id ?? null),
-            'created_at'     => $now,
-            'updated_at'     => $now,
+            'created_at'     => $row->created_at ?? $now,
+            'updated_at'     => $row->updated_at ?? $now,
         ];
         // 7 columns — keep in sync with columnCount above
     }

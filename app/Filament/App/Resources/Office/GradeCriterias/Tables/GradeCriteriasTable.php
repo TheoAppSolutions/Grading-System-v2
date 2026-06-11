@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\GradeCriterias\Tables;
+namespace App\Filament\App\Resources\Office\CommentCriterias\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -8,7 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Table;
 
-class GradeCriteriasTable
+class CommentCriteriasTable
 {
     public static function configure(Table $table): Table
     {

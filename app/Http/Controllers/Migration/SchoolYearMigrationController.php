@@ -94,8 +94,8 @@ class SchoolYearMigrationController extends BaseMigrationController
             'active' => $this->coerceActive($row->active),
             'attendance_entries' => 10,   // days_settings not directly mappable
             'card_template_id' => null, // old value was a string path, not an int FK
-            'created_at' => $now,
-            'updated_at' => $now,
+            'created_at'     => $row->created_at ?? $now,
+            'updated_at'     => $row->updated_at ?? $now,
         ];
         // 8 columns — keep in sync with columnCount above
     }

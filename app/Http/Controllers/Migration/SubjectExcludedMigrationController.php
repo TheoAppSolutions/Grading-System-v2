@@ -95,8 +95,8 @@ class SubjectExcludedMigrationController extends BaseMigrationController
             'student_id'     => (int) $row->student_id,
             'subject_id'     => $row->subject_id,
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
-            'created_at'     => $now,
-            'updated_at'     => $now,
+            'created_at'     => $row->created_at ?? $now,
+            'updated_at'     => $row->updated_at ?? $now,
         ];
         // 5 columns — keep in sync with columnCount above
     }

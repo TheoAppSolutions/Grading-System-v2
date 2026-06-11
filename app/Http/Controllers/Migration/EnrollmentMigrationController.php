@@ -140,8 +140,8 @@ class EnrollmentMigrationController extends BaseMigrationController
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
             'grade_level_id' => $this->resolveGradeLevel($row->gradelevel ?? null),
             'section_id' => $this->resolveSection($row->section_or_strand ?? null),
-            'created_at' => $now,
-            'updated_at' => $now,
+            'created_at' => $row->created_at ?? $now,
+            'updated_at' => $row->updated_at ?? $now,
         ];
         // 6 columns — keep in sync with columnCount above
     }

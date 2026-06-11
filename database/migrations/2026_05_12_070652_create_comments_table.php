@@ -13,39 +13,25 @@ return new class extends Migration
     {
         Schema::create('comments_criteria', function (Blueprint $table) {
             $table->id();
+            $table->integer('comment_category_id');
             $table->string('code', 10);
-            $table->string('label');
-            $table->enum('category', ['S', 'PSR', 'WSS', 'A', 'B', 'C', 'D', 'E', 'F']);
-            $table->enum('type', ['midquarter', 'quarter']);
-            $table->tinyInteger('sort_order')->default(0);
+            $table->string('description');
+            $table->tinyInteger('type')->comment('1: midquarter, 2: quarter');
             $table->boolean('active')->default(true);
             $table->timestamps();
 
             $table->unique(['code', 'type']);
         });
 
-        Schema::create('comments_midquarter', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id')->index();
+            $table->integer('student_id');
             $table->integer('school_year_id');
-            $table->integer('subject_id')->index();
-            $table->tinyInteger('quarter');
-            $table->foreignId('criteria_id')->constrained('grade_criteria')->cascadeOnDelete();
-            $table->decimal('score', 4, 1)->default(0);
+            $table->json('comments_quarter');
+            $table->json('comments_midquarter');
             $table->timestamps();
 
-            $table->unique(['student_id', 'school_year_id', 'quarter', 'subject_id', 'criteria_id']);
-        });
-
-        Schema::create('comments_quarter', function (Blueprint $table) {
-            $table->id();
-            $table->integer('student_id')->index();
-            $table->integer('school_year_id');
-            $table->foreignId('criteria_id')->constrained('grade_criteria')->cascadeOnDelete();
-            $table->decimal('score', 4, 1)->default(0);
-            $table->timestamps();
-
-            $table->unique(['student_id', 'school_year_id', 'criteria_id']);
+            $table->unique(['student_id', 'school_year_id']);
         });
     }
 
@@ -54,8 +40,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grade_criteria');
-        Schema::dropIfExists('comments_midquarter');
-        Schema::dropIfExists('comments_quarter');
+        Schema::dropIfExists('comments_criteria');
+        Schema::dropIfExists('comments');
     }
 };

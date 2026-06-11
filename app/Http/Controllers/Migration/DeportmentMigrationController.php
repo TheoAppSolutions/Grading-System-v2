@@ -92,8 +92,8 @@ class DeportmentMigrationController extends BaseMigrationController
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null), // from base
             'deportment'     => $row->deportment !== null ? (float) $row->deportment : null,
             'quarter'        => (int) $row->quarter,
-            'created_at'     => $now,
-            'updated_at'     => $now,
+            'created_at'     => $row->created_at ?? $now,
+            'updated_at'     => $row->updated_at ?? $now,
         ];
         // 7 columns — keep in sync with columnCount above
     }

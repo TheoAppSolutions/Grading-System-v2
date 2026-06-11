@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Table('grade_criteria')]
+#[Table('comments_criteria')]
 #[Unguarded]
-class GradeCriteria extends Model
+class CommentCriteria extends Model
 {
     // Relationships
     public function midquarterScores(): HasMany

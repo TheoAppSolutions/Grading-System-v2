@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('student_id')->index();
             $table->integer('school_year_id')->index();
-            $table->tinyInteger('month');
-            $table->decimal('days_absent', 5, 1)->default(0);
-            $table->decimal('days_tardiness', 5, 1)->default(0);
+            $table->json('attendance');
             $table->timestamps();
         });
     }

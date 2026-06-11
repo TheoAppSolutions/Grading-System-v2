@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\GradeCriterias\Schemas;
+namespace App\Filament\App\Resources\Office\CommentCriterias\Schemas;
 
 use Filament\Schemas\Schema;
 
-class GradeCriteriaForm
+class CommentCriteriaForm
 {
     public static function configure(Schema $schema): Schema
     {

@@ -14,32 +14,30 @@ class MigrateAllCommand extends Command
 
     /**
      * Ordered pipeline — each step depends on the ones before it.
-     *
-     *  1. school-years   — base FK for almost everything
-     *  2. users          — FK for grades.user_id
-     *  3. sections       — FK for student_sections + enrollments
-     *  4. students       — core student rows + infos + sections
-     *  5. subjects       — FK for grades.subject_id
-     *  6. enrollments    — depends on school_years + sections + students
-     *  7. grades         — depends on everything above
      */
     private array $pipeline = [
         ['command' => 'migrate:users',        'label' => 'Users'],
         ['command' => 'migrate:school-years', 'label' => 'School Years'],
         ['command' => 'migrate:subjects',     'label' => 'Subjects'],
         ['command' => 'migrate:students',     'label' => 'Students'],
-        // ['command' => 'migrate:sections',     'label' => 'Sections'],
         ['command' => 'migrate:enrollments',  'label' => 'Enrollments'],
         ['command' => 'migrate:grades',       'label' => 'Grades'],
-        ['command' => 'migrate:homeroom',       'label' => 'Homerooms'],
+        ['command' => 'migrate:homeroom',     'label' => 'Homerooms'],
+        ['command' => 'migrate:comments',     'label' => 'Comments'],
+        ['command' => 'migrate:sections',     'label' => 'Sections'],
+        ['command' => 'migrate:deportment',   'label' => 'Deportment'],
+        ['command' => 'migrate:attendance',   'label' => 'Attendance'],
+        ['command' => 'migrate:award',        'label' => 'Award'],
+        ['command' => 'migrate:graduate',     'label' => 'Graduate'],
     ];
 
     public function handle(): int
     {
-        $fresh       = $this->option('fresh');
-        $skipGrades  = $this->option('skip-grades');
-        $startedAt   = now();
-        $failed      = [];
+        $fresh      = $this->option('fresh');
+        $skipGrades = $this->option('skip-grades');
+        $startedAt  = now();
+        $failed     = [];
+        $skipped    = [];
 
         $this->newLine();
         $this->line('╔══════════════════════════════════════╗');
@@ -57,21 +55,42 @@ class MigrateAllCommand extends Command
         }
 
         foreach ($this->pipeline as $step) {
-            if ($skipGrades && $step['command'] === 'migrate:grades') {
-                $this->warn("Skipping: {$step['label']}");
+            $this->line("──────────────────────────────────────");
+
+            // --- Skip: sections feature flag ---
+            if ($step['label'] === 'Sections' && ! config('app.system_features.sections')) {
+                $this->warn("⊘  Skipping: {$step['label']}");
+                $this->line("   Reason: app.system_features.sections is disabled");
+                $skipped[] = ['label' => $step['label'], 'reason' => 'Feature flag disabled'];
                 $this->newLine();
                 continue;
             }
 
-            $this->line("──────────────────────────────────────");
+            // --- Skip: deportment feature flag ---
+            if ($step['label'] === 'Deportment' && ! config('app.system_features.homeroom_deportment')) {
+                $this->warn("⊘  Skipping: {$step['label']}");
+                $this->line("   Reason: app.system_features.homeroom_deportment is disabled");
+                $skipped[] = ['label' => $step['label'], 'reason' => 'Feature flag disabled'];
+                $this->newLine();
+                continue;
+            }
+
+            // --- Skip: grades flag ---
+            if ($skipGrades && $step['command'] === 'migrate:grades') {
+                $this->warn("⊘  Skipping: {$step['label']}");
+                $this->line("   Reason: --skip-grades flag was passed");
+                $skipped[] = ['label' => $step['label'], 'reason' => '--skip-grades flag'];
+                $this->newLine();
+                continue;
+            }
+
             $this->info("▶  {$step['label']}");
             $this->line("──────────────────────────────────────");
 
             $args = $fresh ? ['--fresh' => true] : [];
 
-            // migrate:grades uses --tables instead of --fresh internally
             if ($step['command'] === 'migrate:grades' && $fresh) {
-                $args = [];
+                $args     = [];
                 $this->callSilently('migrate:grades', ['--fresh' => true]);
                 $exitCode = $this->call('migrate:grades');
             } else {
@@ -102,17 +121,31 @@ class MigrateAllCommand extends Command
         $this->newLine();
 
         $rows = collect($this->pipeline)
-            ->filter(fn ($s) => ! ($skipGrades && $s['command'] === 'migrate:grades'))
-            ->map(fn ($s) => [
-                $s['label'],
-                in_array($s['label'], $failed) ? '✗ Failed' : '✓ Done',
-            ])
+            ->map(function ($s) use ($failed, $skipped) {
+                $skippedLabels = array_column($skipped, 'label');
+                $skippedEntry  = collect($skipped)->firstWhere('label', $s['label']);
+
+                if (in_array($s['label'], $skippedLabels)) {
+                    return [$s['label'], '⊘ Skipped', $skippedEntry['reason'] ?? ''];
+                }
+
+                return [
+                    $s['label'],
+                    in_array($s['label'], $failed) ? '✗ Failed' : '✓ Done',
+                    '',
+                ];
+            })
             ->all();
 
-        $this->table(['Step', 'Result'], $rows);
+        $this->table(['Step', 'Result', 'Note'], $rows);
 
         $this->newLine();
         $this->line("Total time: {$elapsed}s");
+
+        if (! empty($skipped)) {
+            $this->newLine();
+            $this->warn('Skipped steps: ' . implode(', ', array_column($skipped, 'label')));
+        }
 
         if (! empty($failed)) {
             $this->newLine();

@@ -95,8 +95,8 @@ class SubjectUnitMigrationController extends BaseMigrationController
             'subject_id'     => $row->subject_id ?? null,
             'units'          => (float) $row->units,
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
-            'created_at'     => $now,
-            'updated_at'     => $now,
+            'created_at'     => $row->created_at ?? $now,
+            'updated_at'     => $row->updated_at ?? $now,
         ];
         // 5 columns — keep in sync with columnCount above
     }

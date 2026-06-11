@@ -117,6 +117,8 @@ class UserMigrationController extends BaseMigrationController
 
     private function mapRow(object $row): array
     {
+        $now = now()->toDateTimeString();
+
         $firstName  = Str::title(str_replace('?', 'ñ', trim($row->firstname) ?? ''));
         $lastName   = Str::title(str_replace('?', 'ñ', trim($row->lastname) ?? ''));
         $middleName = Str::title(str_replace('?', 'ñ', trim($row->middlename) ?? ''));
@@ -162,8 +164,8 @@ class UserMigrationController extends BaseMigrationController
             'remember_token'    => $row->remember_token ?? null,
 
             // Preserve original timestamps from old DB if present
-            'created_at'        => $row->created_at ?? now()->toDateTimeString(),
-            'updated_at'        => $row->updated_at ?? now()->toDateTimeString(),
+            'created_at'     => $row->created_at ?? $now,
+            'updated_at'     => $row->updated_at ?? $now,
         ];
         // 14 columns — keep in sync with columnCount above
     }

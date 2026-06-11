@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\GradeCriterias\Pages;
+namespace App\Filament\App\Resources\Office\CommentCriterias\Pages;
 
-use App\Filament\App\Resources\Office\GradeCriterias\GradeCriteriaResource;
+use App\Filament\App\Resources\Office\CommentCriterias\CommentCriteriaResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
-class ListGradeCriterias extends ListRecords
+class ListCommentCriterias extends ListRecords
 {
-    protected static string $resource = GradeCriteriaResource::class;
+    protected static string $resource = CommentCriteriaResource::class;
 
     protected function getHeaderActions(): array
     {

@@ -111,8 +111,8 @@ class SubjectUserMigrationController extends BaseMigrationController
             'section_id' => $this->resolveSection($row->section ?? null),
             'semester' => $row->semester ?? '',
             'category' => $row->category ?? '',
-            'created_at' => $now,
-            'updated_at' => $now,
+            'created_at' => $row->created_at ?? $now,
+            'updated_at' => $row->updated_at ?? $now,
         ];
         // 9 columns — keep in sync with columnCount above
     }

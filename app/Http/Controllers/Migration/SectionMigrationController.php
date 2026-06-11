@@ -132,8 +132,8 @@ class SectionMigrationController extends BaseMigrationController
             'grade_level_id' => $this->resolveGradeLevel($row->gradelevel ?? null),
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
             'section'        => $row->section,
-            'created_at'     => $now,
-            'updated_at'     => $now,
+            'created_at'     => $row->created_at ?? $now,
+            'updated_at'     => $row->updated_at ?? $now,
         ];
         // 5 columns — keep in sync with columnCount above
     }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\App\Resources\Office\GradeCriterias\Pages;
+namespace App\Filament\App\Resources\Office\CommentCriterias\Pages;
 
-use App\Filament\App\Resources\Office\GradeCriterias\GradeCriteriaResource;
+use App\Filament\App\Resources\Office\CommentCriterias\CommentCriteriaResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateGradeCriteria extends CreateRecord
+class CreateCommentCriteria extends CreateRecord
 {
-    protected static string $resource = GradeCriteriaResource::class;
+    protected static string $resource = CommentCriteriaResource::class;
 }

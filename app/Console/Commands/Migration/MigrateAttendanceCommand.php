@@ -8,9 +8,9 @@ use Illuminate\Console\Command;
 class MigrateAttendanceCommand extends Command
 {
     protected $signature = 'migrate:attendance
-                            {--fresh : Reset sections table before migrating}';
+                            {--fresh : Reset attendance table before migrating}';
 
-    protected $description = 'Migrate sections from old MySQL to new SQLite';
+    protected $description = 'Migrate attendance from old MySQL to new SQLite';
 
     public function handle(AttendanceMigrationController $controller): int
     {
