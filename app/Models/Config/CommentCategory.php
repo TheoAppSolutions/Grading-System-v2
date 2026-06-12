@@ -4,7 +4,7 @@ namespace App\Models\Config;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CommentCatigory extends Model
+class CommentCategory extends Model
 {
     use \Sushi\Sushi;
 

@@ -13,10 +13,12 @@ use App\Helpers\MyTools;
 
 class HomeroomsTable
 {
-    public static function configure(Table $table): Table
+    public static function configure(Table $table): Table   
     {
         return $table
+            ->query(Homeroom::where('school_year_id', SchoolYear::getActive()->id))
             ->columns([
+                TextColumn::make('schoolYear.school_year'),
                 TextColumn::make('gradeLevel.label'),
                 TextColumn::make('section.section'),
                 SelectColumn::make('user_id')
@@ -28,7 +30,6 @@ class HomeroomsTable
                     ->searchableOptions()
                     ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
             ])
-            ->paginated(false)
             ->recordUrl('');
     }
 }

@@ -18,6 +18,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use App\Helpers\MyTools;
+use Filament\Infolists\Components\TextEntry;
 
 class EnrollmentsTable
 {
@@ -152,7 +153,7 @@ class EnrollmentsTable
 
                             if (count($gradeLevelOptions) > 1) :
                                 return [
-                                    
+                                    TextEntry::make('Multiple Gradelevel Selected, do you want to enroll all student with 1 level increase?')
                                 ];
                             endif;
 

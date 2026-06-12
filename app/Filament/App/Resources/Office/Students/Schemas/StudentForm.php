@@ -17,7 +17,8 @@ class StudentForm
                     ->required()
                     ->numeric(),
                 TextInput::make('student_lrn')
-                    ->label('Student LRN'),
+                    ->label('Student LRN')
+                    ->visible(config('app.system_features.student_lrn')),
                 TextInput::make('first_name')
                     ->required(),
                 TextInput::make('middle_name'),
@@ -26,8 +27,8 @@ class StudentForm
                 TextInput::make('suffix'),
                 Select::make('gender')
                     ->options([
-                        'm' => 'Male',
-                        'f' => 'Female'
+                        'M' => 'Male',
+                        'F' => 'Female'
                     ])
                     ->required(),
             ]);

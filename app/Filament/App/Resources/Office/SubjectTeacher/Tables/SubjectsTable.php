@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use App\Helpers\MyTools;
+use App\Models\SchoolYear;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Set;
@@ -21,8 +22,6 @@ class SubjectsTable
 {
     public static function configure(Table $table): Table
     {
-        $schoolYear = MyTools::getSchoolYear();
-
         $teachers = User::where([
             // ['id', '!=', 1],
             'active' => 1
@@ -30,13 +29,11 @@ class SubjectsTable
 
         return $table
             ->query(
-                Subject::with(['subjectUser' => function ($query) use ($schoolYear) {
-                    $query->where('school_year_id', $schoolYear->id);
+                Subject::with(['subjectUser' => function ($query) {
+                    $query->where('school_year_id', SchoolYear::getActive()->id);
                 }])
             )
             ->columns([
-                TextColumn::make('id')->label('ID'),
-
                 TextColumn::make('subject_title')
                     ->label('Title')
                     ->searchable(),
@@ -77,6 +74,7 @@ class SubjectsTable
                 SelectFilter::make('grade_level_id')
                     ->label('Grade Level')
                     ->options(GradeLevel::all()->sortBy('sort_order')->pluck('label', 'id'))
+                    ->selectablePlaceholder(false)
                     ->searchable(),
                 // SelectFilter::make('subject_category_id')
                 //     ->label('Category')
@@ -84,6 +82,8 @@ class SubjectsTable
                 //     ->searchable()
             ], layout: FiltersLayout::AboveContent)
             ->deferFilters(false)
+            ->defaultPaginationPageOption(25)
+            ->hiddenFilterIndicators(true)
             ->recordUrl(false);
     }
 }

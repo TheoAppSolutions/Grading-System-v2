@@ -2,8 +2,6 @@
 
 namespace App\Filament\App\Resources\Homeroom\Attendances;
 
-use App\Filament\App\Resources\Homeroom\Attendances\Pages\CreateAttendance;
-use App\Filament\App\Resources\Homeroom\Attendances\Pages\EditAttendance;
 use App\Filament\App\Resources\Homeroom\Attendances\Pages\ListAttendances;
 use App\Filament\App\Resources\Homeroom\Attendances\Schemas\AttendanceForm;
 use App\Filament\App\Resources\Homeroom\Attendances\Tables\AttendancesTable;
@@ -46,8 +44,6 @@ class AttendanceResource extends Resource
     {
         return [
             'index' => ListAttendances::route('/'),
-            'create' => CreateAttendance::route('/create'),
-            'edit' => EditAttendance::route('/{record}/edit'),
         ];
     }
 }

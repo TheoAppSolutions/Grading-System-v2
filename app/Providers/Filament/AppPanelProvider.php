@@ -38,6 +38,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login(Login::class)
+            ->globalSearch(false)
             ->colors([
                 'primary' => Color::Amber,
                 'secondary' => Color::Slate,

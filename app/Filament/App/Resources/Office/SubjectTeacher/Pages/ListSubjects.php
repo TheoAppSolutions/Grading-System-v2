@@ -6,15 +6,24 @@ use App\Filament\App\Resources\Office\SubjectTeacher\SubjectResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use App\Helpers\MyTools;
+use App\Models\SchoolYear;
 use Filament\Notifications\Notification;
 use Filament\Actions\Action;
 use App\Models\Subject;
+use Illuminate\Contracts\Support\Htmlable;
+use Override;
 
 class ListSubjects extends ListRecords
 {
     protected static string $resource = SubjectResource::class;
 
     public array $pendingChanges = [];
+
+    #[Override]
+    public function getTitle(): string|Htmlable
+    {
+        return 'Subject Teacher (S.Y. ' . SchoolYear::getActive()->school_year . ')';
+    }
 
     protected function getHeaderActions(): array
     {
