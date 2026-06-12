@@ -2,17 +2,10 @@
 
 namespace App\Filament\App\Resources\Homeroom\Attendances\Tables;
 
-use App\Models\Attendance;
 use App\Models\Config\AttendanceOptions;
 use App\Models\Config\GradeLevel;
 use App\Models\Enrollment;
 use App\Models\SchoolYear;
-use App\Models\Student;
-use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -26,15 +19,44 @@ class AttendancesTable
         return $table
             ->query(function () {
                 $schoolYear = SchoolYear::getActive()->id;
+
                 return Enrollment::with([
                     'schoolYear' => function ($query) use ($schoolYear) {
                         $query->where('school_year_id', $schoolYear);
-                    }
+                    },
                 ])->where([
-                    'school_year_id' => $schoolYear
+                    'school_year_id' => $schoolYear,
                 ]);
             })
-            ->columns(self::getColumns())
+            ->columns([
+                TextColumn::make('student_name')
+                    ->label('Name')
+                    ->getStateUsing(fn ($record) => $record->student->first_name.' '.$record->student->middle_name.' '.$record->student->last_name),
+
+                TextInputColumn::make('absent')
+                    ->label('Absent')
+                    ->type('number')
+                    ->step(0.5)
+                    ->getStateUsing(
+                        fn ($record, $livewire) => $livewire->pendingChanges[$record->student_id]['absent']
+                            ?? data_get($record->attendance_data, $record->student_id.'.A', '')
+                    )
+                    ->updateStateUsing(
+                        fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->student_id]['absent'] = $state
+                    ),
+
+                TextInputColumn::make('tardy')
+                    ->label('Tardy')
+                    ->type('number')
+                    ->step(0.5)
+                    ->getStateUsing(
+                        fn ($record, $livewire) => $livewire->pendingChanges[$record->student_id]['tardy']
+                            ?? data_get($record->attendance_data, $record->student_id.'.T', '')
+                    )
+                    ->updateStateUsing(
+                        fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->student_id]['tardy'] = $state
+                    ),
+            ])
             ->filters([
                 SelectFilter::make('grade_level_id')
                     ->label('Grade Level')
@@ -47,13 +69,11 @@ class AttendancesTable
                     ->selectablePlaceholder(false)
                     ->options(function () {
                         $schoolYear = SchoolYear::getActive();
-                        // return AttendanceOptions->where('id', $schoolYear->attendance_entries)->options;
-                    })
+// TODO: FIX THIS
+                        return AttendanceOptions::find($schoolYear->attendance_entries)?->options ?? [];
+                    }),
             ], FiltersLayout::AboveContent)
-            ->deferFilters(false)
-            ->defaultSort('last_name', 'ASC')
-            ->hiddenFilterIndicators()
-            ->recordUrl('');
+            ->defaultSort('last_name', 'ASC');
     }
 
     public static function getColumns(): array
@@ -61,13 +81,10 @@ class AttendancesTable
         $columns = [
             TextColumn::make('student_name')
                 ->label('Name')
-                ->getStateUsing(fn($record) => $record->student->first_name . ' ' . $record->student->middle_name . ' ' . $record->student->last_name),
+                ->getStateUsing(fn ($record) => $record->student->first_name.' '.$record->student->middle_name.' '.$record->student->last_name),
         ];
 
         $schoolYear = SchoolYear::getActive();
-        for ($i = 1; $i <= $schoolYear->attendance_entries; $i++):
-            $columns[] = TextInputColumn::make('entry_no' . $i)->label('Entry: ' . $i);
-        endfor;
 
         return $columns;
     }

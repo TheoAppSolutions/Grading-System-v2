@@ -177,10 +177,7 @@ class EnrollmentsTable
                         }
                         return false;
                     })
-            ])
-            ->deferFilters(false)
-            ->hiddenFilterIndicators(true)
-            ->recordUrl('');
+            ]);
     }
 
     public static function enrollStudents(Collection $records, array $data): void

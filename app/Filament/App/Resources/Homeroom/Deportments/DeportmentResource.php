@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Override;
 
 class DeportmentResource extends Resource
 {
@@ -49,5 +51,17 @@ class DeportmentResource extends Resource
             'create' => CreateDeportment::route('/create'),
             'edit' => EditDeportment::route('/{record}/edit'),
         ];
+    }
+
+    #[Override]
+    public static function shouldRegisterNavigation(): bool
+    {
+        return config('app.system_features.homeroom_deportment');
+    }
+
+    #[Override]
+    public static function canView(Model $record): bool
+    {
+        return config('app.system_features.homeroom_deportment');
     }
 }

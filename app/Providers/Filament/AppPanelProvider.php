@@ -77,7 +77,7 @@ class AppPanelProvider extends PanelProvider
                 $schoolYear = MyTools::getSchoolYear(); // move this up before it's used
 
                 $autoItems = collect(Filament::getResources())
-                    ->reject(fn($resource) => $resource === GradeResource::class)
+                    ->filter(fn($resource) => $resource::shouldRegisterNavigation())
                     ->flatMap(fn($resource) => $resource::getNavigationItems())
                     ->all();
 

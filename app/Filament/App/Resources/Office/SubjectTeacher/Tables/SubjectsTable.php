@@ -80,10 +80,6 @@ class SubjectsTable
                 //     ->label('Category')
                 //     ->options(SubjectCategory::all()->sortBy('sort_order')->pluck('label', 'id'))
                 //     ->searchable()
-            ], layout: FiltersLayout::AboveContent)
-            ->deferFilters(false)
-            ->defaultPaginationPageOption(25)
-            ->hiddenFilterIndicators(true)
-            ->recordUrl(false);
+            ], layout: FiltersLayout::AboveContent);
     }
 }

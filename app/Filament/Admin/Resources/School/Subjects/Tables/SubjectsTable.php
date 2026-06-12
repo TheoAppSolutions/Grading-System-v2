@@ -41,7 +41,6 @@ class SubjectsTable
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->deferFilters(false);
+            ]);
     }
 }

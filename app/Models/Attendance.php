@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Unguarded]
 class Attendance extends Model
 {
+    protected $casts = [
+        'attendance_data' => 'array',
+    ];
+
     // Relationships
     public function student(): BelongsTo
     {
