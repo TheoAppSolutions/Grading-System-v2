@@ -16,6 +16,7 @@ class ListAttendances extends ListRecords
     protected static string $resource = AttendanceResource::class;
 
     public array $pendingChanges = [];
+    public int $entryNumber = 1;
 
     #[Override]
     public function getTitle(): string|Htmlable
