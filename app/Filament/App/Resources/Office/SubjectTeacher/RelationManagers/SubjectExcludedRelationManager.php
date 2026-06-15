@@ -26,7 +26,7 @@ class SubjectExcludedRelationManager extends RelationManager
                 ])
             )
             ->columns([
-                TextColumn::make('student.full_name')
+                TextColumn::make('student.fullName')
                     ->label('Name')
             ])
             ->headerActions([

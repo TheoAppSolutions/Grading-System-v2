@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\Unguarded;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -76,9 +77,11 @@ class Student extends Model
     }
 
     // Helpers
-    public function full_name(): string
+    protected function fullName(): Attribute
     {
-        return trim("{$this->lastname}, {$this->firstname} {$this->middlename} {$this->suffix}");
+        return Attribute::make(
+            get: fn() => trim("{$this->last_name}, {$this->first_name} {$this->middle_name} {$this->suffix}")
+        );
     }
 
     public function isActive(): bool

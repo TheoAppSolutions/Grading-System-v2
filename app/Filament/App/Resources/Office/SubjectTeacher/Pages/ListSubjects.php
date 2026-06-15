@@ -29,6 +29,9 @@ class ListSubjects extends ListRecords
     {
         $schoolYear = MyTools::getSchoolYear();
         return [
+            Action::make('import')
+                ->label('Import Records')
+                ->color('success'),
             Action::make('saveAll')
                 ->label('Save All Changes')
                 ->action(function ($livewire) use ($schoolYear) {

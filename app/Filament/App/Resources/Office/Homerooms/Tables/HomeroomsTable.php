@@ -24,11 +24,11 @@ class HomeroomsTable
                 SelectColumn::make('user_id')
                     ->label('Adviser')
                     ->searchableOptions()
-                    ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
+                    ->options(fn() => User::getActiveUsers()->pluck('name', 'id')),
                 SelectColumn::make('user2_id')
                     ->label('Co-Adviser')
                     ->searchableOptions()
-                    ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
+                    ->options(fn() => User::getActiveUsers()->pluck('name', 'id')),
             ])
             ->recordUrl('');
     }

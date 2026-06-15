@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Office\Students;
 
 use App\Filament\App\Resources\Office\Students\Pages\CreateStudent;
 use App\Filament\App\Resources\Office\Students\Pages\EditStudent;
+use App\Filament\App\Resources\Office\Students\Pages\ViewStudent;
 use App\Filament\App\Resources\Office\Students\Pages\ListStudents;
 use App\Filament\App\Resources\Office\Students\Schemas\StudentForm;
 use App\Filament\App\Resources\Office\Students\Tables\StudentsTable;
@@ -50,6 +51,7 @@ class StudentResource extends Resource
             'index' => ListStudents::route('/'),
             'create' => CreateStudent::route('/create'),
             'edit' => EditStudent::route('/{record}/edit'),
+            'view' => ViewStudent::route('/{record}'),
         ];
     }
 }

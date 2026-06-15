@@ -5,7 +5,7 @@ use App\Http\Controllers\Migration\GradeMigrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect(url('/app'));
 });
 
 // routes/web.php or api.php

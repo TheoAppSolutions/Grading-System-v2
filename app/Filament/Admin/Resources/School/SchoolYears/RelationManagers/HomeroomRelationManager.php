@@ -21,7 +21,7 @@ class HomeroomRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        $schoolYears = $this->ownerRecord->active;
+        $isActive = $this->ownerRecord->active;
         return $table
             ->heading('')
             ->columns([
@@ -31,13 +31,13 @@ class HomeroomRelationManager extends RelationManager
                 SelectColumn::make('user_id')
                     ->label('Adviser')
                     ->searchableOptions()
-                    ->disabled(function () use ($schoolYears) { return $schoolYears != 1; })
-                    ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
+                    ->disabled(function () use ($isActive) { return $isActive != 1; })
+                    ->options(fn() => User::getActiveUsers()->pluck('name', 'id')),
                 SelectColumn::make('user2_id')
                     ->label('Co-Adviser')
                     ->searchableOptions()
-                    ->disabled(function () use ($schoolYears) { return $schoolYears != 1; })
-                    ->options(fn() => User::where('id', '!=', 1)->pluck('name', 'id')->toArray()),
+                    ->disabled(function () use ($isActive) { return $isActive != 1; })
+                    ->options(fn() => User::getActiveUsers()->pluck('name', 'id')),
             ])
             ->paginated(false)
             ->recordUrl('');

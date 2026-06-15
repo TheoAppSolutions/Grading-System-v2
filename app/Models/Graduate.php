@@ -17,6 +17,11 @@ class Graduate extends Model
         return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
+    public function schoolYear(): BelongsTo
+    {
+        return $this->belongsTo(SchoolYear::class, 'school_year_id', 'id');
+    }
+
     // Helpers
     public function scopeBySchoolYear($query, string $year)
     {

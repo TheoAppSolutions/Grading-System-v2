@@ -11,21 +11,14 @@ use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
-use App\Helpers\MyTools;
 use App\Models\SchoolYear;
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Tables\Actions\HeaderActionsPosition;
+use Illuminate\Database\Eloquent\Builder;
 
 class SubjectsTable
 {
     public static function configure(Table $table): Table
     {
-        $teachers = User::where([
-            // ['id', '!=', 1],
-            'active' => 1
-        ])->pluck('name', 'id');
+        $teachers = User::getActiveUsers()->pluck('name', 'id');
 
         return $table
             ->query(
@@ -75,11 +68,13 @@ class SubjectsTable
                     ->label('Grade Level')
                     ->options(GradeLevel::all()->sortBy('sort_order')->pluck('label', 'id'))
                     ->selectablePlaceholder(false)
+                    ->default(1)
                     ->searchable(),
                 // SelectFilter::make('subject_category_id')
                 //     ->label('Category')
                 //     ->options(SubjectCategory::all()->sortBy('sort_order')->pluck('label', 'id'))
                 //     ->searchable()
-            ], layout: FiltersLayout::AboveContent);
+            ], layout: FiltersLayout::AboveContent)
+            ->paginated(false);
     }
 }

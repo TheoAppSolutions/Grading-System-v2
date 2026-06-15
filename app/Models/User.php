@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 #[Table('users')]
 #[Fillable(['name', 'email', 'last_name', 'first_name', 'middle_name', 'suffix', 'honorifics', 'password', 'active'])]
@@ -111,5 +111,13 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return $this->active === true;
+    }
+
+    public static function getActiveUsers()
+    {
+        return self::where('active', true)
+            ->where('id', '!=', 1)
+            ->orderBy('name')
+            ->get();
     }
 }

@@ -2,13 +2,20 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages;
+use App\Filament\Pages\Auth\Login;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationBuilder;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -17,15 +24,6 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
-use Filament\Navigation\NavigationBuilder;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
-use App\Filament\App\Resources\Teacher\Grades\GradeResource;
-use Filament\Facades\Filament;
-use App\Filament\Pages\Auth\Login;
-use App\Filament\Pages;
-use Filament\Support\Icons\Heroicon;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -50,7 +48,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
-            ->pages([Pages\Dashboard::class,])
+            ->pages([Pages\Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
                 AccountWidget::class,
@@ -72,13 +70,13 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $autoItems = collect(Filament::getResources())
-                    ->filter(fn($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn($resource) => $resource::getNavigationItems())
+                    ->filter(fn ($resource) => $resource::shouldRegisterNavigation())
+                    ->flatMap(fn ($resource) => $resource::getNavigationItems())
                     ->all();
 
                 $autoGroups = collect($autoItems)
-                    ->groupBy(fn($item) => $item->getGroup() ?? '')
-                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->all()))
+                    ->groupBy(fn ($item) => $item->getGroup() ?? '')
+                    ->map(fn ($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->all()))
                     ->values()
                     ->all();
 
@@ -91,7 +89,7 @@ class AdminPanelProvider extends PanelProvider
                     NavigationItem::make('Migrations')
                         ->icon(Heroicon::ArrowPathRoundedSquare)
                         ->url('/admin/migrations')
-                        ->isActiveWhen(fn() => request()->is('admin/migrations')),
+                        ->isActiveWhen(fn () => request()->is('admin/migrations')),
                     NavigationItem::make('Logs')
                         ->icon(Heroicon::ExclamationTriangle)
                         ->url('/telescope')

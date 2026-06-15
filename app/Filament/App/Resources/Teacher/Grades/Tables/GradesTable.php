@@ -53,7 +53,7 @@ class GradesTable
                     ])
             ])
             ->columns([
-                TextColumn::make('full_name')
+                TextColumn::make('fullName')
                     ->label('Name')
                     ->getStateUsing(fn($record) => $record->last_name . ', ' . $record->first_name)
                     ->sortable(['last_name', 'first_name']),

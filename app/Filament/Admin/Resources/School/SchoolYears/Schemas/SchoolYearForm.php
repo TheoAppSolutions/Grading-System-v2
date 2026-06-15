@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\School\SchoolYears\Schemas;
 
 use App\Helpers\MyTools;
+use App\Models\Config\CardTemplate;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
@@ -15,16 +16,14 @@ class SchoolYearForm
         return $schema
             ->components([
                 TextInput::make('school_year')
-                    ->placeholder('e.g., 2026-2027')
+                    ->label('School Year')
                     ->required(),
                 Select::make('attendance_entries')
                     ->label('Attendance Entries')
                     ->live()
-                    ->options([
-                        2 => 'By Semester (2 entries)',
-                        4 => 'By Quarter (4 entries)',
-                        10 => 'By Month (10 entries)',
-                    ])
+                    ->options(CardTemplate::getCategoriesOptions())
+                    ->selectablePlaceholder(false)
+                    ->native(false)
                     ->required(),
                 Select::make('month_start')
                     ->label('Start Month')

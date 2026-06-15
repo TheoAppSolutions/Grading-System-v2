@@ -2,13 +2,11 @@
 
 namespace App\Filament\Admin\Resources\System\Users\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class UsersTable
@@ -25,12 +23,16 @@ class UsersTable
                 TextColumn::make('email')
                     ->searchable(),
                 ToggleColumn::make('active')
-                    ->disabled(fn($record) => Auth::id() === $record->id),
+                    ->disabled(fn ($record) => Auth::id() === $record->id),
             ])
             ->filters([
                 //
             ])
-            ->defaultSort('active', 'DESC')
+            ->defaultSort(function (Builder $query): Builder {
+                return $query
+                    ->orderBy('active', 'desc')
+                    ->orderBy('name', 'asc');
+            })
             ->recordActions([
                 EditAction::make(),
             ]);

@@ -2,10 +2,19 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Resources\Teacher\Grades\GradeResource;
+use App\Filament\Pages;
+use App\Filament\Pages\Auth\Login;
+use App\Helpers\MyTools;
+use App\Models\SubjectUser;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationBuilder;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -16,18 +25,8 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
-
-use Filament\Navigation\NavigationBuilder;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
-use App\Filament\App\Resources\Teacher\Grades\GradeResource;
-use App\Models\SubjectUser;
-use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
-use App\Helpers\MyTools;
-use App\Filament\Pages\Auth\Login;
-use App\Filament\Pages;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -52,7 +51,7 @@ class AppPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
-            ->pages([Pages\Dashboard::class,])
+            ->pages([Pages\Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
             ->widgets([
                 AccountWidget::class,
@@ -74,11 +73,12 @@ class AppPanelProvider extends PanelProvider
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
 
-                $schoolYear = MyTools::getSchoolYear(); // move this up before it's used
+                $schoolYear = MyTools::getSchoolYear();
 
                 $autoItems = collect(Filament::getResources())
                     ->filter(fn($resource) => $resource::shouldRegisterNavigation())
                     ->flatMap(fn($resource) => $resource::getNavigationItems())
+                    ->sortBy(fn($item) => $item->getSort()) // sort items before grouping
                     ->all();
 
                 $autoGroups = collect($autoItems)
@@ -93,14 +93,13 @@ class AppPanelProvider extends PanelProvider
                     $subjectGroups = $this->buildSubjectNavItems($schoolYear);
 
                     if (!empty($subjectGroups)) {
-                        $groups = [...$subjectGroups, ...$groups]; // spread since it's now multiple groups
+                        $groups = [...$subjectGroups, ...$groups]; // subject groups always first
                     }
                 }
 
                 return $builder->groups($groups);
             });
     }
-
 
     private function buildSubjectNavItems($schoolYear): array
     {
@@ -115,16 +114,16 @@ class AppPanelProvider extends PanelProvider
         }
 
         return $subjects
-            ->groupBy(fn(SubjectUser $subjectUser) => $subjectUser->subject->subjectCategory->label)
+            ->groupBy(fn (SubjectUser $subjectUser) => $subjectUser->subject->subjectCategory->label)
             ->map(function ($groupedSubjects, string $subjectTitle) {
                 $items = $groupedSubjects
                     ->values()
                     ->map(function (SubjectUser $subjectUser, int $index) {
                         $subject = $subjectUser->subject;
 
-                        return NavigationItem::make(MyTools::ordinal($subject->grade_level_id) . ' Grade')
-                            ->url(GradeResource::getUrl('index') . '?sid=' . $subjectUser->subject_id . '&gid=' . $subjectUser->subject->grade_level_id)
-                            ->isActiveWhen(fn() => request()->is('app/teacher/grades*') && request('sid') == $subjectUser->subject_id)
+                        return NavigationItem::make(MyTools::ordinal($subject->grade_level_id).' Grade')
+                            ->url(GradeResource::getUrl('index').'?sid='.$subjectUser->subject_id.'&gid='.$subjectUser->subject->grade_level_id)
+                            ->isActiveWhen(fn () => request()->is('app/teacher/grades*') && request('sid') == $subjectUser->subject_id)
                             ->sort($index);
                     })
                     ->all();
