@@ -24,11 +24,11 @@ class MigrateAllCommand extends Command
         ['command' => 'migrate:grades',       'label' => 'Grades'],
         ['command' => 'migrate:homeroom',     'label' => 'Homerooms'],
         ['command' => 'migrate:comments',     'label' => 'Comments'],
-        ['command' => 'migrate:sections',     'label' => 'Sections'],
-        ['command' => 'migrate:deportment',   'label' => 'Deportment'],
         ['command' => 'migrate:attendance',   'label' => 'Attendance'],
         ['command' => 'migrate:award',        'label' => 'Award'],
         ['command' => 'migrate:graduate',     'label' => 'Graduate'],
+        ['command' => 'migrate:sections',     'label' => 'Sections'],
+        ['command' => 'migrate:deportment',   'label' => 'Deportment'],
     ];
 
     public function handle(): int

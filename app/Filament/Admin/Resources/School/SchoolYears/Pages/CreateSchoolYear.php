@@ -35,11 +35,11 @@ class CreateSchoolYear extends CreateRecord
             ]);
         }
 
-        $cardTemplates = CardTemplate::all()->pluck('category')->toArray();
+        $cardTemplates = CardTemplate::all();
         foreach ($cardTemplates as $category) {
             SchoolYearCardTemplate::create([
                 'school_year_id' => $record->id,
-                'category' => $category,
+                'card_template_id' => $category['card_template_id'],
             ]);
         }
 

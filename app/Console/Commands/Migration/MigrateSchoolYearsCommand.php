@@ -24,14 +24,17 @@ class MigrateSchoolYearsCommand extends Command
 
         $response = $controller->migrate();
         $data     = $response->getData(assoc: true);
+        $inserted = $data['school_years']['inserted'] + $data['school_year_infos']['inserted'] + $data['school_year_card_templates']['inserted'];
+        $skipped = $data['school_years']['skipped'] + $data['school_year_infos']['skipped'] + $data['school_year_card_templates']['skipped'];
+        $errors = array_merge($data['school_years']['errors'], $data['school_year_infos']['errors'], $data['school_year_card_templates']['errors']);
 
         $this->newLine();
         $this->table(
             ['Metric', 'Count'],
             [
-                ['Rows inserted', $data['inserted'] ?? 0],
-                ['Rows skipped',  $data['skipped']  ?? 0],
-                ['Errors',        count($data['errors'] ?? [])],
+                ['Rows inserted', $inserted ?? 0],
+                ['Rows skipped',  $skipped  ?? 0],
+                ['Errors',        count($errors ?? [])],
             ]
         );
 
@@ -40,10 +43,10 @@ class MigrateSchoolYearsCommand extends Command
 
     private function finish(array $data): int
     {
-        if (! empty($data['errors'])) {
+        if (! empty($errors)) {
             $this->newLine();
             $this->error('Errors encountered:');
-            foreach ($data['errors'] as $err) {
+            foreach ($errors as $err) {
                 $this->line("  • Row [{$err['row']}]: {$err['message']}");
             }
             return self::FAILURE;

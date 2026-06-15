@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\School\SchoolYears\Tables;
 
 use App\Helpers\MyTools;
+use App\Models\Config\CardTemplate;
 use App\Models\SchoolYear;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -16,11 +17,7 @@ class SchoolYearsTable
         return $table
             ->columns([
                 TextColumn::make('school_year'),
-                TextColumn::make('coverage')
-                    ->getStateUsing(function ($record) {
-                        return MyTools::getMonths()[$record['month_start']].' - '.MyTools::getMonths()[$record['month_end']];
-                    })
-                    ->label('Months'),
+                TextColumn::make('attendance_entries'),
                 ToggleColumn::make('active')
                     ->disabled(fn ($record) => $record->active)
                     ->beforeStateUpdated(function ($record, $state) {

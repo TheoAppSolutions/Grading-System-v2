@@ -30,24 +30,23 @@ class EditSchoolYear extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $record = $this->record;
-        $oldCount = $record->attendance_entries;
-        $newCount = $data['attendance_entries'];
+        $newCount = (int) $data['attendance_entries'];
+        $existingCount = SchoolYearInfo::where('school_year_id', $record->id)->count();
 
-        if ($oldCount !== $newCount) {
-            if ($newCount < $oldCount) {
-                SchoolYearInfo::where('school_year_id', $record->id)
-                    ->where('coverage', '>', $newCount)
-                    ->delete();
-            } else {
-                for ($month = $oldCount + 1; $month <= $newCount; $month++) {
-                    SchoolYearInfo::create([
-                        'school_year_id' => $record->id,
-                        'coverage' => $month,
-                        'days' => 0,
-                    ]);
-                }
+        if ($newCount < $existingCount) {
+            SchoolYearInfo::where('school_year_id', $record->id)
+                ->where('coverage', '>', $newCount)
+                ->delete();
+        } elseif ($newCount > $existingCount) {
+            for ($coverage = $existingCount + 1; $coverage <= $newCount; $coverage++) {
+                SchoolYearInfo::create([
+                    'school_year_id' => $record->id,
+                    'coverage'       => $coverage,
+                    'days'           => 0,
+                ]);
             }
         }
+        // if $newCount === $existingCount, nothing to do
 
         return parent::mutateFormDataBeforeSave($data);
     }

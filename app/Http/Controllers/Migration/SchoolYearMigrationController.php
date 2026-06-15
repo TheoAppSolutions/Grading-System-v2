@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Models\Config\CardTemplate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +21,7 @@ class SchoolYearMigrationController extends BaseMigrationController
      *   schoolyear_start   → month_start       (int, preserved)
      *   schoolyear_end     → month_end         (int, preserved)
      *   active (varchar)   → active            tinyInteger via coerceActive()
-     *   days_settings      → attendance_entries hardcoded default 10
+     *   school_days (JSON) → attendance_entries count of array entries (fallback 10 if null)
      *   card_template      → card_template_id  null (string path ≠ FK int)
      *   school_days (JSON) → (used for school_year_infos — see below)
      *   (none)             → timestamps
@@ -52,8 +53,8 @@ class SchoolYearMigrationController extends BaseMigrationController
             'old_count'          => DB::connection('old_db')->table('schoolyear')->count(),
             'new_count'          => DB::connection('new_db')->table('school_years')->count(),
             'new_infos_count'    => DB::connection('new_db')->table('school_year_infos')->count(),
-            'sample_school_year' => $sample->map(fn ($r) => $this->mapRow($r)),
-            'sample_infos'       => $sample->flatMap(fn ($r) => $this->expandSchoolDays($r, 0)),
+            'sample_school_year' => $sample->map(fn($r) => $this->mapRow($r)),
+            'sample_infos'       => $sample->flatMap(fn($r) => $this->expandSchoolDays($r, 0)),
         ]);
     }
 
@@ -64,23 +65,27 @@ class SchoolYearMigrationController extends BaseMigrationController
     public function migrate(): JsonResponse
     {
         $schoolYearStats = $this->runMigration(
-            newTable:    'school_years',
-            oldTable:    'schoolyear',
+            newTable: 'school_years',
+            oldTable: 'schoolyear',
             orderColumn: 'entry_id',
-            mapper:      fn ($r) => $this->mapRow($r),
+            mapper: fn($r) => $this->mapRow($r),
             columnCount: 8,
-            dedupeKey:   'schoolyear'
+            dedupeKey: 'schoolyear'
         );
 
         // After school_years are inserted, migrate school_year_infos
         $infoStats = $this->migrateSchoolYearInfos();
 
+        // Seed school_year_card_templates — 3 rows per school year
+        $cardTemplateStats = $this->migrateCardTemplates();
+
         return response()->json([
-            'status'       => (empty($schoolYearStats['errors']) && empty($infoStats['errors']))
-                                ? 'done'
-                                : 'done_with_errors',
-            'school_years' => $schoolYearStats,
-            'school_year_infos' => $infoStats,
+            'status' => (empty($schoolYearStats['errors']) && empty($infoStats['errors']) && empty($cardTemplateStats['errors']))
+                ? 'done'
+                : 'done_with_errors',
+            'school_years'               => $schoolYearStats,
+            'school_year_infos'          => $infoStats,
+            'school_year_card_templates' => $cardTemplateStats,
         ]);
     }
 
@@ -90,15 +95,19 @@ class SchoolYearMigrationController extends BaseMigrationController
 
     public function reset(): JsonResponse
     {
-        $infosDeleted      = DB::connection('new_db')->table('school_year_infos')->delete();
-        $schoolYearDeleted = DB::connection('new_db')->table('school_years')->delete();
+        $cardTemplatesDeleted = DB::connection('new_db')->table('school_year_card_templates')->delete();
+        $infosDeleted         = DB::connection('new_db')->table('school_year_infos')->delete();
+        $schoolYearDeleted    = DB::connection('new_db')->table('school_years')->delete();
+
+        DB::connection('new_db')->table('school_year_card_templates')->truncate();
         DB::connection('new_db')->table('school_year_infos')->truncate();
         DB::connection('new_db')->table('school_years')->truncate();
 
         return response()->json([
-            'status'                  => 'reset',
-            'school_years_deleted'    => $schoolYearDeleted,
-            'school_year_infos_deleted' => $infosDeleted,
+            'status'                           => 'reset',
+            'school_years_deleted'             => $schoolYearDeleted,
+            'school_year_infos_deleted'        => $infosDeleted,
+            'school_year_card_templates_deleted' => $cardTemplatesDeleted,
         ]);
     }
 
@@ -115,7 +124,7 @@ class SchoolYearMigrationController extends BaseMigrationController
             'month_start'        => (string) ($row->schoolyear_start ?? 1),
             'month_end'          => (string) ($row->schoolyear_end   ?? 12),
             'active'             => $this->coerceActive($row->active),
-            'attendance_entries' => 10,   // days_settings not directly mappable
+            'attendance_entries' => count(json_decode($row->school_days ?? '[]', associative: true) ?: []) ?: 10,
             'card_template_id'   => null, // old value was a string path, not an int FK
             'created_at'         => $now,
             'updated_at'         => $now,
@@ -257,5 +266,86 @@ class SchoolYearMigrationController extends BaseMigrationController
 
         return $rows;
         // 5 columns — keep in sync with batchSize calculation above
+    }
+
+    // -------------------------------------------------------------------------
+    // school_year_card_templates seeder
+    // -------------------------------------------------------------------------
+
+    /**
+     * For every school year in new_db, inserts 3 rows into school_year_card_templates:
+     *   coverage 1 → card_template_id = 1, category = 'primary'
+     *   coverage 2 → card_template_id = 2, category = 'secondary'
+     *   coverage 3 → card_template_id = 3, category = 'prep'
+     *
+     * Idempotent — skips rows where school_year_id + category already exists.
+     */
+    private function migrateCardTemplates(): array
+    {
+        $stats = ['inserted' => 0, 'skipped' => 0, 'errors' => []];
+
+        $templates = CardTemplate::all();
+
+        $schoolYears = DB::connection('new_db')
+            ->table('school_years')
+            ->pluck('id')
+            ->all();
+
+        $now      = now()->toDateTimeString();
+        $toInsert = [];
+
+        foreach ($schoolYears as $schoolYearId) {
+            foreach ($templates as $template) {
+                // Dedupe by school_year_id + category
+                $exists = DB::connection('new_db')
+                    ->table('school_year_card_templates')
+                    ->where('school_year_id', $schoolYearId)
+                    ->where('category',       $template->category)
+                    ->exists();
+
+                if ($exists) {
+                    $stats['skipped']++;
+                    continue;
+                }
+
+                $toInsert[] = [
+                    'school_year_id'   => $schoolYearId,
+                    'card_template_id' => $template->id,
+                    'category'         => $template->category,
+                    'created_at'       => $now,
+                    'updated_at'       => $now,
+                ];
+            }
+        }
+
+        if (empty($toInsert)) {
+            return $stats;
+        }
+
+        // 5 columns: school_year_id, card_template_id, category, created_at, updated_at
+        $batchSize = (int) floor(999 / 5);
+
+        DB::connection('new_db')->transaction(function () use ($toInsert, $batchSize, &$stats) {
+            foreach (array_chunk($toInsert, $batchSize) as $batch) {
+                try {
+                    DB::connection('new_db')->table('school_year_card_templates')->insert($batch);
+                    $stats['inserted'] += count($batch);
+                } catch (\Throwable $e) {
+                    foreach ($batch as $row) {
+                        try {
+                            DB::connection('new_db')->table('school_year_card_templates')->insert($row);
+                            $stats['inserted']++;
+                        } catch (\Throwable $rowError) {
+                            $stats['errors'][] = [
+                                'row'     => "sy:{$row['school_year_id']} cat:{$row['category']}",
+                                'message' => $rowError->getMessage(),
+                            ];
+                        }
+                    }
+                }
+            }
+        });
+
+        return $stats;
     }
 }

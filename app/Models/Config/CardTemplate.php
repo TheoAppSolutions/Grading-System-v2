@@ -12,17 +12,17 @@ class CardTemplate extends Model
         [
             'id' => 1,
             'category' => 'Primary',
-            'template' => 'A',
+            'remarks' => 'Default',
         ],
         [
             'id' => 2,
             'category' => 'Secondary',
-            'template' => 'B',
+            'remarks' => 'Default',
         ],
         [
             'id' => 3,
             'category' => 'SHS',
-            'template' => 'C',
+            'remarks' => 'Default',
         ],
     ];
 
