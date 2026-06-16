@@ -17,10 +17,9 @@ class UsersTable
     {
         return $table
             ->columns([
-                TextColumn::make('honorifics'),
                 TextColumn::make('fullName')
                     ->label('Name')
-                    ->getStateUsing(fn($record) => "{$record->first_name} {$record->last_name}"),
+                    ->getStateUsing(fn($record) => "{$record->honorifics} {$record->first_name} {$record->last_name}"),
                 TextColumn::make('userRoles.role.label')
                     ->label('Roles')
                     ->badge()

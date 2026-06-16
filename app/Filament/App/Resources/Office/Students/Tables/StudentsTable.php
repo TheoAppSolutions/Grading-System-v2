@@ -16,8 +16,10 @@ class StudentsTable
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('student_lrn')
+                    ->visible(config('app.system_features.student_lrn'))
                     ->searchable(),
                 TextColumn::make('first_name')
                     ->sortable()
@@ -30,8 +32,14 @@ class StudentsTable
                 TextColumn::make('suffix')
                     ->searchable(),
                 TextColumn::make('gender')
-                    ->formatStateUsing(fn($state) => strtoupper($state)),
-                ToggleColumn::make('active'),
+                    ->sortable()
+                    ->formatStateUsing(fn($state) => match($state) {
+                        "M" => "Male",
+                        "F" => "Female",
+                        default => ""
+                    }),
+                ToggleColumn::make('active')
+                    ->sortable(),
             ])
             ->filters([
                 //

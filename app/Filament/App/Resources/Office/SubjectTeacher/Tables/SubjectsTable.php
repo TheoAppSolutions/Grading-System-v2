@@ -18,7 +18,7 @@ class SubjectsTable
 {
     public static function configure(Table $table): Table
     {
-        $teachers = User::getActiveUsers()->pluck('name', 'id');
+        $teachers = User::pluck('name', 'id');
 
         return $table
             ->query(

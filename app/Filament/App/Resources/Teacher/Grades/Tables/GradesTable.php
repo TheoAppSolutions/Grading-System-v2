@@ -2,8 +2,8 @@
 
 namespace App\Filament\App\Resources\Teacher\Grades\Tables;
 
-use App\Models\CommentMidquarter;
-use App\Models\Grade;
+use App\Models\Comment;
+use App\Models\SchoolYear;
 use App\Models\Student;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -19,112 +19,115 @@ class GradesTable
 {
     public static function configure(Table $table): Table
     {
+        $schoolYearId = SchoolYear::getActive()->id;
+        $gradeLevelId = request('gid');
+        $subjectId = request('sid');
+
         return $table
-            ->query(Student::query())
+            ->query(
+                Student::query()
+                    ->whereHas('enrollments', function ($query) use ($schoolYearId, $gradeLevelId, $subjectId) {
+                        $query->where('school_year_id', $schoolYearId)
+                            ->where('grade_level_id', $gradeLevelId);
+                    })
+            )
+            ->columns([
+                    TextColumn::make('fullName')
+                        ->label('Name')
+                        ->getStateUsing(fn ($record) => $record->last_name.', '.$record->first_name)
+                        ->sortable(['last_name', 'first_name']),
+
+                    TextInputColumn::make('midquarter')
+                        ->label('MidQuarter')
+                        ->type('number')
+                        ->rules(['numeric', 'min:0', 'max:100'])
+                        ->visible(fn ($livewire) => $livewire->quarterType === 1)
+                        ->getStateUsing(
+                            fn ($record, $livewire) => $livewire->pendingChanges[$record->id]['midquarter'] ?? $record->midquarter
+                        )
+                        ->updateStateUsing(
+                            fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->id]['midquarter'] = $state
+                        ),
+
+                    TextInputColumn::make('final')
+                        ->label('Final')
+                        ->type('number')
+                        ->rules(['numeric', 'min:0', 'max:100'])
+                        ->visible(fn ($livewire) => $livewire->quarterType === 2)
+                        ->getStateUsing(
+                            fn ($record, $livewire) => $livewire->pendingChanges[$record->id]['final'] ?? $record->final
+                        )
+                        ->updateStateUsing(
+                            fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->id]['final'] = $state
+                        ),
+
+                    TextInputColumn::make('effort')
+                        ->label('Effort')
+                        ->type('number')
+                        ->rules(['numeric', 'min:0', 'max:5'])
+                        ->visible(fn ($livewire) => $livewire->quarterType === 2)
+                        ->getStateUsing(
+                            fn ($record, $livewire) => $livewire->pendingChanges[$record->id]['effort'] ?? $record->effort
+                        )
+                        ->updateStateUsing(
+                            fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->id]['effort'] = $state
+                        ),
+
+                    TextInputColumn::make('deportment')
+                        ->label('Deportment')
+                        ->type('number')
+                        ->rules(['numeric', 'min:0', 'max:100'])
+                        ->visible(fn ($livewire) => $livewire->quarterType === 2)
+                        ->getStateUsing(
+                            fn ($record, $livewire) => $livewire->pendingChanges[$record->id]['deportment'] ?? $record->deportment
+                        )
+                        ->updateStateUsing(
+                            fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->id]['deportment'] = $state
+                        ),
+                ])
             ->toolbarActions([
                 Action::make('midquarter_comments')
-                    ->label('Subject MidQuarter Comments')
-                    ->visible(fn($livewire) => $livewire->quarterType == 1)
-                    ->button()
-                    ->schema([
-                        Wizard::make(function () {
-                            $comments = CommentMidquarter::all();
-                            return $comments->map(function ($comment) {
-                                return Step::make($comment->label)
-                                    ->schema([
-                                        CheckboxList::make('comment_' . $comment->id)
-                                            ->label($comment->label)
-                                            ->options(
-                                                function ($livewire) {
-                                                    $options = [];
-                                                    $students = $livewire->students;
-                                                    foreach ($students as $student) {
-                                                        $options[] = $student->last_name;
+                        ->label('Subject MidQuarter Comments')
+                        ->visible(fn ($livewire) => $livewire->quarterType == 1)
+                        ->button()
+                        ->schema([
+                            Wizard::make(function () {
+                                $comments = Comment::all();
+
+                                return $comments->map(function ($comment) {
+                                    return Step::make($comment->label)
+                                        ->schema([
+                                            CheckboxList::make('comment_'.$comment->id)
+                                                ->label($comment->label)
+                                                ->options(
+                                                    function ($livewire) {
+                                                        $options = [];
+                                                        $students = $livewire->students;
+                                                        foreach ($students as $student) {
+                                                            $options[] = $student->last_name;
+                                                        }
+
+                                                        return $options;
                                                     }
-
-                                                    return $options;
-                                                }
-                                            )
-                                            ->columns(2)
-                                            ->gridDirection(GridDirection::Row),
-                                    ]);
-                            })->toArray();
-                        })
-                    ])
-            ])
-            ->columns([
-                TextColumn::make('fullName')
-                    ->label('Name')
-                    ->getStateUsing(fn($record) => $record->last_name . ', ' . $record->first_name)
-                    ->sortable(['last_name', 'first_name']),
-
-                TextInputColumn::make('midquarter')
-                    ->label('MidQuarter')
-                    ->type('number')
-                    ->rules(['numeric', 'min:0', 'max:100'])
-                    ->visible(fn($livewire) => $livewire->quarterType === 1)
-                    ->getStateUsing(
-                        fn($record, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['midquarter'] ?? $record->midquarter
-                    )
-                    ->updateStateUsing(
-                        fn($record, $state, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['midquarter'] = $state
-                    ),
-
-                TextInputColumn::make('final')
-                    ->label('Final')
-                    ->type('number')
-                    ->rules(['numeric', 'min:0', 'max:100'])
-                    ->visible(fn($livewire) => $livewire->quarterType === 2)
-                    ->getStateUsing(
-                        fn($record, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['final'] ?? $record->final
-                    )
-                    ->updateStateUsing(
-                        fn($record, $state, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['final'] = $state
-                    ),
-
-                TextInputColumn::make('effort')
-                    ->label('Effort')
-                    ->type('number')
-                    ->rules(['numeric', 'min:0', 'max:5'])
-                    ->visible(fn($livewire) => $livewire->quarterType === 2)
-                    ->getStateUsing(
-                        fn($record, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['effort'] ?? $record->effort
-                    )
-                    ->updateStateUsing(
-                        fn($record, $state, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['effort'] = $state
-                    ),
-
-                TextInputColumn::make('deportment')
-                    ->label('Deportment')
-                    ->type('number')
-                    ->rules(['numeric', 'min:0', 'max:100'])
-                    ->visible(fn($livewire) => $livewire->quarterType === 2)
-                    ->getStateUsing(
-                        fn($record, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['deportment'] ?? $record->deportment
-                    )
-                    ->updateStateUsing(
-                        fn($record, $state, $livewire) =>
-                        $livewire->pendingChanges[$record->id]['deportment'] = $state
-                    ),
+                                                )
+                                                ->columns(2)
+                                                ->gridDirection(GridDirection::Row),
+                                        ]);
+                                })->toArray();
+                            }),
+                        ]),
             ])
             ->headerActions([
                 Action::make('apply_midquarter')
                     ->label('MidQuarter')
-                    ->color(fn($livewire) => $livewire->quarterType == 1 ? 'success' : 'transparent')
+                    ->color(fn ($livewire) => $livewire->quarterType == 1 ? 'success' : 'transparent')
                     ->action(function ($livewire) {
                         $livewire->quarterType = 1;
                     }),
 
                 Action::make('apply_quarter')
                     ->label('Quarter')
-                    ->color(fn($livewire) => $livewire->quarterType == 2 ? 'success' : 'transparent')
+                    ->color(fn ($livewire) => $livewire->quarterType == 2 ? 'success' : 'transparent')
                     ->action(function ($livewire) {
                         $livewire->quarterType = 2;
                     }),
