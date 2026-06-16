@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages;
 use App\Filament\Pages\Auth\Login;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -23,7 +24,10 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\Auth\EditProfile;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,6 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
+            ->profile(EditProfile::class, isSimple: false)
             ->globalSearch(false)
             ->colors([
                 'primary' => Color::Amber,
@@ -44,7 +49,6 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Gray,
             ])
             ->breadcrumbs(false)
-            ->databaseNotifications()
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
@@ -68,35 +72,55 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->userMenuItems([
+                'Office' => fn(Action $action) => $action->make('app')
+                    ->label('Office Page')
+                    ->icon(Heroicon::BuildingOffice2)
+                    ->action(fn() => redirect(url('app'))),
+                'logout' => fn(Action $action) => $action->label('Log out'),
+            ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $autoItems = collect(Filament::getResources())
-                    ->filter(fn ($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn ($resource) => $resource::getNavigationItems())
+                    ->filter(fn($resource) => $resource::shouldRegisterNavigation())
+                    ->flatMap(fn($resource) => $resource::getNavigationItems())
                     ->all();
 
                 $autoGroups = collect($autoItems)
-                    ->groupBy(fn ($item) => $item->getGroup() ?? '')
-                    ->map(fn ($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->all()))
+                    ->groupBy(fn($item) => $item->getGroup() ?? '')
+                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->all()))
                     ->values()
                     ->all();
 
                 $groups = [...$autoGroups];
 
                 $groups[] = NavigationGroup::make('Developer Tools')->items([
-                    NavigationItem::make('Office Page')
-                        ->icon(Heroicon::BuildingOffice2)
-                        ->url('/app'),
                     NavigationItem::make('Migrations')
                         ->icon(Heroicon::ArrowPathRoundedSquare)
                         ->url('/admin/migrations')
-                        ->isActiveWhen(fn () => request()->is('admin/migrations')),
+                        ->isActiveWhen(fn() => request()->is('admin/migrations')),
                     NavigationItem::make('Logs')
                         ->icon(Heroicon::ExclamationTriangle)
                         ->url('/telescope')
                         ->openUrlInNewTab(),
                 ]);
 
-                return $builder->groups($groups);
+                return $builder
+                    ->items([
+                        ...Pages\Dashboard::getNavigationItems(),
+                        NavigationItem::make('Logout')
+                            ->url("javascript:document.querySelector('#logout').submit();")
+                            ->icon('heroicon-m-arrow-left-on-rectangle')
+                            ->sort(100)
+                    ])
+                    ->groups($groups);
+            })
+            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_END, function () {
+                return Blade::render('<form action="{{ $logoutLink }}" method="post" id="logout">@csrf</form>', [
+                    'logoutLink' => filament()->getLogoutUrl(),
+                ]);
+            })
+            ->renderHook(PanelsRenderHook::BODY_END, function () {
+                return view('filament.footer');
             });
     }
 }

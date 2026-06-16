@@ -13,11 +13,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Config\Role;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
 #[Table('users')]
 #[Fillable(['name', 'email', 'last_name', 'first_name', 'middle_name', 'suffix', 'honorifics', 'password', 'active'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -103,11 +106,6 @@ class User extends Authenticatable
         return trim("{$this->title} {$this->firstname} {$this->middlename} {$this->lastname} {$this->suffix}");
     }
 
-    public function hasRole(string $role): bool
-    {
-        return $this->roles()->where('role_description', $role)->exists();
-    }
-
     public function isActive(): bool
     {
         return $this->active === true;
@@ -119,5 +117,69 @@ class User extends Authenticatable
             ->where('id', '!=', 1)
             ->orderBy('name')
             ->get();
+    }
+
+    public function hasRole(int $roleId): bool
+    {
+        return $this->userRoles
+            ->contains(fn($userRole) => $userRole->role_id === $roleId);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(1);
+    }
+    public function isPrincipal(): bool
+    {
+        return $this->hasRole(2) || $this->hasRole(1);
+    }
+    public function isOffice(): bool
+    {
+        return $this->hasRole(3) || $this->hasRole(1);
+    }
+    public function isHomeroom(): bool
+    {
+        return $this->hasRole(4) || $this->hasRole(1);
+    }
+    public function isTeacher(): bool
+    {
+        return $this->hasRole(5) || $this->hasRole(1);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return match ($panel->getId()) {
+            'admin' => $this->isAdmin(),
+            default => true,
+        };
+    }
+
+    public static function getSuffixList()
+    {
+        return [
+            'Generational' => [
+                'Jr.' => 'Jr.',
+                'Sr.' => 'Sr.',
+                'II' => 'II',
+                'III' => 'III',
+                'IV' => 'IV',
+                'V' => 'V'
+            ],
+
+            'Academic / Professional' => [
+                'Ph.D.' => 'Ph.D.',
+                'M.D.' => 'M.D.',
+                'D.D.S.' => 'D.D.S.',
+                'D.V.M.' => 'D.V.M.',
+                'J.D.' => 'J.D.',
+                'LL.B.' => 'LL.B.',
+                'LL.M.' => 'LL.M.',
+                'M.B.A.' => 'M.B.A.',
+                'M.S.' => 'M.S.',
+                'M.A.' => 'M.A.',
+                'B.S.' => 'B.S.',
+                'B.A.' => 'B.A.'
+            ],
+        ];
     }
 }

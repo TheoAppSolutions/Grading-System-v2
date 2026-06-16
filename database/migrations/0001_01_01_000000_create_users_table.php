@@ -22,6 +22,9 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('suffix')->nullable();
             $table->string('honorifics')->nullable();
+            $table->date('birth_date')->nullable();
+            $table->string('contact')->nullable();
+            $table->string('address')->nullable();
             $table->tinyInteger('active')->default(1);
             $table->string('password');
             $table->rememberToken();
@@ -43,20 +46,10 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
-        Schema::create('user_infos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->date('birth_date')->nullable();
-            $table->string('contact')->nullable();
-            $table->string('email_address')->nullable()->unique();
-            $table->string('address')->nullable();
-            $table->timestamps();
-        });
-
         Schema::create('user_roles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('role_id')->nullable()->constrained('roles', 'role_id')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('role_id')->nullable();
             $table->timestamps();
         });
 
@@ -73,7 +66,6 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
-        Schema::dropIfExists('user_info');
         Schema::dropIfExists('user_roles');
         Schema::dropIfExists('user_settings');
     }

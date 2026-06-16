@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class UserMigrationController extends BaseMigrationController
 {
     /**
-     * Migrates `users` from old MySQL → `users` in new SQLite.
+     * Migrates `users` + `user_info` from old MySQL → `users` in new SQLite.
      *
      * Routes:
      *   GET    /migrate/users/preview  → preview()
@@ -17,28 +17,36 @@ class UserMigrationController extends BaseMigrationController
      *   GET    /migrate/users/unfilled → unfilledEmails()
      *   DELETE /migrate/users/reset    → reset()
      *
-     * Column mapping (old → new):
-     *   id             → (auto-increment, not mapped)
-     *   lastname       → last_name
-     *   firstname      → first_name
-     *   middlename     → middle_name
-     *   suffix         → suffix         (nullable, preserved)
-     *   title          → honorifics     (direct map per user request)
-     *   active         → active         (int → tinyInteger, compatible)
-     *   password       → password       (hash preserved as-is)
+     * Column mapping (old users → new users):
+     *   id             → old_id        preserved for reference
+     *   lastname       → last_name     renamed
+     *   firstname      → first_name    renamed
+     *   middlename     → middle_name   renamed, nullable
+     *   suffix         → suffix        empty string → null
+     *   title          → honorifics    direct map
+     *   active         → active        int → tinyInteger
+     *   password       → password      hash preserved
      *   remember_token → remember_token
-     *   created_at     → created_at     (preserved from old record)
-     *   updated_at     → updated_at     (preserved from old record)
+     *   created_at     → created_at    preserved
+     *   updated_at     → updated_at    preserved
      *
-     * Generated columns:
-     *   name           → "{firstname} {lastname}" (display name)
-     *   email          → placeholder: user.{id}@placeholder.email
-     *                    ⚠ SQLite requires email to be unique + NOT NULL.
-     *                      Placeholders are generated automatically.
-     *                      Run GET /migrate/users/unfilled after migration
-     *                      to get a list of all rows needing real emails.
-     *   email_verified_at → null
+     * Joined from old user_info (via user_id):
+     *   email_address  → email         placeholder {id}@placeholder.email if null/missing
+     *   birth_date     → birth_date
+     *   contact        → contact
+     *   address        → address
+     *
+     * user_roles migrated separately — see UserRolesMigrationController
+     *
+     * Generated:
+     *   name           → "{firstname} {lastname}"
      */
+
+    // Pre-load user_info keyed by user_id to avoid N+1 queries
+    private ?array $userInfoMap  = null;
+
+    // Pre-load user_roles keyed by user_id to avoid N+1 queries
+    private ?array $userRolesMap = null;
 
     // -------------------------------------------------------------------------
     // Preview
@@ -46,13 +54,15 @@ class UserMigrationController extends BaseMigrationController
 
     public function preview(): JsonResponse
     {
-
+        $this->buildUserInfoMap();
+        $this->buildUserRolesMap();
 
         return response()->json([
-            'table'     => 'users',
-            'old_count' => DB::connection('old_db')->table('users')->count(),
-            'new_count' => DB::table('users')->count(),
-            'sample'    => DB::connection('old_db')
+            'table'           => 'users',
+            'old_count'       => DB::connection('old_db')->table('users')->count(),
+            'new_count'       => DB::table('users')->count(),
+            'user_info_count' => DB::connection('old_db')->table('users_info')->count(),
+            'sample'          => DB::connection('old_db')
                 ->table('users')
                 ->limit(3)
                 ->get()
@@ -66,18 +76,31 @@ class UserMigrationController extends BaseMigrationController
 
     public function migrate(): JsonResponse
     {
+        $this->buildUserInfoMap();
+        $this->buildUserRolesMap();
+
         $stats = $this->runMigration(
             newTable: 'users',
             oldTable: 'users',
             orderColumn: 'id',
             mapper: fn($r) => $this->mapRow($r),
-            columnCount: 15,  // number of columns in mapRow() return value
-            dedupeKey: 'id' // use old id for duplicate detection
+            columnCount: 18, // old_id, name, email, email_verified_at, last_name, first_name,
+            // middle_name, suffix, honorifics, birth_date, contact, address,
+            // active, password, remember_token, created_at, updated_at
+            dedupeKey: 'id'
         );
 
+        $unfilled = DB::table('users')
+            ->where('email', 'like', '%@placeholder.email')
+            ->count();
+
         return response()->json([
-            'status'  => empty($stats['errors']) ? 'done' : 'done_with_errors',
-            'note'    => 'Emails were auto-generated as placeholders. Call GET /migrate/users/unfilled to list them.',
+            'status'   => empty($stats['errors']) ? 'done' : 'done_with_errors',
+            'unfilled' => $unfilled,
+            'note'     => $unfilled > 0
+                ? "{$unfilled} user(s) have placeholder emails. Call GET /migrate/users/unfilled."
+                : 'All emails resolved from user_info.',
+            'user_roles_note' => 'user_roles are migrated separately via POST /migrate/user-roles',
             ...$stats,
         ]);
     }
@@ -90,7 +113,7 @@ class UserMigrationController extends BaseMigrationController
     {
         $rows = DB::table('users')
             ->where('email', 'like', '%@placeholder.email')
-            ->select(['id', 'name', 'email', 'first_name', 'last_name'])
+            ->select(['id', 'old_id', 'name', 'email', 'first_name', 'last_name'])
             ->get();
 
         return response()->json([
@@ -119,34 +142,41 @@ class UserMigrationController extends BaseMigrationController
     {
         $now = now()->toDateTimeString();
 
-        $firstName  = Str::title(str_replace('?', 'ñ', trim($row->firstname) ?? ''));
-        $lastName   = Str::title(str_replace('?', 'ñ', trim($row->lastname) ?? ''));
-        $middleName = Str::title(str_replace('?', 'ñ', trim($row->middlename) ?? ''));
+        $firstName  = Str::title(str_replace('?', 'ñ', trim($row->firstname  ?? '')));
+        $lastName   = Str::title(str_replace('?', 'ñ', trim($row->lastname   ?? '')));
+        $middleName = Str::title(str_replace('?', 'ñ', trim($row->middlename ?? '')));
 
         if (config('app.name') === 'HCGS') { // #HCGS - duplicate issue
             if (in_array($row->id, [6, 19, 7])) {
                 $row->active = true;
             }
 
-            if (in_array($row->id, [45, 47, 53])) { // Duplicates ()
+            if (in_array($row->id, [45, 47, 53])) { // Duplicates
                 return [];
             }
         }
 
+        // Pull info from pre-loaded user_info map
+        $info = $this->userInfoMap[$row->id] ?? null;
+
+        // Use email from user_info if available, otherwise generate placeholder
+        $email = ($info && ! empty($info->email_address))
+            ? $info->email_address
+            : "{$row->id}@placeholder.email";
+
         return [
-            'old_id' => $row->id,
+            'old_id'            => $row->id,
 
             // Display name: "Firstname Lastname"
-            'name' => "{$firstName} {$lastName}",
+            'name'              => trim("{$firstName} {$lastName}"),
 
-            // ⚠ Email placeholder — must be updated manually after migration.
-            // Format: {firstName}@placeholder.email  (unique per row)
-            'email'             => "{$row->id}@placeholder.email",
+            // Email from user_info.email_address or placeholder
+            'email'             => $email,
             'email_verified_at' => null,
 
             // Renamed columns
-            'last_name'         => $lastName  ?: null,
-            'first_name'        => $firstName ?: null,
+            'last_name'         => $lastName   ?: null,
+            'first_name'        => $firstName  ?: null,
             'middle_name'       => $middleName ?: null,
 
             // Nullable, preserved as-is
@@ -159,14 +189,65 @@ class UserMigrationController extends BaseMigrationController
                 ? $row->title
                 : null,
 
+            // From user_info
+            'birth_date'        => $info->birth_date ?? null,
+            'contact'           => $info->contact    ?? null,
+            'address'           => $info->address    ?? null,
+
             'active'            => (int) $row->active,
             'password'          => $row->password,
             'remember_token'    => $row->remember_token ?? null,
 
             // Preserve original timestamps from old DB if present
-            'created_at'     => $row->created_at ?? $now,
-            'updated_at'     => $row->updated_at ?? $now,
+            'created_at'        => $row->created_at ?? $now,
+            'updated_at'        => $row->updated_at ?? $now,
         ];
-        // 14 columns — keep in sync with columnCount above
+        // 18 columns — keep in sync with columnCount above
+    }
+
+    // -------------------------------------------------------------------------
+    // Pre-load user_info into memory keyed by user_id
+    // -------------------------------------------------------------------------
+
+    /**
+     * Loads all user_info rows into a map: user_id → row object.
+     * Called once before chunking to avoid per-row queries.
+     */
+    private function buildUserInfoMap(): void
+    {
+        if ($this->userInfoMap !== null) {
+            return;
+        }
+
+        $this->userInfoMap = [];
+
+        DB::connection('old_db')
+            ->table('users_info')
+            ->orderBy('user_id')
+            ->chunk(500, function ($rows) {
+                foreach ($rows as $row) {
+                    // If a user has multiple user_info rows, last one wins
+                    $this->userInfoMap[$row->user_id] = $row;
+                }
+            });
+    }
+
+    private function buildUserRolesMap(): void
+    {
+        if ($this->userRolesMap !== null) {
+            return;
+        }
+
+        $this->userRolesMap = [];
+
+        DB::connection('old_db')
+            ->table('users_roles')
+            ->orderBy('user_id')
+            ->chunk(500, function ($rows) {
+                foreach ($rows as $row) {
+                    // Store all roles per user — user may have multiple
+                    $this->userRolesMap[$row->user_id][] = (int) $row->role_id;
+                }
+            });
     }
 }

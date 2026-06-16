@@ -15,6 +15,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Helpers\MyTools;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Override;
 
 class HomeroomResource extends Resource
@@ -32,7 +34,7 @@ class HomeroomResource extends Resource
     {
         $schoolYear = MyTools::getSchoolYear();
 
-        if ($schoolYear): 
+        if ($schoolYear && Auth::user()->isOffice()): 
             return true;
         endif;
 

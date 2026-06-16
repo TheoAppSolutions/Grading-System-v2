@@ -7,6 +7,7 @@ use App\Filament\Pages;
 use App\Filament\Pages\Auth\Login;
 use App\Helpers\MyTools;
 use App\Models\SubjectUser;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -18,6 +19,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -27,6 +29,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
+use App\Filament\Pages\Auth\EditProfile;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -37,6 +42,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login(Login::class)
+            ->profile(EditProfile::class, isSimple: false)
             ->globalSearch(false)
             ->colors([
                 'primary' => Color::Amber,
@@ -71,6 +77,14 @@ class AppPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->userMenuItems([
+                'Admin Page' => fn(Action $action) => $action->make('app')
+                    ->label('Admin Page')
+                    ->visible(Auth::user()->isAdmin())
+                    ->icon(Heroicon::Bolt)
+                    ->action(fn() => redirect(url('admin'))),
+                'logout' => fn(Action $action) => $action->label('Log out'),
+            ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
 
                 $schoolYear = MyTools::getSchoolYear();
@@ -78,7 +92,7 @@ class AppPanelProvider extends PanelProvider
                 $autoItems = collect(Filament::getResources())
                     ->filter(fn($resource) => $resource::shouldRegisterNavigation())
                     ->flatMap(fn($resource) => $resource::getNavigationItems())
-                    ->sortBy(fn($item) => $item->getSort()) // sort items before grouping
+                    ->sortBy(fn($item) => $item->getSort())
                     ->all();
 
                 $autoGroups = collect($autoItems)
@@ -93,11 +107,27 @@ class AppPanelProvider extends PanelProvider
                     $subjectGroups = $this->buildSubjectNavItems($schoolYear);
 
                     if (!empty($subjectGroups)) {
-                        $groups = [...$subjectGroups, ...$groups]; // subject groups always first
+                        $groups = [...$subjectGroups, ...$groups];
                     }
                 }
 
-                return $builder->groups($groups);
+                return $builder
+                    ->items([
+                        ...Pages\Dashboard::getNavigationItems(),
+                        NavigationItem::make('Logout')
+                            ->url("javascript:document.querySelector('#logout').submit();")
+                            ->icon('heroicon-m-arrow-left-on-rectangle')
+                            ->sort(100)
+                    ])
+                    ->groups($groups);
+            })
+            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_END, function () {
+                return Blade::render('<form action="{{ $logoutLink }}" method="post" id="logout">@csrf</form>', [
+                    'logoutLink' => filament()->getLogoutUrl(),
+                ]);
+            })
+            ->renderHook(PanelsRenderHook::BODY_END, function () {
+                return view('filament.footer');
             });
     }
 
@@ -114,16 +144,16 @@ class AppPanelProvider extends PanelProvider
         }
 
         return $subjects
-            ->groupBy(fn (SubjectUser $subjectUser) => $subjectUser->subject->subjectCategory->label)
+            ->groupBy(fn(SubjectUser $subjectUser) => $subjectUser->subject->subjectCategory->label)
             ->map(function ($groupedSubjects, string $subjectTitle) {
                 $items = $groupedSubjects
                     ->values()
                     ->map(function (SubjectUser $subjectUser, int $index) {
                         $subject = $subjectUser->subject;
 
-                        return NavigationItem::make(MyTools::ordinal($subject->grade_level_id).' Grade')
-                            ->url(GradeResource::getUrl('index').'?sid='.$subjectUser->subject_id.'&gid='.$subjectUser->subject->grade_level_id)
-                            ->isActiveWhen(fn () => request()->is('app/teacher/grades*') && request('sid') == $subjectUser->subject_id)
+                        return NavigationItem::make(MyTools::ordinal($subject->grade_level_id) . ' Grade')
+                            ->url(GradeResource::getUrl('index') . '?sid=' . $subjectUser->subject_id . '&gid=' . $subjectUser->subject->grade_level_id)
+                            ->isActiveWhen(fn() => request()->is('app/teacher/grades*') && request('sid') == $subjectUser->subject_id)
                             ->sort($index);
                     })
                     ->all();
