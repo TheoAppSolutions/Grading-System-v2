@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Resources\Office\Students\StudentResource;
 use App\Filament\Pages;
 use App\Filament\Pages\Auth\Login;
 use Filament\Actions\Action;
@@ -51,8 +52,17 @@ class AdminPanelProvider extends PanelProvider
             ->breadcrumbs(false)
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
+            ->resources([
+                StudentResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
-            ->pages([Pages\Dashboard::class])
+            ->pages([
+                Pages\DashboardPage::class,
+                Pages\HomeroomsPage::class,
+                Pages\EnrollmentsPage::class,
+                Pages\GraduatesPage::class,
+                Pages\GradesPage::class,
+            ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
                 AccountWidget::class,
@@ -82,22 +92,26 @@ class AdminPanelProvider extends PanelProvider
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $autoItems = collect(Filament::getResources())
                     ->filter(fn($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn($resource) => $resource::getNavigationItems())
-                    ->all();
+                    ->flatMap(fn($resource) => $resource::getNavigationItems());
 
-                $autoGroups = collect($autoItems)
-                    ->groupBy(fn($item) => $item->getGroup() ?? '')
-                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->all()))
+                $pageItems = collect([
+                    ...Pages\DashboardPage::getNavigationItems(),
+                    ...Pages\HomeroomsPage::getNavigationItems(),
+                    ...Pages\EnrollmentsPage::getNavigationItems(),
+                    ...Pages\GraduatesPage::getNavigationItems(),
+                ]);
+
+                $groupedPageItems = $pageItems->filter(fn($item) => $item->getGroup() !== null);
+                $ungroupedPageItems = $pageItems->reject(fn($item) => $item->getGroup() !== null);
+
+                $groups = $autoItems->merge($groupedPageItems)
+                    ->sortBy(fn($item) => $item->getSort())
+                    ->groupBy(fn($item) => $item->getGroup())
+                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->values()->all()))
                     ->values()
                     ->all();
 
-                $groups = [...$autoGroups];
-
                 $groups[] = NavigationGroup::make('Developer Tools')->items([
-                    NavigationItem::make('Migrations')
-                        ->icon(Heroicon::ArrowPathRoundedSquare)
-                        ->url('/admin/migrations')
-                        ->isActiveWhen(fn() => request()->is('admin/migrations')),
                     NavigationItem::make('Logs')
                         ->icon(Heroicon::ExclamationTriangle)
                         ->url('/telescope')
@@ -106,7 +120,7 @@ class AdminPanelProvider extends PanelProvider
 
                 return $builder
                     ->items([
-                        ...Pages\Dashboard::getNavigationItems(),
+                        ...$ungroupedPageItems->sortBy(fn($item) => $item->getSort())->all(),
                         NavigationItem::make('Logout')
                             ->url("javascript:document.querySelector('#logout').submit();")
                             ->icon('heroicon-m-arrow-left-on-rectangle')

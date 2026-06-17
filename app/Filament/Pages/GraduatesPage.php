@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Pages;
+namespace App\Filament\Pages;
 
 use App\Filament\App\Resources\Office\Students\StudentResource;
 use App\Helpers\MyTools;

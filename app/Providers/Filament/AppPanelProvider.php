@@ -2,8 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\App\Pages as AppPages;
-use App\Filament\App\Resources\Teacher\Grades\GradeResource;
 use App\Filament\Pages;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
@@ -59,11 +57,11 @@ class AppPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([
-                Pages\Dashboard::class,
-                AppPages\HomeroomsPage::class,
-                AppPages\EnrollmentsPage::class,
-                AppPages\GraduatesPage::class,
-                AppPages\GradesPage::class,
+                Pages\DashboardPage::class,
+                Pages\HomeroomsPage::class,
+                Pages\EnrollmentsPage::class,
+                Pages\GraduatesPage::class,
+                Pages\GradesPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
             ->widgets([
@@ -99,10 +97,10 @@ class AppPanelProvider extends PanelProvider
                     ->flatMap(fn($resource) => $resource::getNavigationItems());
 
                 $pageItems = collect([
-                    ...Pages\Dashboard::getNavigationItems(),
-                    ...AppPages\HomeroomsPage::getNavigationItems(),
-                    ...AppPages\EnrollmentsPage::getNavigationItems(),
-                    ...AppPages\GraduatesPage::getNavigationItems(),
+                    ...Pages\DashboardPage::getNavigationItems(),
+                    ...Pages\HomeroomsPage::getNavigationItems(),
+                    ...Pages\EnrollmentsPage::getNavigationItems(),
+                    ...Pages\GraduatesPage::getNavigationItems(),
                 ]);
 
                 // Pages that declare a navigationGroup join the grouped pool;
@@ -166,7 +164,7 @@ class AppPanelProvider extends PanelProvider
                         $subject = $subjectUser->subject;
 
                         return NavigationItem::make(MyTools::ordinal($subject->grade_level_id) . ' Grade')
-                            ->url(AppPages\GradesPage::getUrl(['sid' => $subjectUser->subject_id, 'gid' => $subjectUser->subject->grade_level_id]))
+                            ->url(Pages\GradesPage::getUrl(['sid' => $subjectUser->subject_id, 'gid' => $subjectUser->subject->grade_level_id]))
                             ->isActiveWhen(fn() => request()->is('app/Grades*') && request('sid') == $subjectUser->subject_id)
                             ->sort($index);
                     })
