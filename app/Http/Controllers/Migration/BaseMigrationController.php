@@ -47,8 +47,8 @@ abstract class BaseMigrationController extends Controller
 
         $this->schoolYearMap = DB::connection('new_db')
             ->table('school_years')
-            ->get(['id', 'school_year'])
-            ->mapWithKeys(fn($r) => [(string) $r->school_year => (int) $r->id])
+            ->get(['id', 'label'])
+            ->mapWithKeys(fn($r) => [(string) $r->label => (int) $r->id])
             ->all();
 
         return $this->schoolYearMap;

@@ -23,7 +23,7 @@ class SchoolYearResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
-    protected static ?string $recordTitleAttribute = 'school_year';
+    protected static ?string $recordTitleAttribute = 'label';
 
     protected static string|UnitEnum|null $navigationGroup = 'School Settings';
 

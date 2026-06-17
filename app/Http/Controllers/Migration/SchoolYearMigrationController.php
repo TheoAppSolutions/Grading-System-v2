@@ -120,7 +120,7 @@ class SchoolYearMigrationController extends BaseMigrationController
         $now = now()->toDateTimeString();
 
         return [
-            'school_year'        => $row->schoolyear,
+            'label'              => $row->schoolyear,
             'month_start'        => (string) ($row->schoolyear_start ?? 1),
             'month_end'          => (string) ($row->schoolyear_end   ?? 12),
             'active'             => $this->coerceActive($row->active),
@@ -150,7 +150,7 @@ class SchoolYearMigrationController extends BaseMigrationController
         // Build school_year string → new school_years.id map
         $schoolYearIdMap = DB::connection('new_db')
             ->table('school_years')
-            ->pluck('id', 'school_year')
+            ->pluck('id', 'label')
             ->all();
 
         DB::connection('new_db')->statement('PRAGMA foreign_keys = OFF');

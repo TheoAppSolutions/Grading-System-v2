@@ -17,7 +17,7 @@ class SchoolYearsTable
     {
         return $table
             ->columns([
-                TextColumn::make('school_year'),
+                TextColumn::make('label'),
                 TextColumn::make('attendance_entries')
                 ->formatStateUsing(fn ($state) => CardTemplate::getCategoriesOptions()[$state]),
                 ToggleColumn::make('active')

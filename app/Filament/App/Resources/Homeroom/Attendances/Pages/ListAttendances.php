@@ -21,7 +21,7 @@ class ListAttendances extends ListRecords
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Attendance (S.Y. '.SchoolYear::getActive()->school_year.')';
+        return 'Attendance (S.Y. '.SchoolYear::getActive()->label.')';
     }
 
     #[Override]

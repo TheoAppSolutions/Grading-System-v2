@@ -64,7 +64,7 @@ class EnrollmentsPage extends Page implements HasTable
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Enrollment (S.Y. '.SchoolYear::getActive()->school_year.')';
+        return 'Enrollment (S.Y. '.SchoolYear::getActive()->label.')';
     }
 
     public function table(Table $table): Table
@@ -100,7 +100,7 @@ class EnrollmentsPage extends Page implements HasTable
                             ->with(['gradeLevel', 'schoolYear'])
                             ->whereHas('schoolYear')
                             ->join('school_years', 'enrollments.school_year_id', '=', 'school_years.id')
-                            ->orderByDesc('school_years.school_year')
+                            ->orderByDesc('school_years.label')
                             ->first();
 
                         if (! $latest) {
@@ -108,7 +108,7 @@ class EnrollmentsPage extends Page implements HasTable
                         }
 
                         return $latest->gradeLevel?->label
-                            .' (S.Y. '.$latest->schoolYear?->school_year.')';
+                            .' (S.Y. '.$latest->schoolYear?->label.')';
                     }),
             ])
             ->filters([
@@ -136,7 +136,7 @@ class EnrollmentsPage extends Page implements HasTable
                             ->label('School Year')
                             ->required()
                             ->searchable()
-                            ->options(SchoolYear::orderBy('id', 'desc')->pluck('school_year', 'id'))
+                            ->options(SchoolYear::orderBy('id', 'desc')->pluck('label', 'id'))
                             ->default(SchoolYear::where('active', 1)->first()?->id)
                             ->visible(fn (Get $get) => $get('enrollment_status') === 'enrolled')
                             ->selectablePlaceholder(false)
@@ -175,7 +175,7 @@ class EnrollmentsPage extends Page implements HasTable
                         $indicators = [];
 
                         if (filled($data['school_year_id'])) {
-                            $year = SchoolYear::find($data['school_year_id'])?->school_year;
+                            $year = SchoolYear::find($data['school_year_id'])?->label;
                             $status = ($data['enrollment_status'] ?? 'enrolled') === 'enrolled' ? 'Enrolled' : 'Not Enrolled';
                             $indicators[] = "School Year: {$year} ({$status})";
                         }

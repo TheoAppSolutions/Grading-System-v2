@@ -29,7 +29,7 @@ class SectionForm
                     ->searchable()
                     ->options(
                         function () {
-                            return SchoolYear::pluck('school_year', 'id')->toArray();;
+                            return SchoolYear::pluck('label', 'id')->toArray();;
                         }
                     ),
                 TextInput::make('section')

@@ -23,7 +23,7 @@ class DeportmentForm
                 TextInput::make('quarter')
                     ->required()
                     ->numeric(),
-                TextInput::make('school_year')
+                TextInput::make('label')
                     ->required(),
             ]);
     }

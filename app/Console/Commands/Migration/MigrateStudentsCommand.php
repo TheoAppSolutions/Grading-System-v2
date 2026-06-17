@@ -61,14 +61,6 @@ class MigrateStudentsCommand extends Command
                 }
             }
 
-            if (isset($data['unfilled_section_id']) && $data['unfilled_section_id'] > 0) {
-                $this->warn("  ⚠  {$data['unfilled_section_id']} row(s) with unresolved section_id in {$table}.");
-            }
-
-            if (isset($data['unfilled_school_year_id']) && $data['unfilled_school_year_id'] > 0) {
-                $this->warn("  ⚠  {$data['unfilled_school_year_id']} row(s) with unresolved school_year_id in {$table}.");
-            }
-
             $this->newLine();
         }
 

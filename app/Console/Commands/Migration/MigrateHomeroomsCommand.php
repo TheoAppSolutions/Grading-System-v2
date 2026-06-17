@@ -35,12 +35,6 @@ class MigrateHomeroomsCommand extends Command
             ]
         );
 
-        foreach (['unfilled_grade_level_id', 'unfilled_school_year_id'] as $key) {
-            if (! empty($data[$key])) {
-                $this->warn("  ⚠  {$data[$key]} row(s) with unresolved {$key}.");
-            }
-        }
-
         if (! empty($data['errors'])) {
             $this->newLine();
             $this->error('Errors encountered:');

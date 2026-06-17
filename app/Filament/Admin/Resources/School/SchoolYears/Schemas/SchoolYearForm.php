@@ -15,7 +15,7 @@ class SchoolYearForm
     {
         return $schema
             ->components([
-                TextInput::make('school_year')
+                TextInput::make('label')
                     ->label('School Year')
                     ->required(),
                 Select::make('attendance_entries')

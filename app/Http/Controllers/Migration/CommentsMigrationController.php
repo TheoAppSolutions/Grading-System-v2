@@ -21,7 +21,7 @@ class CommentsMigrationController extends BaseMigrationController
      *   - quarter is no longer a queryable column
      *   - updating one quarter requires reading + rewriting the full JSON blob
      *   - unique constraint on the schema should be ['student_id', 'school_year_id']
-     *     not ['student_id', 'school_year', 'quarter'] — fix that first
+     *     not ['student_id', 'label', 'quarter'] — fix that first
      *
      * Routes:
      *   GET    /migrate/comments/preview  → preview()

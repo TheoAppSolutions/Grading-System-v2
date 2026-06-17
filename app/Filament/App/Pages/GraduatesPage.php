@@ -67,10 +67,10 @@ class GraduatesPage extends Page implements HasTable
                 TextColumn::make('student')
                     ->getStateUsing(fn ($record) => $record->student->fullName)
                     ->searchable(),
-                TextColumn::make('schoolYear.school_year')
+                TextColumn::make('schoolYear.label')
                     ->label('Graduate School Year'),
             ])
-            ->defaultSort('school_year', 'desc')
+            ->defaultSort('label', 'desc')
             ->recordActions([
                 ViewAction::make()
                     ->button()

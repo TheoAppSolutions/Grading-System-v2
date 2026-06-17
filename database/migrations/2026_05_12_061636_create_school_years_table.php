@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('school_years', function (Blueprint $table) {
             $table->id();
-            $table->string('school_year');
+            $table->string('label');
             $table->string('month_start')->nullable();
             $table->string('month_end')->nullable();
             $table->tinyInteger('active')->default(0);

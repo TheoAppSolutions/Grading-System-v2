@@ -22,7 +22,7 @@ class ListSubjects extends ListRecords
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Subject Teacher (S.Y. ' . SchoolYear::getActive()->school_year . ')';
+        return 'Subject Teacher (S.Y. ' . SchoolYear::getActive()->label . ')';
     }
 
     protected function getHeaderActions(): array

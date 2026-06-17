@@ -25,7 +25,7 @@ class DeportmentsTable
                 TextColumn::make('quarter')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('school_year')
+                TextColumn::make('label')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()

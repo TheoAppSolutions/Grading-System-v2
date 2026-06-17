@@ -52,7 +52,7 @@ class HomeroomsPage extends Page implements HasTable
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Homerooms (S.Y. '.SchoolYear::getActive()->school_year.')';
+        return 'Homerooms (S.Y. '.SchoolYear::getActive()->label.')';
     }
 
     public function table(Table $table): Table
@@ -65,7 +65,7 @@ class HomeroomsPage extends Page implements HasTable
                 return Homeroom::where('school_year_id', $schoolYearActive->id);
             })
             ->columns([
-                TextColumn::make('schoolYear.school_year'),
+                TextColumn::make('schoolYear.label'),
                 TextColumn::make('gradeLevel.label'),
                 TextColumn::make('section.section')
                     ->visible(config('app.system_features.sections')),

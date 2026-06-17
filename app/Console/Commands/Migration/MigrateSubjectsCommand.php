@@ -61,13 +61,6 @@ class MigrateSubjectsCommand extends Command
                 }
             }
 
-            // Warn about any unresolved FKs
-            foreach (['unfilled_grade_level_id', 'unfilled_school_year_id'] as $key) {
-                if (! empty($data[$key])) {
-                    $this->warn("  ⚠  {$data[$key]} row(s) with unresolved {$key} in {$table}.");
-                }
-            }
-
             $this->newLine();
         }
 
