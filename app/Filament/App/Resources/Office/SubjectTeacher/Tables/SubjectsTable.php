@@ -9,7 +9,6 @@ use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\SchoolYear;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,7 +49,7 @@ class SubjectsTable
 
                 TextInputColumn::make('units')
                     ->label('Units')
-                    ->default(fn($record, $livewire) => $livewire->pendingChanges[$record->id]['units'] ?? "")
+                    // ->default(fn($record, $livewire) => $livewire->pendingChanges[$record->id]['units'] ?? "")
                     ->default(function ($record, $livewire) {
                         if (isset($livewire->pendingChanges[$record->id]['units'])):
                             return $livewire->pendingChanges[$record->id]['units'];
@@ -67,14 +66,12 @@ class SubjectsTable
                 SelectFilter::make('grade_level_id')
                     ->label('Grade Level')
                     ->options(GradeLevel::all()->sortBy('sort_order')->pluck('label', 'id'))
-                    ->selectablePlaceholder(false)
                     ->default(1)
                     ->searchable(),
                 // SelectFilter::make('subject_category_id')
                 //     ->label('Category')
                 //     ->options(SubjectCategory::all()->sortBy('sort_order')->pluck('label', 'id'))
                 //     ->searchable()
-            ], layout: FiltersLayout::AboveContent)
-            ->paginated(false);
+            ]);
     }
 }

@@ -24,9 +24,7 @@ class SectionsRelationManager extends RelationManager
                 CreateAction::make('New Section / Strand')
                     ->modal()
                     ->slideOver()
-            ])
-            ->filters([])
-            ->paginated(false);
+            ]);
     }
 
     #[Override]

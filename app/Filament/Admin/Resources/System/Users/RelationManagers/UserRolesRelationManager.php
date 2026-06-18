@@ -39,7 +39,6 @@ class UserRolesRelationManager extends RelationManager
             ])
             ->recordActions([
                 DeleteAction::make()->label('Remove'),
-            ])
-            ->paginated(false);
+            ]);
     }
 }

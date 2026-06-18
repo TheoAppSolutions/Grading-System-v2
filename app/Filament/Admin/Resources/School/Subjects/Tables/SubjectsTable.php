@@ -31,7 +31,6 @@ class SubjectsTable
                 SelectFilter::make('grade_level_id')
                     ->label('Grade Level')
                     ->options(GradeLevel::all()->sortBy('sort_order')->pluck('label', 'id'))
-                    ->selectablePlaceholder(false)
                     ->default(1)
                     ->searchable(),
                 // SelectFilter::make('subject_category_id')

@@ -130,7 +130,6 @@ class EnrollmentsPage extends Page implements HasTable
                                 }
                             })
                             ->default('enrolled')
-                            ->selectablePlaceholder(false)
                             ->live(),
                         Select::make('school_year_id')
                             ->label('School Year')
@@ -139,7 +138,6 @@ class EnrollmentsPage extends Page implements HasTable
                             ->options(SchoolYear::orderBy('id', 'desc')->pluck('label', 'id'))
                             ->default(SchoolYear::where('active', 1)->first()?->id)
                             ->visible(fn (Get $get) => $get('enrollment_status') === 'enrolled')
-                            ->selectablePlaceholder(false)
                             ->placeholder('Select School Year'),
                         Select::make('grade_level_id')
                             ->label('Grade Level')
@@ -186,7 +184,7 @@ class EnrollmentsPage extends Page implements HasTable
 
                         return $indicators;
                     }),
-            ], FiltersLayout::AboveContent)
+            ])
             ->toolbarActions([
                 BulkAction::make('bulk_enroll')
                     ->label('Enroll Student')

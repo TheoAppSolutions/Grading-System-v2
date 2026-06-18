@@ -131,8 +131,6 @@ class GradesTable
                     ->action(function ($livewire) {
                         $livewire->quarterType = 2;
                     }),
-            ], position: HeaderActionsPosition::Bottom)
-            ->paginated(false)
-            ->recordUrl('');
+            ], position: HeaderActionsPosition::Bottom);
     }
 }

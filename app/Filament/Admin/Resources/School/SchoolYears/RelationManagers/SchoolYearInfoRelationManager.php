@@ -30,7 +30,6 @@ class SchoolYearInfoRelationManager extends RelationManager
                     ->type('number')
                     ->disabled(function () use ($isActive) { return $isActive != 1; })
                     ->rules(['required', 'max:255']),
-            ])
-            ->paginated(false);
+            ]);
     }
 }

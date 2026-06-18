@@ -24,7 +24,6 @@ class SectionsTable
                 SelectFilter::make('school_year_id')
                     ->label('School Year')
                     ->default(fn() => $schoolYears->label ?? '')
-                    ->selectablePlaceholder(false)
                     ->options(fn() => SchoolYear::all()->pluck('label', 'id')->toArray()),
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([

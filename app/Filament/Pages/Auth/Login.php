@@ -21,7 +21,8 @@ class Login extends BaseLogin
         return $schema
             ->schema([
                 TextEntry::make('label')
-                    ->label('Enter Admin Password'),
+                    ->label('Enter Admin Password')
+                    ->visible(fn() => Filament::getCurrentPanel()?->getId() == 'admin'),
                 Select::make('id')
                     ->label('Username')
                     ->required()

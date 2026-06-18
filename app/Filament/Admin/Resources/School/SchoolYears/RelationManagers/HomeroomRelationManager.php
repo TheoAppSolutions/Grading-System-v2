@@ -44,8 +44,6 @@ class HomeroomRelationManager extends RelationManager
                         return $isActive != 1;
                     })
                     ->options(fn() => User::get()->pluck('name', 'id')),
-            ])
-            ->paginated(false)
-            ->recordUrl('');
+            ]);
     }
 }

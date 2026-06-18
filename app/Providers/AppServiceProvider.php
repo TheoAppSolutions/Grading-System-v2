@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Filament\Forms\Components\Select;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,7 +32,19 @@ class AppServiceProvider extends ServiceProvider
                 ->deferFilters(false)
                 ->hiddenFilterIndicators(true)
                 ->recordUrl(null)
-                ->striped();
+                ->striped()
+                ->paginated(false)
+                ->filtersLayout(FiltersLayout::AboveContent);
+        });
+
+        Select::configureUsing(function (Select $select): void { // Forms Select
+            $select
+                ->selectablePlaceholder(false);
+        });
+
+        SelectFilter::configureUsing(function (SelectFilter $selectFilter): void { // Tables Select Filter
+            $selectFilter
+                ->selectablePlaceholder(false);
         });
     }
 }

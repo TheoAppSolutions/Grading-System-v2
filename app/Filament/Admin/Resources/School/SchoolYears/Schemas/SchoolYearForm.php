@@ -22,7 +22,6 @@ class SchoolYearForm
                     ->label('Attendance Entries')
                     ->live()
                     ->options(CardTemplate::getCategoriesOptions())
-                    ->selectablePlaceholder(false)
                     ->native(false)
                     ->required(),
                 Select::make('month_start')

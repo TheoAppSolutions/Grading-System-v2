@@ -69,7 +69,6 @@ class AttendancesTable
                 SelectFilter::make('grade_level_id')
                     ->label('Grade Level')
                     ->searchable()
-                    ->selectablePlaceholder(false)
                     ->default(2)
                     ->visible(false)
                     ->options(GradeLevel::orderBy('sort_order')->pluck('label', 'id')),
@@ -79,7 +78,6 @@ class AttendancesTable
                         Select::make('attendance_entry')
                             ->label('Entry #')
                             ->searchable()
-                            ->selectablePlaceholder(false)
                             ->options(function () {
                                 $schoolYear = SchoolYear::getActive();
 
@@ -90,8 +88,7 @@ class AttendancesTable
                             ->afterStateUpdated(fn ($state, $livewire) => $livewire->entryNumber = $state),
                     ]),
                 // ->query(fn (Builder $query) => $query), // no-op, don't actually filter,
-            ], FiltersLayout::AboveContent)
-            ->paginated(false)
+            ])
             ->defaultSort(function (Builder $query): Builder {
                 return $query
                     ->join('students', 'enrollments.student_id', '=', 'students.id')
