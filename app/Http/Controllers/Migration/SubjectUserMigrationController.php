@@ -91,7 +91,7 @@ class SubjectUserMigrationController extends BaseMigrationController
     // Row mapper
     // -------------------------------------------------------------------------
 
-    private function mapRow(object $row): array
+    private function mapRow(object $row)
     {
         $now = now()->toDateTimeString();
 

@@ -60,7 +60,7 @@ class CommentsMigrationController extends BaseMigrationController
         // so we don't query per row during chunking
         $midquarterIndex = $this->buildMidquarterIndex();
 
-        DB::connection('new_db')->statement('PRAGMA foreign_keys = OFF');
+        DB::connection('new_db');//->statement('PRAGMA foreign_keys = OFF');
 
         try {
             DB::connection('new_db')->transaction(function () use (&$stats, $midquarterIndex) {
@@ -134,7 +134,7 @@ class CommentsMigrationController extends BaseMigrationController
                     });
             });
         } finally {
-            DB::connection('new_db')->statement('PRAGMA foreign_keys = ON');
+            DB::connection('new_db');//->statement('PRAGMA foreign_keys = ON');
         }
 
         $this->insertCommentsCriteria();

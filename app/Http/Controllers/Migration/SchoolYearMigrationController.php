@@ -153,7 +153,7 @@ class SchoolYearMigrationController extends BaseMigrationController
             ->pluck('id', 'label')
             ->all();
 
-        DB::connection('new_db')->statement('PRAGMA foreign_keys = OFF');
+        DB::connection('new_db');//->statement('PRAGMA foreign_keys = OFF');
 
         try {
             DB::connection('new_db')->transaction(function () use (&$stats, $schoolYearIdMap) {
@@ -224,7 +224,7 @@ class SchoolYearMigrationController extends BaseMigrationController
                     });
             });
         } finally {
-            DB::connection('new_db')->statement('PRAGMA foreign_keys = ON');
+            DB::connection('new_db');//->statement('PRAGMA foreign_keys = ON');
         }
 
         return $stats;
@@ -300,7 +300,7 @@ class SchoolYearMigrationController extends BaseMigrationController
                 $exists = DB::connection('new_db')
                     ->table('school_year_card_templates')
                     ->where('school_year_id', $schoolYearId)
-                    ->where('category',       $template->category)
+                    // ->where('category',       $template->category)
                     ->exists();
 
                 if ($exists) {
@@ -311,7 +311,7 @@ class SchoolYearMigrationController extends BaseMigrationController
                 $toInsert[] = [
                     'school_year_id'   => $schoolYearId,
                     'card_template_id' => $template->id,
-                    'category'         => $template->category,
+                    // 'category'         => $template->category,
                     'created_at'       => $now,
                     'updated_at'       => $now,
                 ];
@@ -337,7 +337,7 @@ class SchoolYearMigrationController extends BaseMigrationController
                             $stats['inserted']++;
                         } catch (\Throwable $rowError) {
                             $stats['errors'][] = [
-                                'row'     => "sy:{$row['school_year_id']} cat:{$row['category']}",
+                                'row'     => "sy:{$row['school_year_id']}",// cat:{$row['category']}",
                                 'message' => $rowError->getMessage(),
                             ];
                         }

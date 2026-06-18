@@ -4,7 +4,10 @@ namespace App\Providers\Filament;
 
 use App\Filament\App\Resources\Office\Students\StudentResource;
 use App\Filament\Pages;
+use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\BackupsPage;
+use App\Filament\Pages\HealthCheckResultsPage;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -18,6 +21,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -25,10 +29,10 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Pages\Auth\EditProfile;
+use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
+use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -62,6 +66,8 @@ class AdminPanelProvider extends PanelProvider
                 Pages\EnrollmentsPage::class,
                 Pages\GraduatesPage::class,
                 Pages\GradesPage::class,
+                BackupsPage::class,
+                HealthCheckResultsPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
@@ -82,32 +88,44 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->plugins([
+                FilamentSpatieLaravelHealthPlugin::make()
+                    ->usingPage(HealthCheckResultsPage::class),
+                FilamentSpatieLaravelBackupPlugin::make()
+                    ->navigationIcon('heroicon-o-cpu-chip')
+                    ->navigationLabel('Backups')
+                    ->navigationGroup('Settings')
+                    ->navigationSort(3)
+                    ->usingPage(BackupsPage::class)
+            ])
             ->userMenuItems([
-                'Office' => fn(Action $action) => $action->make('app')
+                'Office' => fn (Action $action) => $action->make('app')
                     ->label('Office Page')
                     ->icon(Heroicon::BuildingOffice2)
-                    ->action(fn() => redirect(url('app'))),
-                'logout' => fn(Action $action) => $action->label('Log out'),
+                    ->action(fn () => redirect(url('app'))),
+                'logout' => fn (Action $action) => $action->label('Log out'),
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $autoItems = collect(Filament::getResources())
-                    ->filter(fn($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn($resource) => $resource::getNavigationItems());
+                    ->filter(fn ($resource) => $resource::shouldRegisterNavigation())
+                    ->flatMap(fn ($resource) => $resource::getNavigationItems());
 
                 $pageItems = collect([
                     ...Pages\DashboardPage::getNavigationItems(),
                     ...Pages\HomeroomsPage::getNavigationItems(),
                     ...Pages\EnrollmentsPage::getNavigationItems(),
                     ...Pages\GraduatesPage::getNavigationItems(),
+                    ...BackupsPage::getNavigationItems(),
+                    ...HealthCheckResultsPage::getNavigationItems(),
                 ]);
 
-                $groupedPageItems = $pageItems->filter(fn($item) => $item->getGroup() !== null);
-                $ungroupedPageItems = $pageItems->reject(fn($item) => $item->getGroup() !== null);
+                $groupedPageItems = $pageItems->filter(fn ($item) => $item->getGroup() !== null);
+                $ungroupedPageItems = $pageItems->reject(fn ($item) => $item->getGroup() !== null);
 
                 $groups = $autoItems->merge($groupedPageItems)
-                    ->sortBy(fn($item) => $item->getSort())
-                    ->groupBy(fn($item) => $item->getGroup())
-                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->values()->all()))
+                    ->sortBy(fn ($item) => $item->getSort())
+                    ->groupBy(fn ($item) => $item->getGroup())
+                    ->map(fn ($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->values()->all()))
                     ->values()
                     ->all();
 
@@ -120,11 +138,11 @@ class AdminPanelProvider extends PanelProvider
 
                 return $builder
                     ->items([
-                        ...$ungroupedPageItems->sortBy(fn($item) => $item->getSort())->all(),
+                        ...$ungroupedPageItems->sortBy(fn ($item) => $item->getSort())->all(),
                         NavigationItem::make('Logout')
                             ->url("javascript:document.querySelector('#logout').submit();")
                             ->icon('heroicon-m-arrow-left-on-rectangle')
-                            ->sort(100)
+                            ->sort(100),
                     ])
                     ->groups($groups);
             })
