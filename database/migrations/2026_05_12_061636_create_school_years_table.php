@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('month_end')->nullable();
             $table->tinyInteger('active')->default(0);
             $table->integer('attendance_entries')->default(10);
-            $table->integer('card_template_id')->nullable();
             $table->timestamps();
         });
 

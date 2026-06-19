@@ -99,37 +99,37 @@ class AdminPanelProvider extends PanelProvider
                     ->usingPage(BackupsPage::class)
             ])
             ->userMenuItems([
-                'Office' => fn (Action $action) => $action->make('app')
+                'Office' => fn(Action $action) => $action->make('app')
                     ->label('Office Page')
                     ->icon(Heroicon::BuildingOffice2)
-                    ->action(fn () => redirect(url('app'))),
-                'logout' => fn (Action $action) => $action->label('Log out'),
+                    ->action(fn() => redirect(url('app'))),
+                'logout' => fn(Action $action) => $action->label('Log out'),
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $autoItems = collect(Filament::getResources())
-                    ->filter(fn ($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn ($resource) => $resource::getNavigationItems());
+                    ->filter(fn($resource) => $resource::shouldRegisterNavigation())
+                    ->flatMap(fn($resource) => $resource::getNavigationItems());
 
                 $pageItems = collect([
                     ...Pages\DashboardPage::getNavigationItems(),
                     ...Pages\HomeroomsPage::getNavigationItems(),
                     ...Pages\EnrollmentsPage::getNavigationItems(),
                     ...Pages\GraduatesPage::getNavigationItems(),
-                    ...BackupsPage::getNavigationItems(),
-                    ...HealthCheckResultsPage::getNavigationItems(),
                 ]);
 
-                $groupedPageItems = $pageItems->filter(fn ($item) => $item->getGroup() !== null);
-                $ungroupedPageItems = $pageItems->reject(fn ($item) => $item->getGroup() !== null);
+                $groupedPageItems = $pageItems->filter(fn($item) => $item->getGroup() !== null);
+                $ungroupedPageItems = $pageItems->reject(fn($item) => $item->getGroup() !== null);
 
                 $groups = $autoItems->merge($groupedPageItems)
-                    ->sortBy(fn ($item) => $item->getSort())
-                    ->groupBy(fn ($item) => $item->getGroup())
-                    ->map(fn ($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->values()->all()))
+                    ->sortBy(fn($item) => $item->getSort())
+                    ->groupBy(fn($item) => $item->getGroup())
+                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->values()->all()))
                     ->values()
                     ->all();
 
                 $groups[] = NavigationGroup::make('Developer Tools')->items([
+                    ...BackupsPage::getNavigationItems(),
+                    ...HealthCheckResultsPage::getNavigationItems(),
                     NavigationItem::make('Logs')
                         ->icon(Heroicon::ExclamationTriangle)
                         ->url('/telescope')
@@ -138,7 +138,7 @@ class AdminPanelProvider extends PanelProvider
 
                 return $builder
                     ->items([
-                        ...$ungroupedPageItems->sortBy(fn ($item) => $item->getSort())->all(),
+                        ...$ungroupedPageItems->sortBy(fn($item) => $item->getSort())->all(),
                         NavigationItem::make('Logout')
                             ->url("javascript:document.querySelector('#logout').submit();")
                             ->icon('heroicon-m-arrow-left-on-rectangle')

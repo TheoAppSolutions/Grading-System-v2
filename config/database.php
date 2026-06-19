@@ -33,10 +33,10 @@ return [
     'connections' => [
         'old_db' => [
             'driver' => env('OLD_DB_CONNECTION'),
-            'url' => env('OLD_DB_URL'),
-            'host' => env('OLD_DB_HOST'),
-            'port' => env('OLD_DB_PORT'),
-            'database' => env('OLD_DB_DATABASE'),
+            'url' => env('OLD_DB_URL', ''),
+            'host' => env('OLD_DB_HOST', ''),
+            'port' => env('OLD_DB_PORT', ''),
+            'database' => env('OLD_DB_DATABASE', ''),
             'username' => env('OLD_DB_USERNAME', 'root'),
             'password' => env('OLD_DB_PASSWORD', ''),
             'prefix' => '',
@@ -49,10 +49,10 @@ return [
 
         'new_db' => [
             'driver' => env('DB_CONNECTION'),
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST'),
-            'port' => env('DB_PORT'),
-            'database' => env('DB_DATABASE'),
+            'url' => env('DB_URL', ''),
+            'host' => env('DB_HOST', ''),
+            'port' => env('DB_PORT', ''),
+            'database' => env('DB_DATABASE', ''),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'prefix' => '',

@@ -16,6 +16,6 @@ class BackupsPage extends BaseBackups
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Core';
+        return 'Developer Tools';
     }
 }
