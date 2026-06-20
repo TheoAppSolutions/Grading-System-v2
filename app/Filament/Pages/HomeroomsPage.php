@@ -65,7 +65,6 @@ class HomeroomsPage extends Page implements HasTable
                 return Homeroom::where('school_year_id', $schoolYearActive->id);
             })
             ->columns([
-                TextColumn::make('schoolYear.label'),
                 TextColumn::make('gradeLevel.label'),
                 TextColumn::make('section.section')
                     ->visible(config('app.system_features.sections')),

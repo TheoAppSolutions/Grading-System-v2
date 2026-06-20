@@ -48,7 +48,7 @@ abstract class BaseMigrationController extends Controller
         $this->schoolYearMap = DB::connection('new_db')
             ->table('school_years')
             ->get(['id', 'label'])
-            ->mapWithKeys(fn($r) => [(string) $r->label => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->label => (int) $r->id])
             ->all();
 
         return $this->schoolYearMap;
@@ -84,7 +84,7 @@ abstract class BaseMigrationController extends Controller
         }
 
         $this->gradeLevelMap = GradeLevel::get('id')
-            ->mapWithKeys(fn($r) => [(int) $r->id => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(int) $r->id => (int) $r->id])
             ->all();
 
         return $this->gradeLevelMap;
@@ -133,7 +133,7 @@ abstract class BaseMigrationController extends Controller
         $this->sectionMap = DB::connection('new_db')
             ->table('sections')
             ->get(['id', 'section'])
-            ->mapWithKeys(fn($r) => [(string) $r->section => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->section => (int) $r->id])
             ->all();
 
         return $this->sectionMap;
@@ -149,7 +149,7 @@ abstract class BaseMigrationController extends Controller
     }
 
     // -------------------------------------------------------------------------
-    // Section lookup  (section_or_strand varchar → sections.id)
+    // User lookup  (old users.id → new users.id via old_id column)
     // -------------------------------------------------------------------------
 
     protected function buildUserMap(): array
@@ -158,22 +158,34 @@ abstract class BaseMigrationController extends Controller
             return $this->userMap;
         }
 
+        // Map: old_id (string key) → new id (int)
         $this->userMap = DB::connection('new_db')
             ->table('users')
             ->get(['id', 'old_id'])
-            ->mapWithKeys(fn($r) => [(string) $r->old_id => (int) $r->id])
+            ->mapWithKeys(fn ($r) => [(string) $r->old_id => (int) $r->id])
             ->all();
 
         return $this->userMap;
     }
 
+    /**
+     * Resolves an old users.id → new users.id.
+     *
+     * Fixed: the previous version called MigrationTools::replaceUserId($old_id)
+     * and then looked up $userMap[$new_id] — but $userMap is keyed by OLD ids
+     * (old_id column), so that lookup against a NEW id always missed.
+     *
+     * replaceUserId() is a remap table for old_id → old_id corrections
+     * (e.g. known duplicate/merged old user records), so its result must be
+     * looked up against $userMap the same way the original $old_id would be.
+     */
     protected function resolveUser(?string $old_id): ?int
     {
         if ($old_id === null || trim($old_id) === '') {
             return null;
         }
 
-        $old_id = trim($old_id);
+        $old_id  = trim($old_id);
         $userMap = $this->buildUserMap();
 
         // Direct map hit — return immediately
@@ -181,15 +193,25 @@ abstract class BaseMigrationController extends Controller
             return $userMap[$old_id];
         }
 
-        // Fallback: known ID remaps not in the auto-generated map
-        $new_id = MigrationTools::replaceUserId($old_id);
+        // Fallback: known old_id remaps not present in the auto-generated map
+        // (e.g. duplicate/merged user records in the old DB)
+        $remappedOldId = MigrationTools::replaceUserId($old_id);
 
-        if ($new_id === null) {
-            Log::warning("User old_id [{$old_id}] not found in new DB user_map");
+        if ($remappedOldId === null) {
+            Log::channel('migrationlog')->warning("User old_id [{$old_id}] not found in new DB user_map");
             return null;
         }
 
-        return $userMap[$new_id] ?? null;
+        // Look up the remapped OLD id against the same userMap (keyed by old_id)
+        if (isset($userMap[(string) $remappedOldId])) {
+            return $userMap[(string) $remappedOldId];
+        }
+
+        Log::channel('migrationlog')->warning(
+            "User old_id [{$old_id}] remapped to [{$remappedOldId}] but still not found in user_map"
+        );
+
+        return null;
     }
 
     // -------------------------------------------------------------------------
@@ -206,24 +228,33 @@ abstract class BaseMigrationController extends Controller
             ->table('subjects')
             ->whereNotNull('subject_code')
             ->get(['id', 'subject_code'])
-            ->mapWithKeys(fn($r) => [
-                (string) MigrationTools::replaceSubjectId($r->subject_code) => (int) $r->id
+            ->mapWithKeys(fn ($r) => [
+                (string) MigrationTools::replaceSubjectId($r->subject_code) => (int) $r->id,
             ])
             ->all();
 
         return $this->subjectMap;
     }
 
+    /**
+     * Resolves an old subject_code varchar → new subjects.id.
+     *
+     * Fixed: previously returned the magic number 999 as a silent fallback
+     * when no match was found. That masks unmapped subjects instead of
+     * surfacing them, and risks colliding with a real subjects.id = 999.
+     * Returns null instead, consistent with every other resolver, so
+     * unmapped rows are visible via whereNull('subject_id') / unfilled checks.
+     */
     protected function resolveSubject(?string $subjectCode): ?int
     {
         if ($subjectCode === null || trim($subjectCode) === '') {
             return null;
         }
 
-        $subjectMap = $this->buildSubjectMap();
+        $subjectMap  = $this->buildSubjectMap();
         $subjectCode = MigrationTools::replaceSubjectId($subjectCode);
 
-        return $subjectMap[trim($subjectCode)] ?? 999;
+        return $subjectMap[trim($subjectCode)] ?? null;
     }
 
     // -------------------------------------------------------------------------
@@ -238,9 +269,9 @@ abstract class BaseMigrationController extends Controller
         int $columnCount,
         ?string $dedupeKey = null
     ): array {
-        $stats = ['inserted' => 0, 'skipped' => 0, 'errors' => []];
+        $stats          = ['inserted' => 0, 'skipped' => 0, 'errors' => []];
         $skippedRecords = [];
-        $batchSize = (int) floor(self::SQLITE_VARS / $columnCount);
+        $batchSize      = (int) floor(self::SQLITE_VARS / $columnCount);
 
         DB::transaction(function () use (
             $newTable,
@@ -264,7 +295,30 @@ abstract class BaseMigrationController extends Controller
                     &$skippedRecords,
                     &$stats
                 ) {
-                    $firstMapped = $mapper($rows->first());
+                    // Use the first row whose mapped result is non-empty to
+                    // determine the dedupe key. Guards against a chunk whose
+                    // very first row is intentionally skipped by the mapper
+                    // (e.g. mapRow() returning [] for known duplicate IDs),
+                    // which would otherwise make array_key_first() return null
+                    // and break dedupe lookups for the whole chunk.
+                    $firstMapped = null;
+
+                    foreach ($rows as $probeRow) {
+                        $probeMapped = $mapper($probeRow);
+
+                        if (! empty($probeMapped)) {
+                            $firstMapped = $probeMapped;
+                            break;
+                        }
+                    }
+
+                    // Every row in this chunk mapped to an empty array —
+                    // nothing to insert, nothing to dedupe against.
+                    if ($firstMapped === null) {
+                        $stats['skipped'] += $rows->count();
+                        return;
+                    }
+
                     $newDedupeKey = array_key_first($firstMapped);
                     $oldDedupeKey = $dedupeKey ?? $newDedupeKey;
 
@@ -288,10 +342,22 @@ abstract class BaseMigrationController extends Controller
                         }
 
                         try {
-                            $toInsert[] = $mapper($row);
+                            $mapped = $mapper($row);
+
+                            // Skip rows the mapper intentionally returned empty
+                            // (e.g. explicit duplicate/exclusion handling in mapRow()).
+                            // Without this guard, an empty array would still be
+                            // pushed into $toInsert and fail on insert.
+                            if (empty($mapped)) {
+                                $skippedRecords[$oldTable][] = $row;
+                                $stats['skipped']++;
+                                continue;
+                            }
+
+                            $toInsert[] = $mapped;
                         } catch (Throwable $e) {
                             $stats['errors'][] = [
-                                'row' => $sourceVal,
+                                'row'     => $sourceVal,
                                 'message' => $e->getMessage(),
                             ];
                             Log::channel('migrationlog')->info("Migration mapping error [{$newTable}]", [
@@ -316,10 +382,9 @@ abstract class BaseMigrationController extends Controller
                                     $stats['inserted']++;
                                 } catch (Throwable $rowError) {
                                     $stats['errors'][] = [
-                                        'row' => $mapped[$newDedupeKey] ?? null,
+                                        'row'     => $mapped[$newDedupeKey] ?? null,
                                         'message' => $rowError->getMessage(),
                                     ];
-                                    // dd($mapped);
                                     Log::channel('migrationlog')->info("Migration insert error [{$newTable}]", [
                                         'error' => $rowError->getMessage(),
                                     ]);
@@ -329,11 +394,13 @@ abstract class BaseMigrationController extends Controller
                     }
                 });
         });
+
         if ($skippedRecords) {
             Log::channel('migrationlog')->info("Duplicate record in [{$newTable}]", [
                 'value' => $skippedRecords,
             ]);
         }
+
         return $stats;
     }
 

@@ -22,7 +22,6 @@ class SchoolYearMigrationController extends BaseMigrationController
      *   schoolyear_end     → month_end         (int, preserved)
      *   active (varchar)   → active            tinyInteger via coerceActive()
      *   school_days (JSON) → attendance_entries count of array entries (fallback 10 if null)
-     *   card_template      → card_template_id  null (string path ≠ FK int)
      *   school_days (JSON) → (used for school_year_infos — see below)
      *   (none)             → timestamps
      *
@@ -125,7 +124,6 @@ class SchoolYearMigrationController extends BaseMigrationController
             'month_end'          => (string) ($row->schoolyear_end   ?? 12),
             'active'             => $this->coerceActive($row->active),
             'attendance_entries' => count(json_decode($row->school_days ?? '[]', associative: true) ?: []) ?: 10,
-            'card_template_id'   => null, // old value was a string path, not an int FK
             'created_at'         => $now,
             'updated_at'         => $now,
         ];
@@ -310,8 +308,6 @@ class SchoolYearMigrationController extends BaseMigrationController
 
                 $toInsert[] = [
                     'school_year_id'   => $schoolYearId,
-                    'card_template_id' => $template->id,
-                    // 'category'         => $template->category,
                     'created_at'       => $now,
                     'updated_at'       => $now,
                 ];
@@ -322,7 +318,7 @@ class SchoolYearMigrationController extends BaseMigrationController
             return $stats;
         }
 
-        // 5 columns: school_year_id, card_template_id, category, created_at, updated_at
+        // 5 columns: school_year_id, category, created_at, updated_at
         $batchSize = (int) floor(999 / 5);
 
         DB::connection('new_db')->transaction(function () use ($toInsert, $batchSize, &$stats) {

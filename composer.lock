@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a90c87865f76978d812113051f92f40b",
+    "content-hash": "2419eb27135236634da8a8c650ff5e80",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -2013,6 +2013,82 @@
                 }
             ],
             "time": "2026-06-12T21:33:43+00:00"
+        },
+        {
+            "name": "hasanyagout/filament-announcements",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/HasanYagout/filament-announcement.git",
+                "reference": "984ec9e17c9dac1e5e58002dc4dabba0c41bee31"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/HasanYagout/filament-announcement/zipball/984ec9e17c9dac1e5e58002dc4dabba0c41bee31",
+                "reference": "984ec9e17c9dac1e5e58002dc4dabba0c41bee31",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^9.0|^10.0|^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Announcement": "HasanYagout\\Announcement\\Facades\\Announcement"
+                    },
+                    "providers": [
+                        "HasanYagout\\Announcement\\AnnouncementServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "HasanYagout\\Announcement\\": "src/",
+                    "HasanYagout\\Announcement\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hasan Yagout",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Global announcement system for different users",
+            "homepage": "https://github.com/HasanYagout/filament-announcement",
+            "keywords": [
+                "Announcement",
+                "alerts",
+                "announcements",
+                "dashboard",
+                "filament",
+                "filament-plugin",
+                "filament-v5",
+                "filamentphp",
+                "hasanyagout",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/HasanYagout/filament-announcement/issues",
+                "source": "https://github.com/HasanYagout/filament-announcement"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/HasanYagout",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-06-13T07:36:02+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
@@ -11651,12 +11727,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }
