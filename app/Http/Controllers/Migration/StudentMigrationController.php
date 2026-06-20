@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Helpers\MigrationTools;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -99,9 +100,9 @@ class StudentMigrationController extends BaseMigrationController
         return [
             'id'            => (int) $row->student_id,
             'student_lrn'   => $row->student_lrn ?: null,
-            'first_name'    => $row->firstname,
-            'middle_name'   => $row->middlename  ?: null,
-            'last_name'     => $row->lastname,
+            'first_name'    => MigrationTools::cleanEncoding($row->firstname),
+            'middle_name'   => MigrationTools::cleanEncoding($row->middlename)  ?: null,
+            'last_name'     => MigrationTools::cleanEncoding($row->lastname),
             'suffix'        => ($row->suffix !== '' && $row->suffix !== null) ? $row->suffix : null,
             'gender'        => $row->gender,
             'current_level' => null,

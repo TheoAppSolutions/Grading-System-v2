@@ -14,7 +14,7 @@ class MigrateDeportmentsCommand extends Command
 
     public function handle(DeportmentMigrationController $controller): int
     {
-        if (!config('app.system_features.homeroom_deportment')) {
+        if (!config('system-features.homeroom_deportment')) {
             $this->info('Homeroom Deportment Feature is disabled');
             $this->warn('Skipping Deportments Migration...');
             $this->newLine();

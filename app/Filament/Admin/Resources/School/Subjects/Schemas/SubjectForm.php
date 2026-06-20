@@ -49,7 +49,7 @@ class SubjectForm
                             ->pluck('label', 'id');
                     })
                     ->live()
-                    ->visible(config('app.system_features.sections'))
+                    ->visible(config('system-features.sections'))
                     ->disabled(fn (callable $get) => ! $get('grade_level_id')),
                 TextInput::make('subject_code')
                     ->label('Subject Code')

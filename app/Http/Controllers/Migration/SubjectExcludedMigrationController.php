@@ -79,6 +79,7 @@ class SubjectExcludedMigrationController extends BaseMigrationController
     public function reset(): JsonResponse
     {
         $deleted = DB::connection('new_db')->table('subject_excluded')->delete();
+        DB::connection('new_db')->table('subject_excluded')->truncate();
 
         return response()->json(['status' => 'reset', 'deleted' => $deleted]);
     }
@@ -93,8 +94,8 @@ class SubjectExcludedMigrationController extends BaseMigrationController
 
         return [
             'student_id'     => (int) $row->student_id,
-            'subject_id'     => $row->subject_id,
-            'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
+            'subject_id'     => $this->resolveSubject($row->subject_id) ?? null,
+            'school_year_id' => $this->resolveSchoolYear($row->schoolyear) ?? null,
             'created_at'     => $row->created_at ?? $now,
             'updated_at'     => $row->updated_at ?? $now,
         ];

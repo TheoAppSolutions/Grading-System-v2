@@ -30,6 +30,6 @@ class SectionsRelationManager extends RelationManager
     #[Override]
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return config('app.system_features.sections');
+        return config('system-features.sections');
     }
 }

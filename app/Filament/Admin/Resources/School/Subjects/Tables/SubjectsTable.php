@@ -25,7 +25,7 @@ class SubjectsTable
                     ->searchable(),
                 TextColumn::make('subjectCategory.label')
                     ->label('Category')
-                    ->visible(config('app.system_features.sections')),
+                    ->visible(config('system-features.sections')),
             ])
             ->filters([
                 SelectFilter::make('grade_level_id')

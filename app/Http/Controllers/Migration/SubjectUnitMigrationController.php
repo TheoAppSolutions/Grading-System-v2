@@ -92,9 +92,9 @@ class SubjectUnitMigrationController extends BaseMigrationController
         $now = now()->toDateTimeString();
 
         return [
-            'subject_id'     => $row->subject_id ?? null,
+            'subject_id'     => $this->resolveSubject($row->subject_id) ?? null,
             'units'          => (float) $row->units,
-            'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
+            'school_year_id' => $this->resolveSchoolYear($row->schoolyear) ?? null,
             'created_at'     => $row->created_at ?? $now,
             'updated_at'     => $row->updated_at ?? $now,
         ];

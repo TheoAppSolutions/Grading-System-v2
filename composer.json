@@ -12,6 +12,8 @@
         "hasanyagout/filament-announcements": "^1.0",
         "laravel/framework": "^13.7",
         "laravel/tinker": "^3.0",
+        "marcelodelgado/filament-announcements": "^1.0",
+        "mradder/filament-logger": "^1.4",
         "shuvroroy/filament-spatie-laravel-backup": "^3.4",
         "shuvroroy/filament-spatie-laravel-health": "^3.3"
     },

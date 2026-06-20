@@ -16,6 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Models\Config\Role;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use HasanYagout\Announcement\Traits\HasAnnouncements;
 
 #[Table('users')]
 #[Fillable(['name', 'email', 'last_name', 'first_name', 'middle_name', 'suffix', 'honorifics', 'password', 'active'])]
@@ -23,7 +24,7 @@ use Filament\Panel;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasAnnouncements;
 
     /**
      * Get the attributes that should be cast.
@@ -38,11 +39,6 @@ class User extends Authenticatable implements FilamentUser
             'active' => 'boolean',
         ];
     }
-
-    // public function getAuthIdentifierName(): string
-    // {
-    //     return 'name';
-    // }
 
     // Relationships
     public function info(): HasOne
@@ -75,29 +71,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(Homeroom::class);
     }
 
-    public function sentAnnouncements(): HasMany
-    {
-        return $this->hasMany(Announcement::class, 'from_user_id');
-    }
-
-    public function receivedAnnouncements(): HasMany
-    {
-        return $this->hasMany(AnnouncementRecipient::class);
-    }
-
-    public function announcementNotification(): HasMany
-    {
-        return $this->hasMany(AnnouncementNotification::class, 'to_user_id');
-    }
-
     public function files(): HasMany
     {
         return $this->hasMany(FileStorage::class);
-    }
-
-    public function logs(): HasMany
-    {
-        return $this->hasMany(Log::class);
     }
 
     // Helpers

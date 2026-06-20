@@ -18,7 +18,7 @@ class StudentForm
                     ->numeric(),
                 TextInput::make('student_lrn')
                     ->label('Student LRN')
-                    ->visible(config('app.system_features.student_lrn')),
+                    ->visible(config('system-features.student_lrn')),
                 TextInput::make('first_name')
                     ->required(),
                 TextInput::make('middle_name'),

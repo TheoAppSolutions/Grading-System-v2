@@ -21,7 +21,7 @@ class MigrateAllCommand extends Command
         ['command' => 'migrate:subjects',     'label' => 'Subjects'],
         ['command' => 'migrate:students',     'label' => 'Students'],
         ['command' => 'migrate:enrollments',  'label' => 'Enrollments'],
-        ['command' => 'migrate:grades',       'label' => 'Grades'],
+        // ['command' => 'migrate:grades',       'label' => 'Grades'],
         ['command' => 'migrate:homeroom',     'label' => 'Homerooms'],
         ['command' => 'migrate:comments',     'label' => 'Comments'],
         ['command' => 'migrate:attendance',   'label' => 'Attendance'],
@@ -58,18 +58,18 @@ class MigrateAllCommand extends Command
             $this->line("──────────────────────────────────────");
 
             // --- Skip: sections feature flag ---
-            if ($step['label'] === 'Sections' && ! config('app.system_features.sections')) {
+            if ($step['label'] === 'Sections' && ! config('system-features.sections')) {
                 $this->warn("⊘  Skipping: {$step['label']}");
-                $this->line("   Reason: app.system_features.sections is disabled");
+                $this->line("   Reason: system-features.sections is disabled");
                 $skipped[] = ['label' => $step['label'], 'reason' => 'Feature flag disabled'];
                 $this->newLine();
                 continue;
             }
 
             // --- Skip: deportment feature flag ---
-            if ($step['label'] === 'Deportment' && ! config('app.system_features.homeroom_deportment')) {
+            if ($step['label'] === 'Deportment' && ! config('system-features.homeroom_deportment')) {
                 $this->warn("⊘  Skipping: {$step['label']}");
-                $this->line("   Reason: app.system_features.homeroom_deportment is disabled");
+                $this->line("   Reason: system-features.homeroom_deportment is disabled");
                 $skipped[] = ['label' => $step['label'], 'reason' => 'Feature flag disabled'];
                 $this->newLine();
                 continue;

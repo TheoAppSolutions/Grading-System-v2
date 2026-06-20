@@ -19,7 +19,7 @@ class StudentsTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('student_lrn')
-                    ->visible(config('app.system_features.student_lrn'))
+                    ->visible(config('system-features.student_lrn'))
                     ->searchable(),
                 TextColumn::make('first_name')
                     ->sortable()

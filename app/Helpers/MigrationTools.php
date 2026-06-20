@@ -2,22 +2,20 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\Log;
-
 class MigrationTools
 {
     public static function replaceUserId(int $old_id): ?int
     {
         $new_id = match (config('app.name')) {
-            'BIS'  => match ($old_id) {
+            'BIS' => match ($old_id) {
                 188 => 114,
                 default => null,
             },
             'HCGS' => match ($old_id) {
                 2 => 1,
-                45  => 6,
-                47  => 19,
-                53  => 7,
+                45 => 6,
+                47 => 19,
+                53 => 7,
                 default => null,
             },
             default => null,
@@ -29,17 +27,18 @@ class MigrationTools
     public static function replaceSubjectId(string $old_id): ?string
     {
         return match (config('app.name')) {
-            'BIS'  => match ($old_id) {
+            'BIS' => match ($old_id) {
                 default => $old_id,
             },
             'HCGS' => match ($old_id) {
-                'MATH3'  => 'MATH03',
+                'MATH3' => 'MATH03',
                 'MATH' => 'MATHJR',
                 'MAT' => 'MATHPR',
                 'SCI' => 'SCIEPR',
                 'ENG' => 'ENGLPR',
-                'CRE' => 'CREPR', //CREPR
+                'CRE' => 'CREPR', // CREPR
                 'ARTS' => 'ARTSPR',
+                'PE' => 'PE',
                 default => $old_id,
             },
             default => $old_id,
@@ -111,7 +110,20 @@ class MigrationTools
             ['code' => 'AT1', 'comment_category_id' => 5, 'type' => 1, 'description' => 'Does good work when present but frequent absences cause difficulties.'],
             ['code' => 'AT2', 'comment_category_id' => 5, 'type' => 1, 'description' => 'Frequent absences affect the quality of work and assignments.'],
             ['code' => 'AT3', 'comment_category_id' => 5, 'type' => 1, 'description' => 'Is tardy frequently. This disturbs classmates and also affects his/her work.'],
-            ['code' => 'OR', 'comment_category_id' => 6, 'type' => 1, 'description' => 'A Parent-Teacher Conference is requested ASAP']
+            ['code' => 'OR', 'comment_category_id' => 6, 'type' => 1, 'description' => 'A Parent-Teacher Conference is requested ASAP'],
         ];
+    }
+
+    public static function cleanEncoding(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (! mb_check_encoding($value, 'UTF-8')) {
+            $value = mb_convert_encoding($value, 'UTF-8', 'Windows-1252');
+        }
+
+        return $value;
     }
 }

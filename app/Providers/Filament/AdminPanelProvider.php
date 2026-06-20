@@ -31,6 +31,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Marcelodelgado\Announcements\AnnouncementsPlugin;
 use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 
@@ -58,6 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->resources([
                 StudentResource::class,
+                config('filament-logger.activity_resource'),
             ])
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
@@ -96,7 +98,8 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel('Backups')
                     ->navigationGroup('Settings')
                     ->navigationSort(3)
-                    ->usingPage(BackupsPage::class)
+                    ->usingPage(BackupsPage::class),
+                AnnouncementsPlugin::make(),
             ])
             ->userMenuItems([
                 'Office' => fn(Action $action) => $action->make('app')

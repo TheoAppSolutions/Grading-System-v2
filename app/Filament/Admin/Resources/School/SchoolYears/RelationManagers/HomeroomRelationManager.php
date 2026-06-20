@@ -2,7 +2,6 @@
 
 namespace App\Filament\Admin\Resources\School\SchoolYears\RelationManagers;
 
-use App\Filament\App\Resources\Office\Homerooms\HomeroomResource;
 use App\Models\Homeroom;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Table;
@@ -16,8 +15,6 @@ class HomeroomRelationManager extends RelationManager
 {
     protected static string $relationship = 'homeroom';
 
-    protected static ?string $relatedResource = HomeroomResource::class;
-
     protected static ?string $relationshipTitle = 'Homeroom';
 
     public function table(Table $table): Table
@@ -29,7 +26,7 @@ class HomeroomRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('gradeLevel.label'),
                 TextColumn::make('section.section')
-                    ->visible(config('app.system_features.sections')),
+                    ->visible(config('system-features.sections')),
                 SelectColumn::make('user_id')
                     ->label('Adviser')
                     ->searchableOptions()

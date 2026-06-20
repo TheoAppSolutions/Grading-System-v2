@@ -9,7 +9,7 @@
             </select>
         </div>
 
-        @if(config('app.system_features.midquarter'))
+        @if(config('system-features.midquarter'))
         <div class="flex items-center gap-2">
             <label class="text-sm font-medium">Type</label>
             <select wire:model.live="quarter_type"

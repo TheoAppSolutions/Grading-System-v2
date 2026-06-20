@@ -56,12 +56,12 @@ class DeportmentResource extends Resource
     #[Override]
     public static function shouldRegisterNavigation(): bool
     {
-        return config('app.system_features.homeroom_deportment');
+        return config('system-features.homeroom_deportment');
     }
 
     #[Override]
     public static function canView(Model $record): bool
     {
-        return config('app.system_features.homeroom_deportment');
+        return config('system-features.homeroom_deportment');
     }
 }

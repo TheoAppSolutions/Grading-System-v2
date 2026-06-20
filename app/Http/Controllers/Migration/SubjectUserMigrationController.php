@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Helpers\MigrationTools;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\MigrationTools;
 
 class SubjectUserMigrationController extends BaseMigrationController
 {
@@ -48,7 +47,7 @@ class SubjectUserMigrationController extends BaseMigrationController
                 ->table('subjects_user')
                 ->limit(3)
                 ->get()
-                ->map(fn($r) => $this->mapRow($r)),
+                ->map(fn ($r) => $this->mapRow($r)),
         ]);
     }
 
@@ -64,7 +63,7 @@ class SubjectUserMigrationController extends BaseMigrationController
             newTable: 'subject_users',
             oldTable: 'subjects_user',
             orderColumn: 'id',
-            mapper: fn($r) => $this->mapRow($r),
+            mapper: fn ($r) => $this->mapRow($r),
             columnCount: 9, // subject_id, user_id, user2_id, school_year_id, section, semester, category, created_at, updated_at
             dedupeKey: 'id'
         );
@@ -95,7 +94,7 @@ class SubjectUserMigrationController extends BaseMigrationController
     {
         $now = now()->toDateTimeString();
 
-        if (!$row->user_id) {
+        if (! $row->user_id) {
             return [];
         }
 
@@ -104,11 +103,11 @@ class SubjectUserMigrationController extends BaseMigrationController
         }
 
         return [
-            'subject_id' => $this->resolveSubject($row->subject_id) ?? 'x' . $row->subject_id,
+            'subject_id' => $this->resolveSubject($row->subject_id) ?? 999,
             'user_id' => $this->resolveUser($row->user_id) ?? null,
             'user2_id' => $this->resolveUser($row->user2_id) ?? null,
-            'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
-            'section_id' => $this->resolveSection($row->section ?? null),
+            'school_year_id' => $this->resolveSchoolYear($row->schoolyear) ?? null,
+            'section_id' => $this->resolveSection($row->section) ?? null,
             'semester' => $row->semester ?? '',
             'category' => $row->category ?? '',
             'created_at' => $row->created_at ?? $now,

@@ -24,10 +24,9 @@ class GradeMigrationController extends BaseMigrationController
      *   DELETE /migrate/grades/reset           → reset()
      *   DELETE /migrate/grades/reset/{num}     → resetTable()
      */
+    private const GRADE_TABLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-    private const GRADE_TABLES   = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    private const COLUMN_COUNT   = 13;
-
+    private const COLUMN_COUNT = 13;
 
     // -------------------------------------------------------------------------
     // Preview
@@ -41,18 +40,18 @@ class GradeMigrationController extends BaseMigrationController
         }
 
         return response()->json([
-            'new_table'       => 'grades',
-            'new_count'       => DB::connection('new_db')->table('grades')->count(),
-            'old_counts'      => $counts,
-            'old_total'       => array_sum($counts),
+            'new_table' => 'grades',
+            'new_count' => DB::connection('new_db')->table('grades')->count(),
+            'old_counts' => $counts,
+            'old_total' => array_sum($counts),
             'grade_level_map' => $this->buildGradeLevelMap(),
-            'subject_map'     => $this->buildSubjectMap(),
+            'subject_map' => $this->buildSubjectMap(),
             'school_year_map' => $this->buildSchoolYearMap(),
-            'sample'          => DB::connection('old_db')
+            'sample' => DB::connection('old_db')
                 ->table('grades_1')
                 ->limit(3)
                 ->get()
-                ->map(fn($r) => $this->mapRow($r, 1)),
+                ->map(fn ($r) => $this->mapRow($r, 1)),
         ]);
     }
 
@@ -88,36 +87,38 @@ class GradeMigrationController extends BaseMigrationController
         $this->buildSchoolYearMap();
 
         $gradeLevelId = $this->resolveGradeLevel($num);
-        if($num === 11){
-            $num = "kindy";
-        } elseif($num === 12){
-            $num = "prep";
+        if (config('app.name') === 'HCGS') {
+            if ($num === 11) {
+                $num = 'kindy';
+            } elseif ($num === 12) {
+                $num = 'prep';
+            }
         }
-
-        $oldTable     = "grades_{$num}";
+// RE CHECK GRADES MIGRATION ON BIS
+        $oldTable = "grades_{$num}";
 
         $stats = $this->runMigration(
             newTable: 'grades',
             oldTable: $oldTable,
             orderColumn: 'entry_id',
-            mapper: fn($r) => $this->mapRow($r, $num, $gradeLevelId),
+            mapper: fn ($r) => $this->mapRow($r, $num, $gradeLevelId),
             columnCount: self::COLUMN_COUNT,
             dedupeKey: 'entry_id'
         );
 
         $remaining = array_filter(
             self::GRADE_TABLES,
-            fn($n) => $n > $num
+            fn ($n) => $n > $num
         );
 
         return response()->json([
-            'status'          => empty($stats['errors']) ? 'done' : 'done_with_errors',
-            'table'           => $oldTable,
-            'grade_level_id'  => $gradeLevelId,
-            'next'            => ! empty($remaining)
-                ? 'POST /migrate/grades/table/' . min($remaining)
+            'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
+            'table' => $oldTable,
+            'grade_level_id' => $gradeLevelId,
+            'next' => ! empty($remaining)
+                ? 'POST /migrate/grades/table/'.min($remaining)
                 : null,
-            'all_done'        => empty($remaining),
+            'all_done' => empty($remaining),
             ...$stats,
         ]);
     }
@@ -131,30 +132,30 @@ class GradeMigrationController extends BaseMigrationController
         $rows = [];
         foreach (self::GRADE_TABLES as $num) {
             $gradeLevelId = $this->resolveGradeLevel($num);
-            $oldCount     = DB::connection('old_db')->table("grades_{$num}")->count();
-            $newCount     = $gradeLevelId
+            $oldCount = DB::connection('old_db')->table("grades_{$num}")->count();
+            $newCount = $gradeLevelId
                 ? DB::connection('new_db')->table('grades')->where('grade_level_id', $gradeLevelId)->count()
                 : 0;
 
             $rows[] = [
-                'table'          => "grades_{$num}",
+                'table' => "grades_{$num}",
                 'grade_level_id' => $gradeLevelId,
-                'old_count'      => $oldCount,
-                'migrated'       => $newCount,
-                'remaining'      => max(0, $oldCount - $newCount),
-                'done'           => $newCount >= $oldCount,
+                'old_count' => $oldCount,
+                'migrated' => $newCount,
+                'remaining' => max(0, $oldCount - $newCount),
+                'done' => $newCount >= $oldCount,
             ];
         }
 
-        $totalOld      = array_sum(array_column($rows, 'old_count'));
+        $totalOld = array_sum(array_column($rows, 'old_count'));
         $totalMigrated = array_sum(array_column($rows, 'migrated'));
 
         return response()->json([
-            'total_old'      => $totalOld,
+            'total_old' => $totalOld,
             'total_migrated' => $totalMigrated,
             'total_remaining' => max(0, $totalOld - $totalMigrated),
-            'all_done'       => $totalMigrated >= $totalOld,
-            'tables'         => $rows,
+            'all_done' => $totalMigrated >= $totalOld,
+            'tables' => $rows,
         ]);
     }
 
@@ -167,7 +168,7 @@ class GradeMigrationController extends BaseMigrationController
         $rows = DB::connection('new_db')
             ->table('grades')
             ->where(
-                fn($q) => $q
+                fn ($q) => $q
                     ->whereNull('subject_id')
                     ->orWhereNull('school_year_id')
             )
@@ -176,7 +177,7 @@ class GradeMigrationController extends BaseMigrationController
 
         return response()->json([
             'count' => $rows->count(),
-            'rows'  => $rows,
+            'rows' => $rows,
         ]);
     }
 
@@ -218,10 +219,10 @@ class GradeMigrationController extends BaseMigrationController
             ->delete();
 
         return response()->json([
-            'status'         => 'reset',
-            'table'          => "grades_{$num}",
+            'status' => 'reset',
+            'table' => "grades_{$num}",
             'grade_level_id' => $gradeLevelId,
-            'deleted'        => $deleted,
+            'deleted' => $deleted,
         ]);
     }
 
@@ -234,22 +235,22 @@ class GradeMigrationController extends BaseMigrationController
         $now = now()->toDateTimeString();
 
         return [
-            'student_id'     => (int) $row->student_id,
-            'user_id'        => (int) $this->resolveUser($row->user_id ?? null),
-            'subject_id'     => $this->resolveSubject($row->subject_id ?? null),
+            'student_id' => (int) $row->student_id,
+            'user_id' => (int) $this->resolveUser($row->user_id ?? null),
+            'subject_id' => $this->resolveSubject($row->subject_id ?? null),
             'grade_level_id' => $gradeLevelId ?? $this->resolveGradeLevel($tableNum),
             'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
-            'quarter'        => (int) $row->quarter,
+            'quarter' => (int) $row->quarter,
 
             // Old schema defaulted 0 meaning "not yet graded" — map to null
-            'midquarter'     => ($row->midquarter != 0) ? (float) $row->midquarter : null,
-            'final'          => ($row->final      != 0) ? (float) $row->final      : null,
-            'effort'         => ($row->effort     != 0) ? (float) $row->effort     : null,
-            'deportment'     => ($row->deportment != 0) ? (float) $row->deportment : null,
+            'midquarter' => ($row->midquarter != 0) ? (float) $row->midquarter : null,
+            'final' => ($row->final != 0) ? (float) $row->final : null,
+            'effort' => ($row->effort != 0) ? (float) $row->effort : null,
+            'deportment' => ($row->deportment != 0) ? (float) $row->deportment : null,
 
-            'remarks'        => isset($row->remarks) ? $row->remarks : null,
-            'created_at'     => $row->created_at ?? $now,
-            'updated_at'     => $row->updated_at ?? $now,
+            'remarks' => isset($row->remarks) ? $row->remarks : null,
+            'created_at' => $row->created_at ?? $now,
+            'updated_at' => $row->updated_at ?? $now,
         ];
         // 13 columns — keep in sync with COLUMN_COUNT above
     }

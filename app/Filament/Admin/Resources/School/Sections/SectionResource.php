@@ -35,7 +35,7 @@ class SectionResource extends Resource
     #[Override]
     public static function shouldRegisterNavigation(): bool
     {
-        return config('app.system_features.sections');
+        return config('system-features.sections');
     }
 
     public static function form(Schema $schema): Schema
