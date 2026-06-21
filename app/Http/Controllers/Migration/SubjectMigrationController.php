@@ -114,7 +114,7 @@ class SubjectMigrationController extends BaseMigrationController
             'subject_code' => $row->subject_id,
             'grade_level_id' => $this->resolveGradeLevel($row->gradelevel ?? null),
             'subject_category_id' => $this->resolveSubjectCategory($row->subjecttitle ?? null),
-            'subject_title' => Str::upper($row->subjectname) ?: (Str::upper($row->subjectname) ?? 0),
+            'subject_title' => $row->gradelevel > 10 ? $row->subjecttitle : Str::upper($row->subjectname),
             'created_at'     => $row->created_at ?? $now,
             'updated_at'     => $row->updated_at ?? $now,
         ];

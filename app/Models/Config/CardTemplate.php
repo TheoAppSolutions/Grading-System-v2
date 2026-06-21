@@ -64,6 +64,7 @@ class CardTemplate extends Model
             2 => 'By Semester (2 entries)',
             4 => 'By Quarter (4 entries)',
             10 => 'By Month (10 entries)',
+            12 => 'By Month (12 entries)',
         ];
     }
 }

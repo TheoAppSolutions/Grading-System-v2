@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('grade_level_id');
             $table->integer('subject_category_id')->nullable();
             $table->string('subject_title');
+            $table->tinyInteger('active')->default(1);
             $table->timestamps();
         });
 

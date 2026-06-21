@@ -27,13 +27,13 @@ class SchoolYearForm
                 Select::make('month_start')
                     ->label('Start Month')
                     ->searchable()
-                    ->visible(fn(Get $get) => $get('attendance_entries') == 10)
+                    ->visible(fn(Get $get) => $get('attendance_entries') >= 10)
                     ->options(MyTools::getMonths())
                     ->required(),
                 Select::make('month_end')
                     ->label('End Month')
                     ->searchable()
-                    ->visible(fn(Get $get) => $get('attendance_entries') == 10)
+                    ->visible(fn(Get $get) => $get('attendance_entries') >= 10)
                     ->options(MyTools::getMonths())
                     ->required(),
             ]);

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Admin\Resources\School\SchoolYears\Tables;
 
-use App\Helpers\MyTools;
 use App\Models\Config\CardTemplate;
 use App\Models\SchoolYear;
 use Filament\Actions\EditAction;
@@ -19,17 +18,16 @@ class SchoolYearsTable
             ->columns([
                 TextColumn::make('label'),
                 TextColumn::make('attendance_entries')
-                ->formatStateUsing(fn ($state) => CardTemplate::getCategoriesOptions()[$state]),
+                    ->formatStateUsing(fn ($state) => CardTemplate::getCategoriesOptions()[$state]),
                 ToggleColumn::make('active')
                     ->disabled(fn ($record) => $record->active)
-                    ->beforeStateUpdated(function ($record, $state) {
+                    ->beforeStateUpdated(function ($state) {
                         if ($state) {
                             SchoolYear::query()->update(['active' => false]);
                         }
                     })
                     ->label('Active'),
             ])
-            ->extraAttributes(['style' => ''])
             ->defaultSort('id', 'DESC')
             ->recordActions([
                 EditAction::make()

@@ -6,6 +6,7 @@ use App\Models\Config\GradeLevel;
 use App\Models\Config\SubjectCategory;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -26,6 +27,8 @@ class SubjectsTable
                 TextColumn::make('subjectCategory.label')
                     ->label('Category')
                     ->visible(config('system-features.sections')),
+                ToggleColumn::make('active')
+                    ->label('Active')
             ])
             ->filters([
                 SelectFilter::make('grade_level_id')

@@ -6,14 +6,24 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Saade\FilamentFacehash\Concerns\HasFacehashAvatar;
 
 #[Table('students')]
 #[Unguarded]
 class Student extends Model
 {
+    use HasFacehashAvatar;
+
     public $incrementing = false;
+
+    public function facehashAvatarName(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->last_name . ', ' . $this->first_name
+        );
+    }
 
     // Relationships
     public function info(): HasOne
@@ -80,7 +90,7 @@ class Student extends Model
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn() => trim("{$this->last_name}, {$this->first_name} {$this->middle_name} {$this->suffix}")
+            get: fn () => trim("{$this->last_name}, {$this->first_name} {$this->middle_name} {$this->suffix}")
         );
     }
 

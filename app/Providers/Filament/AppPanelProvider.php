@@ -31,6 +31,9 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Saade\Facehash\Enums\Variant;
+use Saade\FilamentFacehash\FacehashPlugin;
+use Saade\FilamentFacehash\FacehashProvider;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -82,19 +85,33 @@ class AppPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->defaultAvatarProvider(FacehashProvider::class)
+            ->plugins([
+                FacehashPlugin::make()
+                    ->size(40)                       // Avatar size in pixels (default: 40)
+                    ->variant(Variant::Gradient)     // Variant::Gradient or Variant::Solid (default: Gradient)
+                    ->initial(true)                  // Show first letter of name (default: true)
+                    ->colors([                       // Custom color palette
+                        '#ec4899',
+                        '#f59e0b',
+                        '#3b82f6',
+                        '#f97316',
+                        '#10b981',
+                    ]),
+            ])
             ->userMenuItems([
-                'Admin Page' => fn(Action $action) => $action->make('app')
+                'Admin Page' => fn (Action $action) => $action->make('app')
                     ->label('Admin Page')
                     ->visible(Auth::user()->isAdmin())
                     ->icon(Heroicon::Bolt)
-                    ->action(fn() => redirect(url('admin'))),
-                'logout' => fn(Action $action) => $action->label('Log out'),
+                    ->action(fn () => redirect(url('admin'))),
+                'logout' => fn (Action $action) => $action->label('Log out'),
             ])
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $schoolYear = MyTools::getSchoolYear();
                 $autoItems = collect(Filament::getResources())
-                    ->filter(fn($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn($resource) => $resource::getNavigationItems());
+                    ->filter(fn ($resource) => $resource::shouldRegisterNavigation())
+                    ->flatMap(fn ($resource) => $resource::getNavigationItems());
 
                 $pageItems = collect([
                     ...Pages\DashboardPage::getNavigationItems(),
@@ -105,13 +122,13 @@ class AppPanelProvider extends PanelProvider
 
                 // Pages that declare a navigationGroup join the grouped pool;
                 // pages without one stay as flat top-level items.
-                $groupedPageItems = $pageItems->filter(fn($item) => $item->getGroup() !== null);
-                $ungroupedPageItems = $pageItems->reject(fn($item) => $item->getGroup() !== null);
+                $groupedPageItems = $pageItems->filter(fn ($item) => $item->getGroup() !== null);
+                $ungroupedPageItems = $pageItems->reject(fn ($item) => $item->getGroup() !== null);
 
                 $groups = $autoItems->merge($groupedPageItems)
-                    ->sortBy(fn($item) => $item->getSort())
-                    ->groupBy(fn($item) => $item->getGroup())
-                    ->map(fn($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->values()->all()))
+                    ->sortBy(fn ($item) => $item->getSort())
+                    ->groupBy(fn ($item) => $item->getGroup())
+                    ->map(fn ($items, $groupLabel) => NavigationGroup::make($groupLabel)->items($items->values()->all()))
                     ->values()
                     ->all();
 
@@ -125,7 +142,7 @@ class AppPanelProvider extends PanelProvider
 
                 return $builder
                     ->items([
-                        ...$ungroupedPageItems->sortBy(fn($item) => $item->getSort())->all(),
+                        ...$ungroupedPageItems->sortBy(fn ($item) => $item->getSort())->all(),
                         NavigationItem::make('Logout')
                             ->url("javascript:document.querySelector('#logout').submit();")
                             ->icon('heroicon-m-arrow-left-on-rectangle')
@@ -156,16 +173,16 @@ class AppPanelProvider extends PanelProvider
         }
 
         return $subjects
-            ->groupBy(fn(SubjectUser $subjectUser) => $subjectUser->subject->subjectCategory->label)
+            ->groupBy(fn (SubjectUser $subjectUser) => $subjectUser->subject->subjectCategory->label)
             ->map(function ($groupedSubjects, string $subjectTitle) {
                 $items = $groupedSubjects
                     ->values()
                     ->map(function (SubjectUser $subjectUser, int $index) {
                         $subject = $subjectUser->subject;
 
-                        return NavigationItem::make(MyTools::ordinal($subject->grade_level_id) . ' Grade')
+                        return NavigationItem::make(MyTools::ordinal($subject->grade_level_id).' Grade')
                             ->url(Pages\GradesPage::getUrl(['sid' => $subjectUser->subject_id, 'gid' => $subjectUser->subject->grade_level_id]))
-                            ->isActiveWhen(fn() => request()->is('app/Grades*') && request('sid') == $subjectUser->subject_id)
+                            ->isActiveWhen(fn () => request()->is('app/Grades*') && request('sid') == $subjectUser->subject_id)
                             ->sort($index);
                     })
                     ->all();

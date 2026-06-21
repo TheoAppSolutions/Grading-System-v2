@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\Office\Students\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
@@ -16,8 +17,12 @@ class StudentsTable
         return $table
             ->columns([
                 TextColumn::make('id')
+                    ->label('ID')
                     ->sortable()
                     ->searchable(),
+                ImageColumn::make('facehash_avatar_url')
+                    ->label('Image')
+                    ->circular(),
                 TextColumn::make('student_lrn')
                     ->visible(config('system-features.student_lrn'))
                     ->searchable(),
@@ -53,6 +58,7 @@ class StudentsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->paginated(true);
     }
 }
