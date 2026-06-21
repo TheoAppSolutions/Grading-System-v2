@@ -4,7 +4,6 @@ namespace App\Helpers;
 
 use App\Models;
 use Illuminate\Support\Facades\Auth;
-use App\Filament\Admin\Resources\School\SchoolYears\SchoolYearResource;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Process;
@@ -41,7 +40,7 @@ class MyTools
         }
 
         $schoolYear = Models\SchoolYear::where('active', 1)
-            ->select(['id', 'school_year'])
+            ->select(['id', 'label'])
             ->first();
 
         if ($schoolYear === null) {

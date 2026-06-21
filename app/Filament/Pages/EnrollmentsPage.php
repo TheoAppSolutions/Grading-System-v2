@@ -21,7 +21,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -72,7 +71,7 @@ class EnrollmentsPage extends Page implements HasTable
         return $table
             ->query(
                 Student::where('active', 1)
-                    ->whereDoesntHave('graduate')
+                // ->whereDoesntHave('graduate')
             )
             ->columns([
                 TextColumn::make('id')
@@ -80,13 +79,21 @@ class EnrollmentsPage extends Page implements HasTable
                     ->label('Student ID'),
                 TextColumn::make('name')
                     ->getStateUsing(fn ($record) => $record['last_name'].', '.$record['first_name'])
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where(function (Builder $query) use ($search) {
+                            $query->where('last_name', 'like', "%{$search}%")
+                                ->orWhere('first_name', 'like', "%{$search}%");
+                        });
+                    })
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('last_name', $direction)
+                            ->orderBy('first_name', $direction);
+                    }),
                 TextColumn::make('current_level')
                     ->label('Current Grade')
                     ->state(function ($record, $livewire) {
                         $filters = $livewire->tableFilters['enrollment'] ?? [];
-                        $schoolYearId = $filters['school_year_id'] ?? null;
+                        $schoolYearId = SchoolYear::getActive()->id;
                         $enrollmentStatus = $filters['enrollment_status'] ?? null;
 
                         if ($enrollmentStatus === 'enrolled' && $schoolYearId) {
@@ -95,7 +102,6 @@ class EnrollmentsPage extends Page implements HasTable
                                 ->first()?->gradeLevel?->label;
                         }
 
-                        // Get latest enrollment by school year relationship, not created_at
                         $latest = $record->enrollments()
                             ->with(['gradeLevel', 'schoolYear'])
                             ->whereHas('schoolYear')
@@ -109,6 +115,32 @@ class EnrollmentsPage extends Page implements HasTable
 
                         return $latest->gradeLevel?->label
                             .' (S.Y. '.$latest->schoolYear?->label.')';
+                    })
+                    ->sortable(query: function (Builder $query, string $direction, $livewire): Builder {
+                        $filters = $livewire->tableFilters['enrollment'] ?? [];
+                        $schoolYearId = SchoolYear::getActive()->id;
+                        $enrollmentStatus = $filters['enrollment_status'] ?? null;
+
+                        if ($enrollmentStatus === 'enrolled' && $schoolYearId) {
+                            return $query->orderBy(
+                                Enrollment::query()
+                                    ->select('grade_level_id')
+                                    ->whereColumn('enrollments.student_id', 'students.id')
+                                    ->where('enrollments.school_year_id', $schoolYearId)
+                                    ->limit(1),
+                                $direction
+                            );
+                        }
+
+                        return $query->orderBy(
+                            Enrollment::query()
+                                ->select('enrollments.grade_level_id')
+                                ->join('school_years', 'enrollments.school_year_id', '=', 'school_years.id')
+                                ->whereColumn('enrollments.student_id', 'students.id')
+                                ->orderByDesc('school_years.label')
+                                ->limit(1),
+                            $direction
+                        );
                     }),
             ])
             ->filters([
@@ -232,7 +264,8 @@ class EnrollmentsPage extends Page implements HasTable
                     ->button()
                     ->color('success')
                     ->url(fn ($record) => StudentResource::getUrl('edit', [$record->id])),
-            ]);
+            ])
+            ->paginated(true);
     }
 
     public static function enrollStudents(Collection $records, array $data): void

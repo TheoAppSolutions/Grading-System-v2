@@ -7,4 +7,14 @@ return [
     'homeroom_deportment' => env('FEATURE_HOMEROOM_DEPORTMENT', false),
     'student_lrn' => env('FEATURE_STUDENT_LRN', false),
     'midquarter' => env('FEATURE_MIDQUARTER', false),
+    'extended_grade' => [
+        11 => match(config('app.name')) {
+            'HCGS' => 'Kindy',
+            default => 11
+        },
+        12 => match(config('app.name')) {
+            'HCGS' => 'Prep',
+            default => 12
+        },
+    ]
 ];

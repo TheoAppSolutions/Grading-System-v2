@@ -28,6 +28,7 @@ class MigrationTools
     {
         return match (config('app.name')) {
             'BIS' => match ($old_id) {
+                'FILI12' => 'FILI12A',
                 default => $old_id,
             },
             'HCGS' => match ($old_id) {

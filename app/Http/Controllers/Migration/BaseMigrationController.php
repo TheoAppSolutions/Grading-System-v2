@@ -330,7 +330,8 @@ abstract class BaseMigrationController extends Controller
                         ->flip()
                         ->all();
 
-                    $toInsert = [];
+                    $toInsert    = [];
+                    $sourceByKey = []; // newDedupeKey value → original old row, for error logging
 
                     foreach ($rows as $row) {
                         $sourceVal = $row->{$oldDedupeKey};
@@ -355,14 +356,20 @@ abstract class BaseMigrationController extends Controller
                             }
 
                             $toInsert[] = $mapped;
+
+                            // Track the original old-table row by the value that
+                            // will become the new table's dedupe key, so insert
+                            // failures can log the full source row, not just an id.
+                            $sourceByKey[$mapped[$newDedupeKey] ?? null] = $row;
                         } catch (Throwable $e) {
                             $stats['errors'][] = [
                                 'row'     => $sourceVal,
                                 'message' => $e->getMessage(),
                             ];
-                            Log::channel('migrationlog')->info("Migration mapping error [{$newTable}]", [
-                                'value' => $sourceVal,
-                                'error' => $e->getMessage(),
+                            Log::channel('migrationlog')->error("Migration mapping error [{$newTable}]", [
+                                'old_table' => $oldTable,
+                                'old_row'   => (array) $row,
+                                'error'     => $e->getMessage(),
                             ]);
                         }
                     }
@@ -381,12 +388,19 @@ abstract class BaseMigrationController extends Controller
                                     DB::table($newTable)->insert($mapped);
                                     $stats['inserted']++;
                                 } catch (Throwable $rowError) {
+                                    $dedupeVal = $mapped[$newDedupeKey] ?? null;
+                                    $originalRow = $sourceByKey[$dedupeVal] ?? null;
+
                                     $stats['errors'][] = [
-                                        'row'     => $mapped[$newDedupeKey] ?? null,
+                                        'row'     => $dedupeVal,
                                         'message' => $rowError->getMessage(),
                                     ];
-                                    Log::channel('migrationlog')->info("Migration insert error [{$newTable}]", [
-                                        'error' => $rowError->getMessage(),
+
+                                    Log::channel('migrationlog')->error("Migration insert error [{$newTable}]", [
+                                        'old_table'   => $oldTable,
+                                        'old_row'     => $originalRow ? (array) $originalRow : null,
+                                        'mapped_row'  => $mapped,
+                                        'error'       => $rowError->getMessage(),
                                     ]);
                                 }
                             }

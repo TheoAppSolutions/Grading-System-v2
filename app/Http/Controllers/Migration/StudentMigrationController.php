@@ -63,7 +63,7 @@ class StudentMigrationController extends BaseMigrationController
             oldTable: 'students',
             orderColumn: 'entry_id',
             mapper: fn($r) => $this->mapRow($r),
-            columnCount: 11, // student_id, student_lrn, first_name, middle_name, last_name, suffix, gender, current_level, active, created_at, updated_at
+            columnCount: 10, // student_id, student_lrn, first_name, middle_name, last_name, suffix, gender, active, created_at, updated_at
             dedupeKey: 'student_id'
         );
 
@@ -105,7 +105,7 @@ class StudentMigrationController extends BaseMigrationController
             'last_name'     => MigrationTools::cleanEncoding($row->lastname),
             'suffix'        => ($row->suffix !== '' && $row->suffix !== null) ? $row->suffix : null,
             'gender'        => $row->gender,
-            'current_level' => null,
+            // 'current_level' => null,
             'active'        => (int) $row->active,
             'created_at'     => $row->created_at ?? $now,
             'updated_at'     => $row->updated_at ?? $now,

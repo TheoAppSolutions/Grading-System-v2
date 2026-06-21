@@ -41,31 +41,4 @@ class GradeLevel extends Model
 
         return $rows;
     }
-
-    // Relationships
-    public function sections(): HasMany
-    {
-        return $this->hasMany(Section::class, 'grade_level_id', 'id');
-    }
-
-    public function subjects(): HasMany
-    {
-        return $this->hasMany(Subject::class, 'grade_level_id', 'id');
-    }
-
-    public function enrollments(): HasMany
-    {
-        return $this->hasMany(Enrollment::class, 'grade_level_id', 'id');
-    }
-
-    public function grades(): HasMany
-    {
-        return $this->hasMany(Grade::class, 'grade_level_id', 'id');
-    }
-
-    // Helpers
-    public function scopeActive($query)
-    {
-        return $query->where('active', true);
-    }
 }

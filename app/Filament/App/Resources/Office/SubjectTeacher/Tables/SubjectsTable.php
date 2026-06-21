@@ -49,6 +49,7 @@ class SubjectsTable
 
                 TextInputColumn::make('units')
                     ->label('Units')
+                    ->type('number')
                     // ->default(fn($record, $livewire) => $livewire->pendingChanges[$record->id]['units'] ?? "")
                     ->default(function ($record, $livewire) {
                         if (isset($livewire->pendingChanges[$record->id]['units'])):

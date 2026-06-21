@@ -57,7 +57,7 @@ class HomeroomsPage extends Page implements HasTable
 
     public function table(Table $table): Table
     {
-        $userList = User::pluck('name', 'id');
+        $userList = User::getActiveUsers();
         $schoolYearActive = SchoolYear::getActive();
 
         return $table
@@ -72,13 +72,13 @@ class HomeroomsPage extends Page implements HasTable
                     ->label('Adviser')
                     ->searchableOptions()
                     ->options(function () use ($userList) {
-                        return $userList;
+                        return $userList->pluck('name', 'id');
                     }),
                 SelectColumn::make('user2_id')
                     ->label('Co-Adviser')
                     ->searchableOptions()
                     ->options(function () use ($userList) {
-                        return $userList;
+                        return $userList->pluck('name', 'id');
                     }),
             ]);
     }
