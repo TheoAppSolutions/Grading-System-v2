@@ -21,7 +21,7 @@ class Student extends Model
     public function facehashAvatarName(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->last_name . ', ' . $this->first_name
+            get: fn() => $this->last_name . ', ' . $this->first_name
         );
     }
 
@@ -38,7 +38,7 @@ class Student extends Model
 
     public function enrollments(): HasMany
     {
-        return $this->hasMany(Enrollment::class, 'student_id', 'id');
+        return $this->hasMany(Enrollment::class)->orderByDesc('school_year_id');
     }
 
     public function enrollmentLatest(): HasOne
@@ -86,11 +86,16 @@ class Student extends Model
         return $this->hasMany(CommentQuarter::class, 'student_id', 'id');
     }
 
+    public function fileStorage(): HasMany
+    {
+        return $this->hasMany(FileStorage::class, 'owner_id', 'id');
+    }
+
     // Helpers
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn () => trim("{$this->last_name}, {$this->first_name} {$this->middle_name} {$this->suffix}")
+            get: fn() => trim("{$this->last_name}, {$this->first_name} {$this->middle_name} {$this->suffix}")
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\System\Users\Tables;
 
+use App\Enums\Status;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Config\Role;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Filters\SelectFilter;
 
 class UsersTable
 {
@@ -32,7 +34,8 @@ class UsersTable
                     ->disabled(fn($record) => Auth::id() === $record->id),
             ])
             ->filters([
-                //
+                SelectFilter::make('active')
+                    ->options(Status::class)
             ])
             ->defaultSort(function (Builder $query): Builder {
                 return $query

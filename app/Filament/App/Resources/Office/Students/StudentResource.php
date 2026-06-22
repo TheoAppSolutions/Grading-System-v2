@@ -4,8 +4,8 @@ namespace App\Filament\App\Resources\Office\Students;
 
 use App\Filament\App\Resources\Office\Students\Pages\CreateStudent;
 use App\Filament\App\Resources\Office\Students\Pages\EditStudent;
-use App\Filament\App\Resources\Office\Students\Pages\ViewStudent;
 use App\Filament\App\Resources\Office\Students\Pages\ListStudents;
+use App\Filament\App\Resources\Office\Students\RelationManagers;
 use App\Filament\App\Resources\Office\Students\Schemas\StudentForm;
 use App\Filament\App\Resources\Office\Students\Tables\StudentsTable;
 use App\Models\Student;
@@ -41,7 +41,8 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\EnrollmentRelationManager::class,
+            RelationManagers\FileStorageRelationManager::class,
         ];
     }
 
@@ -51,7 +52,6 @@ class StudentResource extends Resource
             'index' => ListStudents::route('/'),
             'create' => CreateStudent::route('/create'),
             'edit' => EditStudent::route('/{record}/edit'),
-            'view' => ViewStudent::route('/{record}'),
         ];
     }
 }

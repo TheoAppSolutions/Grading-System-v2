@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages\Auth;
 
+use App\Enums\Honorific;
+use App\Enums\Suffix;
 use App\Models\User;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
 use Filament\Forms\Components\DatePicker;
@@ -21,14 +23,10 @@ class EditProfile extends BaseEditProfile
                 Section::make('Profile Details')
                     ->schema([
                         Select::make('honorifics')
-                            ->options([
-                                'Mr.'  => 'Mr.',
-                                'Ms.'  => 'Ms.',
-                                'Mrs.' => 'Mrs.',
-                            ])
+                            ->options(Honorific::class)
                             ->columnSpan(1),
                         Select::make('suffix')
-                            ->options(User::getSuffixList())
+                            ->options(Suffix::groupedOptions())
                             ->searchable()
                             ->columnSpan(1),
                         TextInput::make('first_name')

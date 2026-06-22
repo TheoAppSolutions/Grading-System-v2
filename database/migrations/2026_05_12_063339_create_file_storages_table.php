@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('file_storages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('owner_id');
+            $table->string('owner_type');
             $table->string('file_name')->nullable();
             $table->string('file_type');
             $table->string('hashed_filename')->nullable();

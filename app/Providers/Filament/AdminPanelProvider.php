@@ -68,6 +68,7 @@ class AdminPanelProvider extends PanelProvider
                 Pages\EnrollmentsPage::class,
                 Pages\GraduatesPage::class,
                 Pages\GradesPage::class,
+                Pages\FileStoragePage::class,
                 BackupsPage::class,
                 HealthCheckResultsPage::class,
             ])
@@ -118,6 +119,7 @@ class AdminPanelProvider extends PanelProvider
                     ...Pages\HomeroomsPage::getNavigationItems(),
                     ...Pages\EnrollmentsPage::getNavigationItems(),
                     ...Pages\GraduatesPage::getNavigationItems(),
+                    ...Pages\FileStoragePage::getNavigationItems(),
                 ]);
 
                 $groupedPageItems = $pageItems->filter(fn($item) => $item->getGroup() !== null);

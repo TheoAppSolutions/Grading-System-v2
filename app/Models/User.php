@@ -71,9 +71,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(Homeroom::class);
     }
 
-    public function files(): HasMany
+    public function fileStorage(): HasMany
     {
-        return $this->hasMany(FileStorage::class);
+        return $this->hasMany(FileStorage::class, 'owner_id', 'id');
     }
 
     // Helpers
@@ -128,34 +128,5 @@ class User extends Authenticatable implements FilamentUser
             'admin' => $this->isAdmin(),
             default => true,
         };
-    }
-
-    public static function getSuffixList()
-    {
-        return [
-            'Generational' => [
-                'Jr.' => 'Jr.',
-                'Sr.' => 'Sr.',
-                'II' => 'II',
-                'III' => 'III',
-                'IV' => 'IV',
-                'V' => 'V'
-            ],
-
-            'Academic / Professional' => [
-                'Ph.D.' => 'Ph.D.',
-                'M.D.' => 'M.D.',
-                'D.D.S.' => 'D.D.S.',
-                'D.V.M.' => 'D.V.M.',
-                'J.D.' => 'J.D.',
-                'LL.B.' => 'LL.B.',
-                'LL.M.' => 'LL.M.',
-                'M.B.A.' => 'M.B.A.',
-                'M.S.' => 'M.S.',
-                'M.A.' => 'M.A.',
-                'B.S.' => 'B.S.',
-                'B.A.' => 'B.A.'
-            ],
-        ];
     }
 }
