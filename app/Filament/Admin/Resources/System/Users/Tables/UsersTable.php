@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Config\Role;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\SelectFilter;
 
 class UsersTable
@@ -19,6 +20,8 @@ class UsersTable
     {
         return $table
             ->columns([
+                ImageColumn::make('facehash_avatar_url')
+                    ->label('Image'),
                 TextColumn::make('fullName')
                     ->label('Name')
                     ->getStateUsing(fn($record) => "{$record->honorifics} {$record->first_name} {$record->last_name}"),

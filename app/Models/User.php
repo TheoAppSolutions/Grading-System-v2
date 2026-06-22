@@ -16,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Models\Config\Role;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use HasanYagout\Announcement\Traits\HasAnnouncements;
+use Saade\FilamentFacehash\Concerns\HasFacehashAvatar;
 
 #[Table('users')]
 #[Fillable(['name', 'email', 'last_name', 'first_name', 'middle_name', 'suffix', 'honorifics', 'password', 'active'])]
@@ -24,7 +24,7 @@ use HasanYagout\Announcement\Traits\HasAnnouncements;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasAnnouncements;
+    use HasFactory, Notifiable, HasFacehashAvatar;
 
     /**
      * Get the attributes that should be cast.

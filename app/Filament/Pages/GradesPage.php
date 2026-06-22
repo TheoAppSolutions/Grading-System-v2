@@ -65,7 +65,7 @@ class GradesPage extends Page implements HasTable
         $this->subjectId ??= (int) request('sid');
         $subject = Subject::find($this->subjectId);
 
-        return $subject->subject_code.' ('.SchoolYear::getActive()->label.')';
+        return $subject->subject_code . ' (' . SchoolYear::getActive()->label . ')';
     }
 
     public function updatedQuarterEntry(): void
@@ -90,7 +90,7 @@ class GradesPage extends Page implements HasTable
             ->query(
                 Student::query()
                     ->where('active', 1)
-                    ->whereHas('enrollments', fn ($q) => $q
+                    ->whereHas('enrollments', fn($q) => $q
                         ->where('school_year_id', $schoolYear->id)
                         ->where('grade_level_id', $this->gradeLevelId))
                     ->leftJoin('grades', function ($join) use ($schoolYear, $quarter) {
@@ -113,54 +113,58 @@ class GradesPage extends Page implements HasTable
                 TextColumn::make('#')->rowIndex(),
                 TextColumn::make('id')->label('Student ID'),
                 TextColumn::make('name')
-                    ->getStateUsing(fn ($r) => "{$r->last_name}, {$r->first_name} ({$r->gender})"),
+                    ->getStateUsing(fn($record) => "{$record->last_name}, {$record->first_name} ({$record->gender})"),
 
                 TextInputColumn::make('final')
+                    ->type('number')
                     ->visible($isQuarter)
-                    ->getStateUsing(fn ($r) => data_get($this->pendingGrades, "{$r->id}.{$quarter}.final", $r->final))
-                    ->updateStateUsing(fn ($r, $state) => $this->pendingGrades[$r->id][$quarter]['final'] = $state),
+                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.final", $record->final))
+                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['final'] = $state),
 
                 TextInputColumn::make('effort')
+                    ->type('number')
                     ->visible($isQuarter)
-                    ->getStateUsing(fn ($r) => data_get($this->pendingGrades, "{$r->id}.{$quarter}.effort", $r->effort))
-                    ->updateStateUsing(fn ($r, $state) => $this->pendingGrades[$r->id][$quarter]['effort'] = $state),
+                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.effort", $record->effort))
+                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['effort'] = $state),
 
                 TextInputColumn::make('deportment')
+                    ->type('number')
                     ->visible($isQuarter)
-                    ->getStateUsing(fn ($r) => data_get($this->pendingGrades, "{$r->id}.{$quarter}.deportment", $r->deportment))
-                    ->updateStateUsing(fn ($r, $state) => $this->pendingGrades[$r->id][$quarter]['deportment'] = $state),
+                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.deportment", $record->deportment))
+                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['deportment'] = $state),
 
                 TextInputColumn::make('midquarter')
+                    ->type('number')
                     ->visible(! $isQuarter)
-                    ->getStateUsing(fn ($r) => data_get($this->pendingGrades, "{$r->id}.{$quarter}.midquarter", $r->midquarter))
-                    ->updateStateUsing(fn ($r, $state) => $this->pendingGrades[$r->id][$quarter]['midquarter'] = $state),
+                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.midquarter", $record->midquarter))
+                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['midquarter'] = $state),
             ])
             ->filters([
-                SelectFilter::make('quarter')
-                    ->label(fn () => CardTemplate::getOptionsLabel($schoolYear->attendance_entries))
-                    ->options([1 => '1st', 2 => '2nd'])
-                    ->native(false)
-                    ->default(1)
-                    ->selectablePlaceholder(false)
-                    ->query(function (Builder $query, array $data) use ($schoolYear): Builder {
-                        $quarter = (int) ($data['value'] ?? 1);
-                        $this->quarter_entry = $quarter;
+                // SelectFilter::make('quarter')
+                //     ->label(fn() => CardTemplate::getOptionsLabel($schoolYear->attendance_entries))
+                //     ->options([1 => '1st', 2 => '2nd'])
+                //     ->native(false)
+                //     ->default(1)
+                //     ->selectablePlaceholder(false)
+                //     ->query(function (Builder $query, array $data) use ($schoolYear): Builder {
+                //         $quarter = (int) ($data['value'] ?? 1);
+                //         $this->quarter_entry = $quarter;
 
-                        return $query
-                            ->leftJoin('grades', function ($join) use ($schoolYear, $quarter) {
-                                $join->on('grades.student_id', '=', 'students.id')
-                                    ->where('grades.subject_id', $this->subjectId)
-                                    ->where('grades.school_year_id', $schoolYear->id)
-                                    ->where('grades.quarter', $quarter);
-                            })
-                            ->addSelect(
-                                'students.*',
-                                'grades.midquarter as midquarter',
-                                'grades.final as final',
-                                'grades.effort as effort',
-                                'grades.deportment as deportment',
-                            );
-                    }),
+                //         return $query
+                //             ->leftJoin('grades', function ($join) use ($schoolYear, $quarter) {
+                //                 $join->on('grades.student_id', '=', 'students.id')
+                //                     ->where('grades.subject_id', $this->subjectId)
+                //                     ->where('grades.school_year_id', $schoolYear->id)
+                //                     ->where('grades.quarter', $quarter);
+                //             })
+                //             ->addSelect(
+                //                 'students.*',
+                //                 'grades.midquarter as midquarter',
+                //                 'grades.final as final',
+                //                 'grades.effort as effort',
+                //                 'grades.deportment as deportment',
+                //             );
+                //     }),
             ]);
     }
 

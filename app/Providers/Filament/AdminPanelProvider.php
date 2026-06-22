@@ -31,9 +31,11 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Marcelodelgado\Announcements\AnnouncementsPlugin;
+use Saade\Facehash\Enums\Variant;
 use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
+use Saade\FilamentFacehash\FacehashPlugin;
+use Saade\FilamentFacehash\FacehashProvider;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -59,7 +61,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->resources([
                 StudentResource::class,
-                config('filament-logger.activity_resource'),
             ])
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
@@ -91,6 +92,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->defaultAvatarProvider(FacehashProvider::class)
             ->plugins([
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResultsPage::class),
@@ -100,7 +102,17 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationGroup('Settings')
                     ->navigationSort(3)
                     ->usingPage(BackupsPage::class),
-                AnnouncementsPlugin::make(),
+                FacehashPlugin::make()
+                    ->size(40)                       // Avatar size in pixels (default: 40)
+                    ->variant(Variant::Gradient)     // Variant::Gradient or Variant::Solid (default: Gradient)
+                    ->initial(true)                  // Show first letter of name (default: true)
+                    ->colors([                       // Custom color palette
+                        '#ec4899',
+                        '#f59e0b',
+                        '#3b82f6',
+                        '#f97316',
+                        '#10b981',
+                    ]),
             ])
             ->userMenuItems([
                 'Office' => fn(Action $action) => $action->make('app')

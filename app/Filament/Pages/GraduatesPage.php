@@ -75,7 +75,7 @@ class GraduatesPage extends Page implements HasTable
                 ViewAction::make()
                     ->button()
                     ->color('success')
-                    ->url(fn ($record) => StudentResource::getUrl('view', [$record->student_id])),
+                    ->url(fn ($record) => StudentResource::getUrl('edit', [$record->student_id])),
                 Action::make('viewTOR')
                     ->label('TOR')
                     ->icon(Heroicon::Document)
