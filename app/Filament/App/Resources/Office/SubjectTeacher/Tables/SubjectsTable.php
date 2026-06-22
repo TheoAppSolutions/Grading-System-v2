@@ -24,6 +24,7 @@ class SubjectsTable
                 Subject::with(['subjectUser' => function ($query) {
                     $query->where('school_year_id', SchoolYear::getActive()->id);
                 }])
+                    ->where('active', true)
             )
             ->columns([
                 TextColumn::make('subject_title')

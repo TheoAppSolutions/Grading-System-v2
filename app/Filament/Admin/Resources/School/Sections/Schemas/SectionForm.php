@@ -23,15 +23,6 @@ class SectionForm
                             return GradeLevel::pluck('label', 'id')->toArray();;
                         }
                     ),
-                Select::make('school_year_id')
-                    ->label('School Year')
-                    ->required()
-                    ->searchable()
-                    ->options(
-                        function () {
-                            return SchoolYear::pluck('label', 'id')->toArray();;
-                        }
-                    ),
                 TextInput::make('section')
                     ->label('Section / Strand')
                     ->required()

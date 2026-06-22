@@ -47,6 +47,8 @@ class StudentsTable
                     ->sortable()
                     ->formatStateUsing(fn($state) => Gender::options()[$state] ?? ''),
                 ToggleColumn::make('active')
+                    ->onIcon(Heroicon::HandThumbUp)
+                    ->offIcon(Heroicon::HandThumbDown)
                     ->sortable(),
             ])
             ->filters([

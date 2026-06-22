@@ -27,7 +27,7 @@ class AttendancesTable
 
                 return Enrollment::with([
                     'schoolYear' => function ($query) use ($schoolYear) {
-                        $query->where('school_year_id', $schoolYear);
+                        $query->where('id', $schoolYear);
                     },
                 ])->where([
                     'school_year_id' => $schoolYear,

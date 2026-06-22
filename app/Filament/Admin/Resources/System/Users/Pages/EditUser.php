@@ -18,40 +18,24 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('resetPassword')
-                ->label('Reset Password')
-                ->color('info')
-                ->icon('heroicon-o-key')
-                ->requiresConfirmation()
-                ->modalHeading('Reset Password')
-                ->modalDescription('Set a new password for this user.')
-                ->schema([
-                    TextInput::make('password')
-                        ->label('New Password')
-                        ->password()
-                        ->revealable()
-                        ->required()
-                        ->minLength(8)
-                        ->same('password_confirmation'),
+            Action::make('save')
+                ->label('Save Record')
+                ->color('primary')
+                ->action('save'),
 
-                    TextInput::make('password_confirmation')
-                        ->label('Confirm Password')
-                        ->password()
-                        ->revealable()
-                        ->required(),
-                ])
-                ->action(function (array $data, User $record) {
-                    $record->update([
-                        'password' => bcrypt($data['password']),
-                    ]);
+            Action::make('cancel')
+                ->label('Cancel')
+                ->color('gray')
+                ->url($this->getResource()::getUrl('index'))
+                ->keyBindings(['escape']),
 
-                    Notification::make()
-                        ->title('Password reset successfully')
-                        ->success()
-                        ->send();
-                }),
             DeleteAction::make()
                 ->visible(Auth::id() != 1),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 }

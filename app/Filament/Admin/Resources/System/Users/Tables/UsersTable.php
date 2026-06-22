@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Config\Role;
+use App\Models\User;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -22,8 +23,10 @@ class UsersTable
             ->columns([
                 ImageColumn::make('facehash_avatar_url')
                     ->label('Image'),
+                    // TODO: FIX FULLNAME SEARCH
                 TextColumn::make('fullName')
                     ->label('Name')
+                    ->searchable()
                     ->getStateUsing(fn($record) => "{$record->honorifics} {$record->first_name} {$record->last_name}"),
                 TextColumn::make('userRoles.role.label')
                     ->label('Roles')
@@ -34,6 +37,8 @@ class UsersTable
                         Role::all()->firstWhere('label', $state)?->color_template ?? 'gray'
                     ),
                 ToggleColumn::make('active')
+                    ->onIcon(Heroicon::HandThumbUp)
+                    ->offIcon(Heroicon::HandThumbDown)
                     ->disabled(fn($record) => Auth::id() === $record->id),
             ])
             ->filters([

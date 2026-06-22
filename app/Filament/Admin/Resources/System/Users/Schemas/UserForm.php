@@ -5,17 +5,20 @@ namespace App\Filament\Admin\Resources\System\Users\Schemas;
 use App\Enums\Honorific;
 use App\Enums\Suffix;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class UserForm
 {
@@ -26,9 +29,46 @@ class UserForm
             ->components([
                 Section::make('')
                     ->schema([
-                        Toggle::make('active'),
+                        Group::make([
+                            Toggle::make('active')
+                                ->inline(false)
+                                ->onIcon(Heroicon::HandThumbUp)
+                                ->offIcon(Heroicon::HandThumbDown),
+                            Action::make('resetPassword')
+                                ->label('Reset Password')
+                                ->color('info')
+                                ->icon('heroicon-o-key')
+                                ->requiresConfirmation()
+                                ->modalHeading('Reset Password')
+                                ->modalDescription('Set a new password for this user.')
+                                ->schema([
+                                    TextInput::make('password')
+                                        ->label('New Password')
+                                        ->password()
+                                        ->revealable()
+                                        ->required()
+                                        ->minLength(8)
+                                        ->same('password_confirmation'),
+
+                                    TextInput::make('password_confirmation')
+                                        ->label('Confirm Password')
+                                        ->password()
+                                        ->revealable()
+                                        ->required(),
+                                ])
+                                ->action(function (array $data, User $record) {
+                                    $record->update([
+                                        'password' => bcrypt($data['password']),
+                                    ]);
+
+                                    Notification::make()
+                                        ->title('Password reset successfully')
+                                        ->success()
+                                        ->send();
+                                }),
+                        ])->columns(2),
                         FileUpload::make('photo')
-                            ->label('User Image')
+                            ->label('User Image'),
                     ]),
                 Tabs::make('information')
                     ->columnSpan(2)
@@ -67,7 +107,7 @@ class UserForm
                                     ->columnSpan(1),
                                 Textarea::make('address')
                                     ->columnSpan('full'),
-                            ])
+                            ]),
                     ]),
             ]);
     }
