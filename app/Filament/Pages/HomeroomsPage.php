@@ -95,7 +95,7 @@ class HomeroomsPage extends Page implements HasTable
             })
             ->columns([
                 TextColumn::make('gradeLevel.label'),
-                TextColumn::make('section.section')
+                TextColumn::make('section.label')
                     ->visible(config('system-features.sections')),
                 SelectColumn::make('user_id')
                     ->label('Adviser')

@@ -18,17 +18,17 @@ class MigrateAllCommand extends Command
     private array $pipeline = [
         ['command' => 'migrate:users',        'label' => 'Users'],
         ['command' => 'migrate:school-years', 'label' => 'School Years'],
+        ['command' => 'migrate:sections',     'label' => 'Sections'],
         ['command' => 'migrate:subjects',     'label' => 'Subjects'],
         ['command' => 'migrate:students',     'label' => 'Students'],
         ['command' => 'migrate:enrollments',  'label' => 'Enrollments'],
-        // ['command' => 'migrate:grades',       'label' => 'Grades'],
         ['command' => 'migrate:homeroom',     'label' => 'Homerooms'],
         ['command' => 'migrate:comments',     'label' => 'Comments'],
         ['command' => 'migrate:attendance',   'label' => 'Attendance'],
         ['command' => 'migrate:award',        'label' => 'Award'],
         ['command' => 'migrate:graduate',     'label' => 'Graduate'],
-        ['command' => 'migrate:sections',     'label' => 'Sections'],
         ['command' => 'migrate:deportment',   'label' => 'Deportment'],
+        // ['command' => 'migrate:grades',       'label' => 'Grades'],
     ];
 
     public function handle(): int

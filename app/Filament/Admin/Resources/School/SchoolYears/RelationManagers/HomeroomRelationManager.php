@@ -25,7 +25,7 @@ class HomeroomRelationManager extends RelationManager
             ->query(fn() => Homeroom::where('school_year_id', $this->ownerRecord->id))
             ->columns([
                 TextColumn::make('gradeLevel.label'),
-                TextColumn::make('section.section')
+                TextColumn::make('section.label')
                     ->visible(config('system-features.sections')),
                 SelectColumn::make('user_id')
                     ->label('Adviser')

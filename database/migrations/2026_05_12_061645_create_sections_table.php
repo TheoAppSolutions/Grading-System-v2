@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('grade_level_id');
             $table->foreignId('school_year_id');
             $table->string('label', 191);
+            $table->tinyInteger('type')->nullable();
             $table->timestamps();
 
             $table->unique(['grade_level_id', 'label', 'school_year_id']);

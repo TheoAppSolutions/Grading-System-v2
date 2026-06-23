@@ -132,8 +132,8 @@ abstract class BaseMigrationController extends Controller
 
         $this->sectionMap = DB::connection('new_db')
             ->table('sections')
-            ->get(['id', 'section'])
-            ->mapWithKeys(fn ($r) => [(string) $r->section => (int) $r->id])
+            ->get(['id', 'label'])
+            ->mapWithKeys(fn ($r) => [(string) $r->label => (int) $r->id])
             ->all();
 
         return $this->sectionMap;

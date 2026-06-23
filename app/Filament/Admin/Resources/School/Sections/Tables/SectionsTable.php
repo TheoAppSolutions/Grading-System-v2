@@ -19,9 +19,8 @@ class SectionsTable
                 Section::where('school_year_id', $schoolYear->id)
             )
             ->columns([
-                TextColumn::make('section')
-                    ->label('Section / Strand')
-                    ->searchable(),
+                TextColumn::make('label')
+                    ->label('Section / Strand'),
                 TextColumn::make('gradeLevel.label'),
             ])
             ->recordActions([]);
