@@ -7,6 +7,8 @@ use App\Models\Homeroom;
 use App\Models\SchoolYear;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
@@ -52,7 +54,34 @@ class HomeroomsPage extends Page implements HasTable
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Homerooms (S.Y. '.SchoolYear::getActive()->label.')';
+        return 'Homerooms (S.Y. ' . SchoolYear::getActive()->label . ')';
+    }
+
+    #[Override]
+    public function getHeaderActions(): array
+    {
+        $schoolYearList = SchoolYear::all();
+        return [
+            Action::make('import')
+                ->label('Pre-Load Records')
+                ->modalDescription('Select school year to reuse subject teachers.')
+                ->color('success')
+                ->modal()
+                ->schema([
+                    Select::make('schoolYear')
+                        ->searchable()
+                        ->options(function () use ($schoolYearList) {
+                            return $schoolYearList->sortByDesc('id')->pluck('label', 'id');
+                        })
+                ])
+                ->modalFooterActions([
+                    Action::make('submit')
+                        ->label('Import')
+                        ->action(function ($data) {
+                            dd($data);
+                        })
+                ]),
+        ];
     }
 
     public function table(Table $table): Table

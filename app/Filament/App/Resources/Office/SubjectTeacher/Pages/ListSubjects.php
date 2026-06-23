@@ -10,6 +10,7 @@ use App\Models\SchoolYear;
 use Filament\Notifications\Notification;
 use Filament\Actions\Action;
 use App\Models\Subject;
+use Filament\Forms\Components\Select;
 use Illuminate\Contracts\Support\Htmlable;
 use Override;
 
@@ -27,11 +28,29 @@ class ListSubjects extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        $schoolYear = MyTools::getSchoolYear();
+        $schoolYear = SchoolYear::getActive();
+        $schoolYearList = SchoolYear::all();
+
         return [
             Action::make('import')
-                ->label('Import Records')
-                ->color('success'),
+                ->label('Pre-Load Records')
+                ->modalDescription('Select school year to reuse subject teachers.')
+                ->color('success')
+                ->modal()
+                ->schema([
+                    Select::make('schoolYear')
+                        ->searchable()
+                        ->options(function () use ($schoolYearList) {
+                            return $schoolYearList->sortByDesc('id')->pluck('label', 'id');
+                        })
+                ])
+                ->modalFooterActions([
+                    Action::make('submit')
+                        ->label('Import')
+                        ->action(function ($data) {
+                            dd($data);
+                        })
+                ]),
             Action::make('saveAll')
                 ->label('Save All Changes')
                 ->action(function ($livewire) use ($schoolYear) {

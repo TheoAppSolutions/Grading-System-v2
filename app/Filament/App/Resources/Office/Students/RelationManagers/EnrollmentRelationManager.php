@@ -23,7 +23,10 @@ class EnrollmentRelationManager extends RelationManager
                 TextColumn::make('schoolYear.label')
                     ->label('School Year'),
                 TextColumn::make('gradeLevel.label')
-                    ->label('Grade Level')
+                    ->label('Grade Level'),
+                TextColumn::make('section.label')
+                    ->label('Section/Strand')
+                    ->visible(config('system-features.sections'))
             ])
             ->emptyStateHeading('No Enrollment Records Found.')
             ->recordActions([
