@@ -9,6 +9,7 @@ use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class EnrollmentRelationManager extends RelationManager
 {
@@ -37,6 +38,22 @@ class EnrollmentRelationManager extends RelationManager
                     ->icon(Heroicon::OutlinedDocumentText)
                     ->size(Size::ExtraSmall)
                     ->outlined(true),
+                Action::make('export_pdf')
+                    ->label('Export PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('success')
+                    ->action(function ($record) {
+                        $pdf = Pdf::loadView('reports.templates.upper_school.secondary_T1-T3', [
+                            'grades' => $record,
+                            'quarter' => 4,
+                            'student' => $record->load('student')
+                        ])->setPaper('a4', 'portrait');
+
+                        return response()->streamDownload(
+                            fn() => print($pdf->output()),
+                            "Report-{$record->id}.pdf"
+                        );
+                    }),
                 Action::make('show_awards')
                     ->label('Awards Card')
                     ->button()
