@@ -23,7 +23,6 @@ class UsersTable
             ->columns([
                 ImageColumn::make('facehash_avatar_url')
                     ->label('Image'),
-                    // TODO: FIX FULLNAME SEARCH
                 TextColumn::make('fullName')
                     ->label('Name')
                     ->searchable()
@@ -37,13 +36,14 @@ class UsersTable
                         Role::all()->firstWhere('label', $state)?->color_template ?? 'gray'
                     ),
                 ToggleColumn::make('active')
-                    ->onIcon(Heroicon::HandThumbUp)
-                    ->offIcon(Heroicon::HandThumbDown)
+                    ->onIcon(Heroicon::Check)
+                    ->offIcon(Heroicon::XMark)
                     ->disabled(fn($record) => Auth::id() === $record->id),
             ])
             ->filters([
                 SelectFilter::make('active')
                     ->options(Status::class)
+                    ->default(1)
             ])
             ->defaultSort(function (Builder $query): Builder {
                 return $query
@@ -55,6 +55,7 @@ class UsersTable
                     ->button()
                     ->label('View')
                     ->icon(Heroicon::Eye),
-            ]);
+            ])
+            ->paginated(true);
     }
 }
