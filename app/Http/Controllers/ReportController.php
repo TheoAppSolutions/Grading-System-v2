@@ -6,41 +6,56 @@ use App\Models\Enrollment;
 use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
 use App\Models\Grade;
+use App\Models\SchoolYear;
+use App\Models\SubjectUser;
 
 class ReportController extends Controller
 {
     public function generatePdf($id)
     {
-        $record = Enrollment::with('subjects')->find($id);
+        $record = Enrollment::find($id);
         $subjects = $record->matchedSubjects()->with('subjectCategory')->get();
         $students = $record->student()->first();
+        $gradeLevel = $record->gradeLevel->label;
+        $quarter = request()->query('quarter', 4);
+        $type = request()->query('type', 'quarter');
+        $schoolYear = $record->schoolYear()->first()->label;
+
         $records = [];
         foreach ($subjects as $subject) {
             $records['subjects'][$subject->subject_title] = $subject->toArray();
         }
-        $records['student'] = $students->toArray();
 
-        return view('reports.hcgs.upper_school.secondary_T2-T4', [
-            'grades' => [],
-            'subjects' => $records['subjects'],
-            'quarter' => 4,
-            'student' => $record['student'],
-            'comments' => [],
-        ]);
+        $grades = Grade::where('student_id', $record->student_id)
+            ->where('grade_level_id', $record->grade_level_id)
+            ->where('school_year_id', $record->school_year_id)
+            ->with('subject')
+            ->get();
 
-        $pdf = SnappyPdf::loadView('reports.hcgs.upper_school.secondary_T2-T4', [
-            'grades' => [],
+        foreach ($grades as $grade) {
+            $records['grades'][$grade->subject->subject_title] = $grade->toArray();
+        }
+
+        $data = [
+            'grades' => $records['grades'],
+            'gradeLevel' => $gradeLevel,
             'subjects' => $records['subjects'],
-            'quarter' => 4,
-            'student' => $record['student'],
+            'quarter' => $quarter,
+            'type' => $type,
+            'student' => $students,
             'comments' => [],
-        ])
+            'schoolYear' => $schoolYear,
+        ];
+
+        // return view('reports.bis.upper_school.secondary_T2-T4', $data);
+        $viewName = "reports." . config('app.name') . ".upper_school.secondary_T2-T4";
+        $pdf = SnappyPdf::loadView($viewName, $data)
             ->setOption('page-size', 'A4')
-            ->setOption('orientation', 'Landscape')
-            ->setOption('margin-top', 0)
-            ->setOption('margin-bottom', 0)
-            ->setOption('margin-left', 0)
-            ->setOption('margin-right', 0);
+            ->setOption('orientation', 'Portrait');
+            // ->setOption('margin-top', 5)
+            // ->setOption('margin-bottom', 5)
+            // ->setOption('margin-left', 5)
+            // ->setOption('margin-right', 5);
 
         return $pdf->inline("Report-{$id}.pdf");
     }

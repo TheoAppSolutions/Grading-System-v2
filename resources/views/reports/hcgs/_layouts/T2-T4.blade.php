@@ -1,6 +1,6 @@
 <html lang="html">
 <head>
-    <title>{{ $student->lastname . ', ' . $student->firstname }}</title>
+    <title>{{ $student->last_name . ', ' . $student->first_name }}</title>
     <meta http-equiv=Content-Type content="text/html; charset=windows-1252">
     <style>
         table {
@@ -510,13 +510,13 @@
         <col class=blank width=15 span=8 style='width:18pt'>
 
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardheader width=930>{{ config('app.name') }}</td>
+            <td colspan=62 class=cardheader width=930>{{ config('system-information.school_name') }}</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardgeader2 width=930>{{ config('app.address') ?? '' }}</td>
+            <td colspan=62 class=cardgeader2 width=930>{{ config('system-information.school_address') ?? '' }}</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardgeader2>{{ config('app.address2') ?? '' }}</td>
+            <td colspan=62 class=cardgeader2>{{ config('system-information.school_country') ?? '' }}</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=62 class=blank></td>
@@ -528,7 +528,7 @@
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=62 class=schoolyear>School Year
-                {{ $records->school_year->label ?? '' }}
+                {{ $records['school_years']['label'] ?? '' }}
             </td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
@@ -536,7 +536,7 @@
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=4 class=studentlabel>Name:</td>
-            <td colspan=20 class=studentinfo>{{ $student->lastname . ', ' . $student->firstname }}</td>
+            <td colspan=20 class=studentinfo>{{ $student->last_name . ', ' . $student->first_name }}</td>
             <td class=blank></td>
             <td colspan=4 class=studentlabel>Gender:</td>
             <td colspan=2 class=studentinfo>{{ $student->gender }}</td>
@@ -552,7 +552,7 @@
             <td class=blank></td>
             <td class=blank></td>
             @if ($quarter != "award")
-                <td colspan=4 class=studentlabel>{{ 'quarter_term' }}:</td>
+                <td colspan=4 class=studentlabel>{{ config('system-information.school_quarter_term') }}:</td>
                 <td colspan=2 class=studentinfo>{{ $quarter }}</td>
             @else
                 <td colspan=4 class=blank></td>
@@ -561,7 +561,7 @@
 
             <td class=blank></td>
             <td colspan=7 class=studentlabel>Year Level:</td>
-            <td colspan=4 class=studentinfo>{{ $student->gradelevel }}</td>
+            <td colspan=4 class=studentinfo>{{ $gradeLevel ?? '' }}</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td class=blank></td>

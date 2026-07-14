@@ -1,6 +1,6 @@
 @php($height = "height:17.0pt;")
 
-@extends('reports.templates._layouts.T2-T4')
+@extends('reports.bis._layouts.T2-T4')
 
 @section('content')
     <tr style='mso-height-source:userset;height:18.75pt'>
@@ -12,7 +12,7 @@
         <td colspan=7 rowspan=2 class=titles>REMARKS</td>
         <td colspan=1 class=blank></td>
         <td colspan=12 rowspan="14">
-            @include('reports.templates._snippets.card_score_board')
+            @include('reports.bis._snippets.card_score_board')
         </td>
     </tr>{{-- TABLE HEADERS --}}
     <tr style='mso-height-source:userset;height:18.75pt'>

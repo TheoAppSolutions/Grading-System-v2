@@ -42,7 +42,7 @@ class EnrollmentRelationManager extends RelationManager
                     ->label('View PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('success')
-                    ->url(fn($record) => route('grades.pdf', $record))
+                    ->url(fn($record) => route('grades.pdf', [$record->id, 'quarter' => 4, 'type' => 'quarter']))
                     ->openUrlInNewTab(),
                 Action::make('show_awards')
                     ->label('Awards Card')

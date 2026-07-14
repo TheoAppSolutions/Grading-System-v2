@@ -5643,16 +5643,16 @@
         },
         {
             "name": "saade/filament-facehash",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/saade/filament-facehash.git",
-                "reference": "d41c416514ab9a0e54cb1fa2fa1b145893cd5d91"
+                "reference": "c5df1d226640ac9c4dd8dcb196430756eefcbb43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/saade/filament-facehash/zipball/d41c416514ab9a0e54cb1fa2fa1b145893cd5d91",
-                "reference": "d41c416514ab9a0e54cb1fa2fa1b145893cd5d91",
+                "url": "https://api.github.com/repos/saade/filament-facehash/zipball/c5df1d226640ac9c4dd8dcb196430756eefcbb43",
+                "reference": "c5df1d226640ac9c4dd8dcb196430756eefcbb43",
                 "shasum": ""
             },
             "require": {
@@ -5696,7 +5696,7 @@
             ],
             "support": {
                 "issues": "https://github.com/saade/filament-facehash/issues",
-                "source": "https://github.com/saade/filament-facehash/tree/v1.0.0"
+                "source": "https://github.com/saade/filament-facehash/tree/v1.0.1"
             },
             "funding": [
                 {
@@ -5704,7 +5704,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-17T22:08:12+00:00"
+            "time": "2026-07-13T18:36:22+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",
@@ -12622,12 +12622,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }

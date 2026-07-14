@@ -66,6 +66,13 @@ class Enrollment extends Model
         return $this->hasMany(Student::class, 'id', 'student_id');
     }
 
+    public function grades()
+    {
+        return $this->hasMany(Grade::class, 'student_id', 'student_id')
+            ->where('grade_level_id', $this->grade_level_id)
+            ->where('school_year_id', $this->school_year_id);
+    }
+
     public static function isEnrolled(int $studentId, string $schoolyear): bool
     {
         return static::where('student_id', $studentId)

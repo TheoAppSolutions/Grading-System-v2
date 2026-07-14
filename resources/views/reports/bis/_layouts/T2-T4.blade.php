@@ -1,3 +1,6 @@
+<?php
+    use App\Helpers\MyTools;
+?>
 <html>
 <head>
     <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
@@ -36,7 +39,7 @@
 
         <tr style='mso-height-source:userset;height:15.0pt'>
             <td colspan="22" height="60" rowspan="4" style="text-align: right">
-                <img src="{{ system_logo() }}" style="height: 60.0pt;"/>
+                <img src="{{ public_path('assets/images/logo.png') }}" style="height: 60.0pt;"/>
             </td>
             <td colspan=41 height=20 class=heavylabel width=882 style='height:15.0pt;width:693pt;; text-align: left; padding-left: 0px;'>
                 BETHEL INTERNATIONAL SCHOOL
@@ -56,7 +59,7 @@
         </tr>
         <tr style='mso-height-source:userset;height:15.0pt'>
             <td colspan=63 height=20 class=heavylabel style='height:15.0pt'>School Year
-                {{ getSchoolYear() }}
+                {{ $schoolYear }}
             </td>
         </tr>
 
@@ -74,8 +77,8 @@
         </tr>
         <tr style='mso-height-source:userset;height:18.75pt'>
             <td colspan=4 height=25 class=labels style='height:18.75pt'>NAME:</td>
-            <td colspan=20 class=info style="{{ strlen($student->lastname . ', ' . $student->firstname) >= 30 ? "font-size:13px" : "" }}">
-                {{ $student->lastname . ', ' . $student->firstname }} {{ $student->suffix ?? "" }}
+            <td colspan=20 class=info style="{{ strlen($student->last_name . ', ' . $student->first_name) >= 30 ? "font-size:13px" : "" }}">
+                {{ $student->last_name . ', ' . $student->first_name }} {{ $student->suffix ?? "" }}
             </td>
             <td class=blank></td>
             <td colspan=3 class=labels>LRN:</td>
@@ -85,7 +88,7 @@
             <td colspan=2 class=info>{{ $student->gender }}</td>
             <td class=blank></td>
             <td colspan=5 class=labels>GRADE:</td>
-            <td colspan={{ $student->section!='' ?'8' : '3' }} class=info>{{ ordinal($student->gradelevel) }} {{ $student->section_or_strand !='' ? ' - ' . $student->section_or_strand : '' }}</td>
+            <td colspan={{ $student->section!='' ?'8' : '3' }} class=info>{{ $gradeLevel }} {{ $student->section_or_strand !='' ? ' - ' . $student->section_or_strand : '' }}</td>
             <td class=blank></td>
             <td class=blank></td>
         </tr>
@@ -212,9 +215,9 @@
         </tr>
 
         @if ($type == "award")
-            @include('reports.templates._partials.footer_award')
+            @include('reports.bis._partials.footer_award')
         @else
-            @include('reports.templates._partials.footer_quarter')
+            {{-- @include('reports.bis._partials.footer_quarter') --}}
         @endif
 
     </table>
