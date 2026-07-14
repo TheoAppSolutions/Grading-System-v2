@@ -38,4 +38,9 @@ class SubjectUser extends Model
     {
         return !is_null($this->user2_id);
     }
+
+    public function enrollment()
+    {
+        return $this->belongsTo(Enrollment::class, 'school_year_id');
+    }
 }

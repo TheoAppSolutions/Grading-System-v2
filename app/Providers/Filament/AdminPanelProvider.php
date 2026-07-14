@@ -168,7 +168,7 @@ class AdminPanelProvider extends PanelProvider
                     'logoutLink' => filament()->getLogoutUrl(),
                 ]);
             })
-            ->renderHook(PanelsRenderHook::BODY_END, function () {
+            ->renderHook(PanelsRenderHook::FOOTER, function () {
                 return view('filament.footer');
             });
     }

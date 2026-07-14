@@ -1,53 +1,53 @@
 @php($height = "height:17.0pt;")
 
-@extends('reports.templates._layouts.T2-T4')
+@extends('reports.hcgs._layouts.T2-T4')
 
 @section('content')
     @foreach($subjects as $subject)
-        @if(strpos($subject->subjecttitle, 'Elective') === false)
+        @if(strpos($subject['subject_title'], 'Elective') === false)
             <tr style='mso-height-source:userset;{!! $height !!}'>
                 <td colspan=12 class=subjecttitle
-                    width=180>{{ $subject->subjecttitle }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][1]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][1]['effort'] ?? '' }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][2]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][2]['effort'] ?? '' }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][3]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][3]['effort'] ?? '' }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][4]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][4]['effort'] ?? '' }}</td>
-                <td colspan=4 class=grade>{{ $grades[$subject->subjectname][5]['rawfinal'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][5]['effort'] ?? '' }}</td>
+                    width=180>{{ $subject['subject_title'] }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][1]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][1]['effort'] ?? '' }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][2]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][2]['effort'] ?? '' }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][3]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][3]['effort'] ?? '' }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][4]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][4]['effort'] ?? '' }}</td>
+                <td colspan=4 class=grade>{{ $grades[$subject['subject_title']][5]['rawfinal'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][5]['effort'] ?? '' }}</td>
                 <td colspan=5 class=grade
-                    style="text-align: center !important;">{{ $grades[$subject->subjectname]['unit'] ?? '' }}</td>
-                <td colspan=7 class=remarks>{{ $grades[$subject->subjectname]['remarks'] ?? '' }}</td>
+                    style="text-align: center !important;">{{ $grades[$subject['subject_title']]['unit'] ?? '' }}</td>
+                <td colspan=7 class=remarks>{{ $grades[$subject['subject_title']]['remarks'] ?? '' }}</td>
                 <td class=blank></td>
             </tr>
         @endif
     @endforeach
 
-    @foreach($subjects as $subject)
-        @if(strpos($subject->subjecttitle, 'Elective') !== false)
+    {{-- @foreach($subjects as $subject)
+        @if(strpos($subject['subject_category'], 'Elective') !== false)
             <tr style='mso-height-source:userset;{!! $height !!}'>
                 <td colspan=12 class=subjecttitle
-                    width=180>{{ $subject->subjecttitle }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][1]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][1]['effort'] ?? '' }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][2]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][2]['effort'] ?? '' }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][3]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][3]['effort'] ?? '' }}</td>
-                <td colspan=3 class=grade width=45>{{ $grades[$subject->subjectname][4]['final'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][4]['effort'] ?? '' }}</td>
-                <td colspan=4 class=grade>{{ $grades[$subject->subjectname][5]['rawfinal'] ?? '' }}</td>
-                <td colspan=2 class=effort>{{ $grades[$subject->subjectname][5]['effort'] ?? '' }}</td>
+                    width=180>{{ $subject['subject_category'] }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][1]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][1]['effort'] ?? '' }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][2]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][2]['effort'] ?? '' }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][3]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][3]['effort'] ?? '' }}</td>
+                <td colspan=3 class=grade width=45>{{ $grades[$subject['subject_title']][4]['final'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][4]['effort'] ?? '' }}</td>
+                <td colspan=4 class=grade>{{ $grades[$subject['subject_title']][5]['rawfinal'] ?? '' }}</td>
+                <td colspan=2 class=effort>{{ $grades[$subject['subject_title']][5]['effort'] ?? '' }}</td>
                 <td colspan=5 class=grade
-                    style="text-align: center !important;">{{ $grades[$subject->subjectname]['unit'] ?? '' }}</td>
-                <td colspan=7 class=remarks>{{ $grades[$subject->subjectname]['remarks'] ?? '' }}</td>
+                    style="text-align: center !important;">{{ $grades[$subject['subject_title']]['unit'] ?? '' }}</td>
+                <td colspan=7 class=remarks>{{ $grades[$subject['subject_title']]['remarks'] ?? '' }}</td>
                 <td class=blank></td>
             </tr>
         @endif
-    @endforeach
+    @endforeach --}}
 
     <tr style='mso-height-source:userset;{!! $height !!}'>
         <td colspan=12 class=subjecttitle width=180>DEPORTMENT

@@ -510,16 +510,13 @@
         <col class=blank width=15 span=8 style='width:18pt'>
 
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardheader width=930>{{ schema('report_card')->{'school.name'} }}
-            </td>
+            <td colspan=62 class=cardheader width=930>{{ config('app.name') }}</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardgeader2 width=930>{{ schema('report_card')->{'address'} }}
-            </td>
+            <td colspan=62 class=cardgeader2 width=930>{{ config('app.address') ?? '' }}</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardgeader2>{{ schema('report_card')->{'address2'} }}
-            </td>
+            <td colspan=62 class=cardgeader2>{{ config('app.address2') ?? '' }}</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=62 class=blank></td>
@@ -531,7 +528,7 @@
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=62 class=schoolyear>School Year
-                {{ getSchoolYear() }}
+                {{ $records->school_year->label ?? '' }}
             </td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
@@ -555,7 +552,7 @@
             <td class=blank></td>
             <td class=blank></td>
             @if ($quarter != "award")
-                <td colspan=4 class=studentlabel>{{ schema('quarter_term') }}:</td>
+                <td colspan=4 class=studentlabel>{{ 'quarter_term' }}:</td>
                 <td colspan=2 class=studentinfo>{{ $quarter }}</td>
             @else
                 <td colspan=4 class=blank></td>
@@ -642,7 +639,7 @@
             <td colspan=7 rowspan=2 class=cardlabel>REMARKS</td>
             <td class=blank></td>
             <td colspan=20 rowspan="16">
-                @include('reports.templates._snippets.card_score_board')
+                @include('reports.hcgs._snippets.card_score_board')
             </td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
@@ -719,9 +716,9 @@
         </tr><!-- Blank -->
 
         @if($quarter == "award")
-            @include('reports.templates._snippets.footer_award')
+            @include('reports.hcgs._snippets.footer_award')
         @else
-            @include('reports.templates._snippets.footer_quarter')
+            {{-- @include('reports.hcgs._snippets.footer_quarter') --}}
         @endif
     </table>
 </div>

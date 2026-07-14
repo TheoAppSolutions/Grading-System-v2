@@ -225,8 +225,8 @@
         <td colspan="19" rowspan="6">
             <table border=0 cellpadding=0 cellspacing=0 style='border-collapse:collapse;table-layout:fixed;'>
                 @foreach($subjects as $subject)
-                    @if(!isset($comments[$subject->subjectname]))
-                        @switch($subject->subjectname)
+                    @if(!isset($comments[$subject->subject_title]))
+                        @switch($subject->subject_title)
                             @case("ENGLISH")
                             @case("HEALTH")
                             @case("MATHEMATICS")
@@ -240,22 +240,22 @@
                             @case("HISTORY")
                             @if(!isset($grades["SOCIAL SCIENCE"]['teacher']))
                                 <tr>
-                                    <td style="width: 240px;" class=subjectLabel>{{ $subject->subjectname }}</td>
+                                    <td style="width: 240px;" class=subjectLabel>{{ $subject->subject_title }}</td>
                                     <td style="width: 250px;"
-                                        class=teacherName>{{ $grades[$subject->subjectname]['teacher'] ?? 'N/A' }}</td>
+                                        class=teacherName>{{ $grades[$subject->subject_title]['teacher'] ?? 'N/A' }}</td>
                                     <td style="width: 60px;"
-                                        class=subjectGrade>{{ $grades[$subject->subjectname][$quarter]['rawfinal'] ?? '' }}</td>
+                                        class=subjectGrade>{{ $grades[$subject->subject_title][$quarter]['rawfinal'] ?? '' }}</td>
                                 </tr>
                             @endif
                             @break
 
                             @default
                             <tr>
-                                <td style="width: 240px;" class=subjectLabel>{{ $subject->subjectname }}</td>
+                                <td style="width: 240px;" class=subjectLabel>{{ $subject->subject_title }}</td>
                                 <td style="width: 250px;"
-                                    class=teacherName>{{ $grades[$subject->subjectname]['teacher'] ?? 'N/A' }}</td>
+                                    class=teacherName>{{ $grades[$subject->subject_title]['teacher'] ?? 'N/A' }}</td>
                                 <td style="width: 60px;"
-                                    class=subjectGrade>{{ $grades[$subject->subjectname][$quarter]['rawfinal'] ?? '' }}</td>
+                                    class=subjectGrade>{{ $grades[$subject->subject_title][$quarter]['rawfinal'] ?? '' }}</td>
                             </tr>
                             @break
                         @endswitch
