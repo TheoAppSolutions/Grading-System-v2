@@ -510,13 +510,13 @@
         <col class=blank width=15 span=8 style='width:18pt'>
 
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardheader width=930>{{ config('system-information.school_name') }}</td>
+            <td colspan=62 class=cardheader width=930>HIGHLANDS CHRISTIAN GRAMMAR SCHOOL</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardgeader2 width=930>{{ config('system-information.school_address') ?? '' }}</td>
+            <td colspan=62 class=cardgeader2 width=930>Mt. Hagen, WHP</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardgeader2>{{ config('system-information.school_country') ?? '' }}</td>
+            <td colspan=62 class=cardgeader2>Papua New Guinea</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=62 class=blank></td>
@@ -549,11 +549,9 @@
             <td class=blank></td>
             <td class=blank></td>
             <td class=blank></td>
-            <td class=blank></td>
-            <td class=blank></td>
             @if ($quarter != "award")
-                <td colspan=4 class=studentlabel>{{ config('system-information.school_quarter_term') }}:</td>
-                <td colspan=2 class=studentinfo>{{ $quarter }}</td>
+                <td colspan=6 class=studentlabel>Semester:</td>
+                <td colspan=2 class=studentinfo>{{ $quarter ?? 2 }}</td>
             @else
                 <td colspan=4 class=blank></td>
                 <td colspan=2 class=blank></td>

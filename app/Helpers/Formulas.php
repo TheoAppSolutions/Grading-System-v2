@@ -2,460 +2,211 @@
 
 namespace App\Helpers;
 
-use App\Models\SubjectUnit;
-
+/**
+ * Grade computation helpers: per-subject final averages, general average,
+ * effort ratings, and deportment averages.
+ *
+ * Moved from App\Formula to App\Helpers\Formulas.
+ */
 class Formulas
 {
-    // ─── Constants ────────────────────────────────────────────────────────────
-    private const FINAL_INDEX         = 5;
-    private const PASSING_GRADE       = 75;
-    private const HONORS_MIN_AVERAGE  = 92;
+    /** Passing threshold used for subject and general-average remarks. */
+    private const PASSING_GRADE = 60;
 
-    private const LEGACY_SCHOOL_YEARS = ['2015-2016', '2016-2017'];
-    private const COVID_SCHOOL_YEAR   = '2019-2020';
+    /** Minimum general average required to remain eligible for honors. */
+    private const HONORS_THRESHOLD = 90;
 
-    private const GRADE_JHS_MAX       = 10;
-    private const GRADE_SHS_MIN       = 11;
+    /** Minimum effort rating required to avoid effort disqualification. */
+    private const MIN_EFFORT_RATING = 4;
 
-    private const EFFORT_MAJOR_PASS_THRESHOLD    = 4;   // must be < 4 to pass (JHS major)
-    private const EFFORT_MINOR_PASS_THRESHOLD    = 3;   // must be <= 3 to pass
-    private const EFFORT_MAPEH_SUM_PASS          = 8;   // combined MUSIC+ART+PE must be >= 8
+    /** School years from this year onward use a 2-quarter (semestral) grading period. */
+    private const SEMESTRAL_CUTOFF_YEAR = 2025;
 
-    private const COMPOSITE_MAPEH = ['MUSIC', 'ART', 'PE'];
-    private const COMPOSITE_TLE   = ['LIVELIHOOD', 'COMPUTER'];
-
-    // ─── Public API ───────────────────────────────────────────────────────────
-
+    /**
+     * Compute each subject's final grade/effort/GPA contribution, then roll
+     * everything up into the general average.
+     *
+     * @param array $gradeset      Working grade data, keyed by subject name and quarter.
+     * @param iterable $subjects   Subjects to process; each needs a ->subjectname property.
+     * @param int $startCounter    First quarter to include (inclusive).
+     * @param int $endCounter      Last quarter to include (inclusive).
+     * @param bool $isAwardReport  If true, process a subject even without a final grade yet.
+     * @param int $schoolyear      School year, determines quarterly vs semestral grading.
+     * @return array The updated gradeset.
+     */
     public static function getFinalAveragePerSubject(
         array $gradeset,
-        array $subjects,
-        int   $startCounter,
-        int   $endCounter,
-        bool  $isAwardReport
+        iterable $subjects,
+        int $startCounter,
+        int $endCounter,
+        bool $isAwardReport,
+        int $schoolyear
     ): array {
-        $units = SubjectUnit::getUnits();
-
-        $gradeset = self::initializeFlags($gradeset);
-
         $lastSubjectName = '';
-        $totalUnits      = 0;
+        $totalUnits = 0;
+        $totalGpa = [];
+
+        // Disqualification indicators.
+        $gradeset['disqualifyForHonors'] = false;
+        $gradeset['disqualifyForEffort'] = false;
+        $gradeset['disqualifyForDeportment'] = false;
+        $gradeset['isEligibleForNextGrade'] = false;
+
+        $expectedPeriods = self::expectedPeriodCount($schoolyear);
 
         foreach ($subjects as $subject) {
             $subjectName = $subject->subjectname;
 
-            if (!self::subjectHasFinalGrade($gradeset, $subjectName, $endCounter, $isAwardReport)) {
+            $hasFinalGrade = isset($gradeset[$subjectName][$endCounter]['final'])
+                && $gradeset[$subjectName][$endCounter]['final'] !== '';
+
+            if (!$hasFinalGrade && !$isAwardReport) {
                 continue;
             }
 
-            $subAverage = self::collectQuarterlyAverages($gradeset, $subjectName, $startCounter, $endCounter);
+            $subAverage = [];
 
-            if (!self::hasRequiredAverages($subAverage)) {
+            for ($quarter = $startCounter; $quarter <= $endCounter; $quarter++) {
+                $quarterData = $gradeset[$subjectName][$quarter] ?? null;
+
+                if ($quarterData === null) {
+                    continue;
+                }
+
+                if (($quarterData['final'] ?? '') !== '') {
+                    $subAverage['final'][$quarter] = $quarterData['rawfinal'];
+                }
+
+                if (($quarterData['raweffort'] ?? '') !== '') {
+                    $subAverage['raweffort'][$quarter] = $quarterData['raweffort'];
+
+                    // Any single quarter below the minimum effort rating disqualifies the student.
+                    if ($subAverage['raweffort'][$quarter] < self::MIN_EFFORT_RATING) {
+                        $gradeset['disqualifyForEffort'] = true;
+                    }
+                }
+            }
+
+            if (!isset($subAverage['final'], $subAverage['raweffort'])) {
                 continue;
             }
 
-            $gradeset = self::applySubjectFinal($gradeset, $subjectName, $subAverage);
-            $gradeset = self::evaluateHonorsEligibility($gradeset, $subjectName, $subAverage);
+            if (count($subAverage['final']) !== $expectedPeriods) {
+                continue;
+            }
 
-            if (self::shouldApplyUnits($units, $subjectName, $lastSubjectName)) {
-                $lastSubjectName = $subjectName;
-                [$gradeset, $totalUnits] = self::applyUnitWeighting(
-                    $gradeset,
-                    $subject,
-                    $subjectName,
-                    $units,
-                    $totalUnits
+            $rawFinal = number_format(array_sum($subAverage['final']) / count($subAverage['final']), 2);
+            $gradeset[$subjectName][5]['rawfinal'] = $rawFinal;
+            $gradeset[$subjectName][5]['final'] = $rawFinal;
+
+            if (count($subAverage['raweffort']) === $expectedPeriods) {
+                $effort = self::getFinalEffort(array_sum($subAverage['raweffort']), $schoolyear);
+                $gradeset[$subjectName][5]['effort'] = $effort;
+                $gradeset['finaleffort'][$subjectName] = $effort;
+
+                if ($effort < self::MIN_EFFORT_RATING) {
+                    $gradeset['disqualifyForEffort'] = true;
+                }
+            }
+
+            $gradeset[$subjectName]['remarks'] =
+                $gradeset[$subjectName][5]['final'] >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
+
+            if (!isset($gradeset[$subjectName]['unit']) || $lastSubjectName === $subjectName) {
+                continue;
+            }
+
+            $lastSubjectName = $subjectName;
+            $gradeset['finalave'][$subjectName] = $gradeset[$subjectName][5]['final'] * $gradeset[$subjectName]['unit'];
+
+            if ($gradeset[$subjectName]['unit'] > 0) {
+                $totalUnits += $gradeset[$subjectName]['unit'];
+                $gradeset[$subjectName]['unit'] = number_format($gradeset[$subjectName]['unit'], 2);
+                $gradeset[$subjectName]['grade_point'] = number_format(
+                    letterGrade($gradeset[$subjectName][5]['final'])['gpa'] * $gradeset[$subjectName]['unit'],
+                    2
                 );
-                $gradeset = self::evaluateEffortEligibility($gradeset, $subject, $subjectName);
+                $totalGpa[] = $gradeset[$subjectName]['grade_point'];
+            } else {
+                $gradeset[$subjectName]['unit'] = 0;
             }
         }
 
-        $gradeset = self::applyCompositeSubjects($gradeset);
-
-        if (isset($gradeset['finalave']) && $totalUnits >= 10) {
-            $gradeset = self::getGeneralAverage($gradeset, $totalUnits);
+        if (isset($gradeset['finalave']) && $totalUnits > 1) {
+            $gradeset = self::getGeneralAverage($gradeset, $totalUnits, $totalGpa);
         }
 
         return $gradeset;
     }
 
-    public static function getMAPEH_TLE(array $gradeset): array
+    /**
+     * Compute the general average, GPA, and honors eligibility from
+     * accumulated per-subject data.
+     *
+     * @param array $gradeset
+     * @param float $totalUnits
+     * @param array $totalGpa
+     * @return array The updated gradeset.
+     */
+    public static function getGeneralAverage(array $gradeset, float $totalUnits, array $totalGpa): array
     {
-        $units = Units::getUnits();
+        $gradeset['totalunits'] = number_format($totalUnits, 2);
+        $gradeset['totalgpa'] = number_format(array_sum($totalGpa) / $totalUnits, 2);
 
-        for ($quarter = 1; $quarter <= self::FINAL_INDEX; $quarter++) {
-            $gradeset = self::computeCompositeGrade(
-                $gradeset,
-                $quarter,
-                'MAPEH',
-                self::COMPOSITE_MAPEH,
-                $units
-            );
-
-            $gradeset = self::computeCompositeGrade(
-                $gradeset,
-                $quarter,
-                'TLE',
-                self::COMPOSITE_TLE,
-                $units
-            );
-        }
-
-        foreach (['MAPEH', 'TLE'] as $composite) {
-            if (isset($gradeset[$composite][self::FINAL_INDEX])) {
-                $gradeset[$composite]['remarks'] = $gradeset[$composite][self::FINAL_INDEX]['final'] >= self::PASSING_GRADE
-                    ? 'PASSED'
-                    : 'FAILED';
-            }
-        }
+        $generalAverage = array_sum((array) $gradeset['finalave']) / $totalUnits;
+        $gradeset['generalaverage'] = number_format($generalAverage, 3);
+        $gradeset['generalremarks'] = $generalAverage >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
+        $gradeset['disqualifyForHonors'] = $generalAverage < self::HONORS_THRESHOLD;
 
         return $gradeset;
     }
 
-    public static function getGeneralAverage(array $gradeset, float $totalUnits): array
+    /**
+     * Convert a summed raw effort score into a final effort rating,
+     * averaged over the number of grading periods for the school year.
+     *
+     * @param float $effortGrades Sum of raw effort scores across periods.
+     * @param int $schoolyear
+     * @return float
+     */
+    public static function getFinalEffort(float $effortGrades, int $schoolyear): float
     {
-        $average = array_sum($gradeset['finalave']) / $totalUnits;
-
-        $gradeset['generalaverage']      = number_format($average, 3);
-        $gradeset['generalremarks']      = $average >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
-        $gradeset['disqualifyForHonors'] = $average < self::HONORS_MIN_AVERAGE;
-        $gradeset['eligible']            = self::resolveNextGradeEligibility($gradeset, $average);
-
-        return $gradeset;
+        return $effortGrades / self::expectedPeriodCount($schoolyear);
     }
 
-    public static function getFinalEffort(int $effortSum, int $gradeLevel): float
-    {
-        return $gradeLevel <= self::GRADE_JHS_MAX
-            ? self::resolveJhsEffort($effortSum)
-            : self::resolveShsEffort($effortSum);
-    }
-
-    public static function getDeportmentAverage(array $gradeset, int $startCounter, int $endCounter): array
-    {
+    /**
+     * Average deportment scores per quarter and, once all periods are in,
+     * compute the overall deportment average.
+     *
+     * @param array $gradeset
+     * @param int $schoolyear
+     * @param int $startCounter
+     * @param int $endCounter
+     * @return array The updated gradeset.
+     */
+    public static function getDeportmentAverage(
+        array $gradeset,
+        int $schoolyear,
+        int $startCounter = 1,
+        int $endCounter = 4
+    ): array {
         for ($quarter = $startCounter; $quarter <= $endCounter; $quarter++) {
-            if (!self::quarterHasDeportment($gradeset, $quarter)) {
+            $quarterScores = $gradeset['deportment'][$quarter] ?? null;
+
+            if (empty($quarterScores)) {
                 continue;
             }
 
-            $gradeset = self::computeQuarterDeportment($gradeset, $quarter);
+            $average = array_sum($quarterScores) / count($quarterScores);
+            $gradeset['rawdeportment'][$quarter] = number_format($average, 3);
+            $gradeset['deportment'][$quarter] = round($average);
         }
 
-        $gradeset = self::computeFinalDeportment($gradeset, $endCounter);
+        $expectedPeriods = self::expectedPeriodCount($schoolyear);
 
-        return $gradeset;
-    }
-
-    // ─── Initialization ───────────────────────────────────────────────────────
-
-    private static function initializeFlags(array $gradeset): array
-    {
-        return array_merge($gradeset, [
-            'disqualifyForHonors'     => false,
-            'disqualifyForEffort'     => false,
-            'disqualifyForDeportment' => false,
-            'isEligibleForNextGrade'  => true,
-        ]);
-    }
-
-    // ─── Per-Subject Helpers ──────────────────────────────────────────────────
-
-    private static function subjectHasFinalGrade(
-        array  $gradeset,
-        string $subjectName,
-        int    $endCounter,
-        bool   $isAwardReport
-    ): bool {
-        return $isAwardReport
-            || (
-                isset($gradeset[$subjectName][$endCounter]['final'])
-                && $gradeset[$subjectName][$endCounter]['final'] !== ''
-            );
-    }
-
-    private static function collectQuarterlyAverages(
-        array  $gradeset,
-        string $subjectName,
-        int    $startCounter,
-        int    $endCounter
-    ): array {
-        $subAverage = [];
-
-        for ($quarter = $startCounter; $quarter <= $endCounter; $quarter++) {
-            $gradeSlot = $gradeset[$subjectName][$quarter] ?? [];
-
-            if (!empty($gradeSlot['final'])) {
-                $subAverage['final'][$quarter] = $gradeSlot['rawfinal'];
-            }
-
-            if (isset($gradeSlot['raweffort']) && $gradeSlot['raweffort'] !== '') {
-                $subAverage['raweffort'][$quarter] = $gradeSlot['raweffort'];
-            }
-        }
-
-        return $subAverage;
-    }
-
-    private static function hasRequiredAverages(array $subAverage): bool
-    {
-        return isset($subAverage['final'], $subAverage['raweffort']);
-    }
-
-    private static function applySubjectFinal(array $gradeset, string $subjectName, array $subAverage): array
-    {
-        $rawFinal = array_sum($subAverage['final']) / count($subAverage['final']);
-        $gradeset[$subjectName][self::FINAL_INDEX]['rawfinal'] = $rawFinal;
-        $gradeset[$subjectName][self::FINAL_INDEX]['final']    = number_format($rawFinal, 3);
-
-        $gradeset[$subjectName][self::FINAL_INDEX]['effort'] = self::isCovidYear()
-            ? number_format(array_sum($subAverage['raweffort']) / count($subAverage['raweffort']), 0)
-            : self::getFinalEffort(array_sum($subAverage['raweffort']), $gradeset['gradelevel']);
-
-        $gradeset[$subjectName]['remarks'] = $rawFinal >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
-
-        return $gradeset;
-    }
-
-    private static function evaluateHonorsEligibility(array $gradeset, string $subjectName, array $subAverage): array
-    {
-        if ($gradeset['disqualifyForHonors']) {
-            return $gradeset;
-        }
-
-        $quarterCount = count($subAverage['final']);
-        $gradeLevel   = $gradeset['gradelevel'];
-        $isChinese    = $subjectName === 'CHINESE';
-
-        $isJhs = $gradeLevel <= self::GRADE_JHS_MAX;
-        $isShs = $gradeLevel >= self::GRADE_SHS_MIN;
-
-        // JHS: needs all 4 quarters (CHINESE exempt from this rule)
-        if ($isJhs && !$isChinese && $quarterCount !== 4) {
-            $gradeset['disqualifyForHonors'] = true;
-        }
-
-        // SHS: needs all 2 semesters
-        if ($isShs && $quarterCount !== 2) {
-            $gradeset['disqualifyForHonors'] = true;
-        }
-
-        return $gradeset;
-    }
-
-    private static function shouldApplyUnits(array $units, string $subjectName, string $lastSubjectName): bool
-    {
-        return isset($units[$subjectName]) && $lastSubjectName !== $subjectName;
-    }
-
-    private static function applyUnitWeighting(
-        array  $gradeset,
-        object $subject,
-        string $subjectName,
-        array  $units,
-        float  $totalUnits
-    ): array {
-        $unit = $units[$subjectName]['unit'];
-
-        $gradeset[$subjectName]['unit']      = number_format($unit, 2);
-        $gradeset['finalave'][$subjectName]  = $gradeset[$subjectName][self::FINAL_INDEX]['final'] * $unit;
-
-        $totalUnits += $unit;
-
-        return [$gradeset, $totalUnits];
-    }
-
-    private static function evaluateEffortEligibility(array $gradeset, object $subject, string $subjectName): array
-    {
-        if ($gradeset['disqualifyForEffort']) {
-            return $gradeset;
-        }
-
-        $effort = $gradeset[$subjectName][self::FINAL_INDEX]['effort'];
-
-        if ($subject->deportable == 1) {
-            // Major subject
-            $gradeset['finaleffort'][$subjectName] = $effort;
-            $gradeset['disqualifyForEffort']        = $effort >= self::EFFORT_MAJOR_PASS_THRESHOLD;
-            return $gradeset;
-        }
-
-        if ($subjectName === 'CHINESE') {
-            return $gradeset;
-        }
-
-        // Minor subjects
-        if (in_array($subjectName, self::COMPOSITE_TLE)) {
-            $gradeset['disqualifyForEffort'] = $effort > self::EFFORT_MINOR_PASS_THRESHOLD;
-        }
-
-        // MAPEH combined effort check
-        if (self::allMapehEffortsPresent($gradeset)) {
-            $sum = array_sum(array_map(
-                fn($s) => $gradeset[$s][self::FINAL_INDEX]['effort'],
-                self::COMPOSITE_MAPEH
-            ));
-            $gradeset['disqualifyForEffort'] = $sum < self::EFFORT_MAPEH_SUM_PASS;
-        }
-
-        return $gradeset;
-    }
-
-    private static function allMapehEffortsPresent(array $gradeset): bool
-    {
-        foreach (self::COMPOSITE_MAPEH as $subject) {
-            if (!isset($gradeset[$subject][self::FINAL_INDEX]['effort'])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static function applyCompositeSubjects(array $gradeset): array
-    {
-        $schoolYear  = MyTools::getSchoolYear();
-        $isLegacy    = in_array($schoolYear, self::LEGACY_SCHOOL_YEARS);
-        $gradeLevel  = $gradeset['gradelevel'];
-
-        if (!$isLegacy && $gradeLevel <= self::GRADE_JHS_MAX) {
-            unset($gradeset['finalave']['CHINESE']);
-            $gradeset = self::getMAPEH_TLE($gradeset);
-        }
-
-        return $gradeset;
-    }
-
-    // ─── Composite Subjects ───────────────────────────────────────────────────
-
-    private static function computeCompositeGrade(
-        array  $gradeset,
-        int    $quarter,
-        string $compositeKey,
-        array  $components,
-        array  $units
-    ): array {
-        foreach ($components as $component) {
-            if (empty($gradeset[$component][$quarter]['final'])) {
-                return $gradeset; // Not all components present
-            }
-        }
-
-        $weightedSum = 0;
-        $totalUnit   = 0;
-
-        foreach ($components as $component) {
-            $subjectId    = $gradeset[$component]['subject_id'];
-            $unit         = $units[$subjectId]['unit'];
-            $weightedSum += $gradeset[$component][$quarter]['rawfinal'] * $unit;
-            $totalUnit   += $unit;
-        }
-
-        $rawFinal = number_format($weightedSum / $totalUnit, 3);
-        $gradeset[$compositeKey][$quarter]['rawfinal'] = $rawFinal;
-        $gradeset[$compositeKey][$quarter]['final']    = $quarter === self::FINAL_INDEX
-            ? $rawFinal
-            : (round($rawFinal) <= 0 ? '' : round($rawFinal));
-
-        return $gradeset;
-    }
-
-    // ─── General Average Helpers ──────────────────────────────────────────────
-
-    private static function resolveNextGradeEligibility(array $gradeset, float $average): string
-    {
-        if ($average < self::PASSING_GRADE) {
-            return '';
-        }
-
-        return $gradeset['gradelevel'] <= self::GRADE_SHS_MIN
-            ? MyTools::ordinal(getNextGradeLevel($gradeset['gradelevel'])) . ' Grade'
-            : '';
-    }
-
-    // ─── Effort Helpers ───────────────────────────────────────────────────────
-
-    private static function resolveJhsEffort(int $effortSum): float
-    {
-        if (self::isLegacyYear()) {
-            return match (true) {
-                $effortSum >= 11 => 3,
-                $effortSum >= 7  => 2,
-                $effortSum >= 1  => 1,
-                default          => $effortSum,
-            };
-        }
-
-        return match (true) {
-            $effortSum >= 19 => 5,
-            $effortSum >= 15 => 4,
-            $effortSum >= 11 => 3,
-            $effortSum >= 7  => 2,
-            $effortSum >= 1  => 1,
-            default          => $effortSum,
-        };
-    }
-
-    private static function resolveShsEffort(int $effortSum): float
-    {
-        if (self::isLegacyYear()) {
-            return match ($effortSum) {
-                6       => 3,
-                5, 4    => 2,
-                default => 1,
-            };
-        }
-
-        // Note: case 2 intentionally maps to 2.0 (not 1.5) — preserved from original business rule.
-        // Verify with school admin whether this is correct or a historical bug.
-        return match ($effortSum) {
-            10      => 5,
-            9       => 4.5,
-            8       => 4,
-            7       => 3.5,
-            6       => 3,
-            5       => 2.5,
-            4       => 2,
-            3       => 1.5,
-            2       => 2.0,  // ⚠ intentionally out of sequence — confirm with admin
-            default => 1,
-        };
-    }
-
-    // ─── Deportment Helpers ───────────────────────────────────────────────────
-
-    private static function quarterHasDeportment(array $gradeset, int $quarter): bool
-    {
-        return isset($gradeset['deportment'][$quarter]) && $gradeset['deportment'][$quarter] > 0;
-    }
-
-    private static function computeQuarterDeportment(array $gradeset, int $quarter): array
-    {
-        $scores = $gradeset['deportment'][$quarter];
-        $avg    = array_sum($scores) / count($scores);
-
-        $external = getDeportmentGrades($gradeset['student_id']);
-        if (isset($external[$quarter])) {
-            $avg = ($avg + $external[$quarter]) / 2;
-        }
-
-        $gradeset['rawdeportment'][$quarter]  = number_format($avg, 3);
-        $gradeset['deportment'][$quarter]     = round($avg);
-
-        return $gradeset;
-    }
-
-    private static function computeFinalDeportment(array $gradeset, int $endCounter): array
-    {
-        $raw = $gradeset['rawdeportment'] ?? [];
-
-        if (empty($raw)) {
-            return $gradeset;
-        }
-
-        $shouldCompute = self::isCovidYear()
-            || (isset($gradeset['deportment'][$endCounter]) && $gradeset['deportment'][$endCounter] > 0);
-
-        if ($shouldCompute) {
-            $gradeset['deportment'][self::FINAL_INDEX] = number_format(
-                array_sum($raw) / count($raw),
+        if (!empty($gradeset['deportment'][$endCounter]) && count($gradeset['deportment']) === $expectedPeriods) {
+            $gradeset['deportment'][5] = number_format(
+                array_sum($gradeset['rawdeportment']) / count($gradeset['rawdeportment']),
                 3
             );
         }
@@ -463,15 +214,15 @@ class Formulas
         return $gradeset;
     }
 
-    // ─── School Year Utilities ────────────────────────────────────────────────
-
-    private static function isLegacyYear(): bool
+    /**
+     * Number of grading periods expected for a given school year:
+     * 2 (semestral) from SEMESTRAL_CUTOFF_YEAR onward, 4 (quarterly) before that.
+     *
+     * @param int $schoolyear
+     * @return int
+     */
+    private static function expectedPeriodCount(int $schoolyear): int
     {
-        return in_array(MyTools::getSchoolYear(), self::LEGACY_SCHOOL_YEARS);
-    }
-
-    private static function isCovidYear(): bool
-    {
-        return MyTools::getSchoolYear() === self::COVID_SCHOOL_YEAR;
+        return $schoolyear >= self::SEMESTRAL_CUTOFF_YEAR ? 2 : 4;
     }
 }

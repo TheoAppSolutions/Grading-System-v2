@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Grade;
 use App\Models\SchoolYear;
 use App\Models\SubjectUser;
+use App\Helpers\Formulas;
 
 class ReportController extends Controller
 {
@@ -17,13 +18,17 @@ class ReportController extends Controller
         $subjects = $record->matchedSubjects()->with('subjectCategory')->get();
         $students = $record->student()->first();
         $gradeLevel = $record->gradeLevel->label;
-        $quarter = request()->query('quarter', 4);
+        $quarter = request()->query('quarter');
         $type = request()->query('type', 'quarter');
-        $schoolYear = $record->schoolYear()->first()->label;
+        $schoolYearLabel = $record->schoolYear()->first()->label;
+
+        // Formulas needs the school year as an int (e.g. "2025-2026" -> 2025)
+        // to decide quarterly (4 periods) vs semestral (2 periods) grading.
+        $schoolYear = (int) explode('-', $schoolYearLabel)[0];
 
         $records = [];
         foreach ($subjects as $subject) {
-            $records['subjects'][$subject->subject_title] = $subject->toArray();
+            $records['subjects'][$subject->subject_title] = $subject;
         }
 
         $grades = Grade::where('student_id', $record->student_id)
@@ -33,9 +38,57 @@ class ReportController extends Controller
             ->get();
 
         foreach ($grades as $grade) {
-            $records['grades'][$grade->subject->subject_title] = $grade->toArray();
+            $subjectCode = $grade->subject->subject_code;
+
+            $records['grades'][$subjectCode][$grade->quarter]['midquarter'] = number_format($grade['midquarter'], 2);
+            $records['grades'][$subjectCode][$grade->quarter]['final'] = number_format($grade['final'], 2);
+            $records['grades'][$subjectCode][$grade->quarter]['effort'] = $grade['effort'];
+            $records['grades'][$subjectCode][$grade->quarter]['deportment'] = $grade['deportment'];
+            $records['grades'][$subjectCode][$grade->quarter]['remarks'] = $grade['remarks'];
+
+            // Formulas::getFinalAveragePerSubject reads 'rawfinal' (unformatted, for summing)
+            // and 'raweffort' alongside the display-formatted 'final' set above.
+            $records['grades'][$subjectCode][$grade->quarter]['rawfinal'] = $grade['final'];
+            $records['grades'][$subjectCode][$grade->quarter]['raweffort'] = $grade['effort'];
+
+            // Deportment average expects an array of raw scores per quarter to average over.
+            $records['grades']['deportment'][$grade->quarter][] = $grade['deportment'];
         }
 
+        // Attach units onto each subject bucket so getFinalAveragePerSubject can compute
+        // finalave/GPA. Adjust `units` to whatever property actually holds the unit count.
+        foreach ($subjects as $subject) {
+            if (isset($records['grades'][$subject->subject_code])) {
+                $records['grades'][$subject->subject_code]['unit'] = $subject->units ?? 0;
+            }
+        }
+
+        // Formulas expects each subject object to expose ->subjectname; subject_code is
+        // what we keyed the gradeset by above, so alias it here rather than changing the model.
+        $subjectsForFormula = $subjects->map(function ($subject) {
+            $subject->subjectname = $subject->subject_code;
+            return $subject;
+        });
+
+        $startCounter = $type === 'semestral' ? 1 : 1;
+        $endCounter = $type === 'semestral' ? 2 : ($quarter ?: 4);
+
+        $records['grades'] = Formulas::getFinalAveragePerSubject(
+            $records['grades'],
+            $subjectsForFormula,
+            $startCounter,
+            (int) $endCounter,
+            false,
+            $schoolYear
+        );
+
+        $records['grades'] = Formulas::getDeportmentAverage(
+            $records['grades'],
+            $schoolYear,
+            $startCounter,
+            (int) $endCounter
+        );
+        dd($records['grades']);
         $data = [
             'grades' => $records['grades'],
             'gradeLevel' => $gradeLevel,
@@ -47,15 +100,11 @@ class ReportController extends Controller
             'schoolYear' => $schoolYear,
         ];
 
-        // return view('reports.bis.upper_school.secondary_T2-T4', $data);
-        $viewName = "reports." . config('app.name') . ".upper_school.secondary_T2-T4";
+        return view("reports." . config('app.name') . ".upper_school.quarter", $data);
+        $viewName = "reports." . config('app.name') . ".upper_school.quarter";
         $pdf = SnappyPdf::loadView($viewName, $data)
             ->setOption('page-size', 'A4')
             ->setOption('orientation', 'Portrait');
-            // ->setOption('margin-top', 5)
-            // ->setOption('margin-bottom', 5)
-            // ->setOption('margin-left', 5)
-            // ->setOption('margin-right', 5);
 
         return $pdf->inline("Report-{$id}.pdf");
     }
