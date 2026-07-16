@@ -37,6 +37,11 @@
 
         {{-- School identity: pull from config/school record instead of hardcoding,
              so this template can be reused for other schools if needed. --}}
+        <tr style="position: relative;">
+            <td colspan=62 style="text-align: center; vertical-align: middle; position: relative; height: 0;">
+                <img src="{{ url('assets/images/logo.png') }}" style="height: 60.0pt; position: absolute; left: 150px; top: 0;"/>
+            </td>
+        </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=62 class=cardheader width=930>{{ $school->name ?? config('reportcards.school.name', 'HIGHLANDS CHRISTIAN GRAMMAR SCHOOL') }}</td>
         </tr>
@@ -50,9 +55,7 @@
         @include('reports.hcgs._snippets.blank_row')
 
         <tr style='mso-height-source:userset;{{ $height }}'>
-            <td colspan=62 class=cardheader>PROGRESS
-                REPORT
-            </td>
+            <td colspan=62 class=cardheader>PROGRESS REPORT</td>
         </tr>
         <tr style='mso-height-source:userset;{{ $height }}'>
             <td colspan=62 class=schoolyear>School Year
