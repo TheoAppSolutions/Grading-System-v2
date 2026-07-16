@@ -88,7 +88,7 @@ class ReportController extends Controller
             $startCounter,
             (int) $endCounter
         );
-        dd($records['grades']);
+
         $data = [
             'grades' => $records['grades'],
             'gradeLevel' => $gradeLevel,
@@ -100,8 +100,8 @@ class ReportController extends Controller
             'schoolYear' => $schoolYear,
         ];
 
-        return view("reports." . config('app.name') . ".upper_school.quarter", $data);
-        $viewName = "reports." . config('app.name') . ".upper_school.quarter";
+        return view("reports." . config('app.name') . ".templates.upper_school", $data);
+        $viewName = "reports." . config('app.name') . ".templates.upper_school";
         $pdf = SnappyPdf::loadView($viewName, $data)
             ->setOption('page-size', 'A4')
             ->setOption('orientation', 'Portrait');
