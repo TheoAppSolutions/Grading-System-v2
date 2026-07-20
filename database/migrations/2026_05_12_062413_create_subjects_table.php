@@ -28,6 +28,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user2_id')->nullable();
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();
             $table->integer('school_year_id');
+            $table->tinyInteger('applicable_flg')->default(0);
             $table->integer('section_id')->nullable();
             $table->string('semester')->default('');
             $table->string('category')->default('');

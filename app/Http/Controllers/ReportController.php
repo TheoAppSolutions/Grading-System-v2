@@ -99,7 +99,7 @@ class ReportController extends Controller
             'comments' => [],
             'schoolYear' => $schoolYear,
         ];
-
+        // dd($data);
         return view("reports." . config('app.name') . ".templates.upper_school", $data);
         $viewName = "reports." . config('app.name') . ".templates.upper_school";
         $pdf = SnappyPdf::loadView($viewName, $data)
