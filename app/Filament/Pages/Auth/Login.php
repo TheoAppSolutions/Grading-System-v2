@@ -42,7 +42,8 @@ class Login extends BaseLogin
                 $this->getRememberFormComponent(),
                 TextEntry::make('updater')
                     ->visible($hasUpdate ? true : false)
-                    ->label($hasUpdate ? "New Update Available" : ""),
+                    ->size('xs')
+                    ->label($hasUpdate ? "New Update Available. Please inform the admin to update" : ""),
             ])
             ->statePath('data');
     }

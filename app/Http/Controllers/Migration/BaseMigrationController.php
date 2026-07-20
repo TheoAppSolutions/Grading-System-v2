@@ -292,78 +292,28 @@ abstract class BaseMigrationController extends Controller
                     $batchSize,
                     $dedupeKey,
                     $oldTable,
+                    $orderColumn,
                     &$skippedRecords,
                     &$stats
                 ) {
-                    // Use the first row whose mapped result is non-empty to
-                    // determine the dedupe key. Guards against a chunk whose
-                    // very first row is intentionally skipped by the mapper
-                    // (e.g. mapRow() returning [] for known duplicate IDs),
-                    // which would otherwise make array_key_first() return null
-                    // and break dedupe lookups for the whole chunk.
-                    $firstMapped = null;
-
-                    foreach ($rows as $probeRow) {
-                        $probeMapped = $mapper($probeRow);
-
-                        if (! empty($probeMapped)) {
-                            $firstMapped = $probeMapped;
-                            break;
-                        }
-                    }
-
-                    // Every row in this chunk mapped to an empty array —
-                    // nothing to insert, nothing to dedupe against.
-                    if ($firstMapped === null) {
-                        $stats['skipped'] += $rows->count();
-                        return;
-                    }
-
-                    $newDedupeKey = array_key_first($firstMapped);
-                    $oldDedupeKey = $dedupeKey ?? $newDedupeKey;
-
-                    $incomingVals = $rows->pluck($oldDedupeKey)->all();
-
-                    $existingVals = DB::table($newTable)
-                        ->whereIn($newDedupeKey, $incomingVals)
-                        ->pluck($newDedupeKey)
-                        ->flip()
-                        ->all();
-
-                    $toInsert    = [];
-                    $sourceByKey = []; // newDedupeKey value → original old row, for error logging
+                    $mappedPairs = [];
 
                     foreach ($rows as $row) {
-                        $sourceVal = $row->{$oldDedupeKey};
-
-                        if (isset($existingVals[$sourceVal])) {
-                            $skippedRecords[$oldTable][] = $row;
-                            $stats['skipped']++;
-                            continue;
-                        }
-
                         try {
                             $mapped = $mapper($row);
 
-                            // Skip rows the mapper intentionally returned empty
-                            // (e.g. explicit duplicate/exclusion handling in mapRow()).
-                            // Without this guard, an empty array would still be
-                            // pushed into $toInsert and fail on insert.
-                            if (empty($mapped)) {
+                            if (! empty($mapped)) {
+                                $mappedPairs[] = [
+                                    'old' => $row,
+                                    'new' => $mapped,
+                                ];
+                            } else {
                                 $skippedRecords[$oldTable][] = $row;
                                 $stats['skipped']++;
-                                continue;
                             }
-
-                            $toInsert[] = $mapped;
-
-                            // Track the original old-table row by the value that
-                            // will become the new table's dedupe key, so insert
-                            // failures can log the full source row, not just an id.
-                            $sourceByKey[$mapped[$newDedupeKey] ?? null] = $row;
                         } catch (Throwable $e) {
                             $stats['errors'][] = [
-                                'row'     => $sourceVal,
+                                'row'     => $row->{$orderColumn} ?? 'unknown',
                                 'message' => $e->getMessage(),
                             ];
                             Log::channel('migrationlog')->error("Migration mapping error [{$newTable}]", [
@@ -372,6 +322,78 @@ abstract class BaseMigrationController extends Controller
                                 'error'     => $e->getMessage(),
                             ]);
                         }
+                    }
+
+                    if (empty($mappedPairs)) {
+                        return;
+                    }
+
+                    // Define target database unique/composite keys
+                    $newDedupeKeys = $this->getDedupeKeysForTable($newTable, $dedupeKey);
+                    $existingKeys  = [];
+
+                    if (! empty($newDedupeKeys)) {
+                        $query = DB::table($newTable);
+
+                        foreach ($newDedupeKeys as $col) {
+                            $colVals = array_unique(array_column(array_column($mappedPairs, 'new'), $col));
+                            $nonNullVals = array_filter($colVals, fn($v) => $v !== null);
+                            $hasNull = count($colVals) > count($nonNullVals);
+
+                            $query->where(function ($q) use ($col, $nonNullVals, $hasNull) {
+                                if (! empty($nonNullVals)) {
+                                    $q->whereIn($col, $nonNullVals);
+                                }
+                                if ($hasNull) {
+                                    $q->orWhereNull($col);
+                                }
+                                if (empty($nonNullVals) && ! $hasNull) {
+                                    $q->whereRaw('1 = 0');
+                                }
+                            });
+                        }
+
+                        $existingRows = $query->get($newDedupeKeys)->all();
+
+                        foreach ($existingRows as $existingRow) {
+                            $existingRow = (array) $existingRow;
+                            $keyParts    = [];
+                            foreach ($newDedupeKeys as $col) {
+                                $keyParts[] = (string) ($existingRow[$col] ?? '');
+                            }
+                            $existingKeys[implode('|', $keyParts)] = true;
+                        }
+                    }
+
+                    // For backward-compatible log variables:
+                    $firstMapped = $mappedPairs[0]['new'];
+                    $newDedupeKey = array_key_first($firstMapped);
+
+                    $toInsert    = [];
+                    $sourceByKey = []; // newDedupeKey value → original old row, for error logging
+                    $seenInChunk = [];
+
+                    foreach ($mappedPairs as $pair) {
+                        $mapped = $pair['new'];
+                        $row    = $pair['old'];
+
+                        if (! empty($newDedupeKeys)) {
+                            $keyParts = [];
+                            foreach ($newDedupeKeys as $col) {
+                                $keyParts[] = (string) ($mapped[$col] ?? '');
+                            }
+                            $lookupKey = implode('|', $keyParts);
+
+                            if (isset($existingKeys[$lookupKey]) || isset($seenInChunk[$lookupKey])) {
+                                $skippedRecords[$oldTable][] = $row;
+                                $stats['skipped']++;
+                                continue;
+                            }
+                            $seenInChunk[$lookupKey] = true;
+                        }
+
+                        $toInsert[] = $mapped;
+                        $sourceByKey[$mapped[$newDedupeKey] ?? null] = $row;
                     }
 
                     if (empty($toInsert)) {
@@ -431,6 +453,44 @@ abstract class BaseMigrationController extends Controller
         $lower = strtolower(trim((string) $value));
 
         return in_array($lower, ['1', 'yes', 'true', 'active'], strict: true) ? 1 : 0;
+    }
+
+    protected function getDedupeKeysForTable(string $table, ?string $dedupeKey): array
+    {
+        if (is_array($dedupeKey)) {
+            return $dedupeKey;
+        }
+
+        $compositeMaps = [
+            'grades'           => ['student_id', 'subject_id', 'quarter', 'school_year_id', 'grade_level_id'],
+            'deportments'      => ['student_id', 'school_year_id', 'quarter'],
+            'attendances'      => ['student_id', 'school_year_id'],
+            'enrollments'      => ['student_id', 'school_year_id'],
+            'subject_units'    => ['subject_id', 'school_year_id'],
+            'subject_excluded' => ['student_id', 'subject_id', 'school_year_id'],
+            'student_sections' => ['student_id', 'section_id', 'school_year_id'],
+            'graduates'        => ['student_id', 'school_year_id'],
+            'awards'           => ['student_id', 'subject_id', 'school_year_id'],
+            'sections'         => ['label', 'grade_level_id', 'school_year_id'],
+            'subject_users'    => ['subject_id', 'user_id', 'school_year_id', 'section_id'],
+            'user_roles'       => ['user_id', 'role_id'],
+            'homerooms'        => ['section_id', 'school_year_id', 'grade_level_id'],
+            'users'            => ['old_id'],
+            'students'         => ['id'],
+            'student_infos'    => ['student_id'],
+            'subjects'         => ['subject_code'],
+            'school_years'     => ['label'],
+        ];
+
+        if (isset($compositeMaps[$table])) {
+            return $compositeMaps[$table];
+        }
+
+        if ($dedupeKey !== null) {
+            return [$dedupeKey];
+        }
+
+        return [];
     }
 
     protected function ensureSqliteFileExists(): void {}

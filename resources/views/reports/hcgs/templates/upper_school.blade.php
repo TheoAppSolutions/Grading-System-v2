@@ -7,7 +7,7 @@
 <body>
 @php($height = "height:17.0pt;")
 <div>
-    <table border=0 cellpadding=0 cellspacing=0 width=930
+    <table align=center border=0 cellpadding=0 cellspacing=0 width=930
            style='border-collapse:collapse;table-layout:fixed;width:682pt'>
         <col class=blank width=15 span=7 style='width:11pt'>
         <col class=blank width=15 style='width:11pt'>
@@ -108,7 +108,7 @@
             row is dynamic — swap the second argument in each 'code' below to
             match your actual subject_code / grade lookup key per subject.
         --}}
-        @php
+        <?php
             $subjectRows = [
                 ['title' => 'Agriculture', 'key' => 'AGRICULTURE'],
                 ['title' => 'The Arts', 'key' => 'ARTS'],
@@ -126,7 +126,7 @@
                 ['title' => 'Social Science', 'key' => 'SOCIAL SCIENCE'],
                 ['title' => 'Elective (Music Private Lessons)', 'key' => 'MUSIC'],
             ];
-        @endphp
+        ?>
 
         @foreach ($subjectRows as $row)
             @include('reports.hcgs._snippets.fixed_subject_row', [

@@ -17,7 +17,7 @@
         $height - row height style string, e.g. "height:17.0pt;"
         $not_applicable - boolean to indicate if the subject is not applicable
 --}}
-@php
+<?php
     $na          = data_get($subject, "applicable_flg");
     $code        = data_get($subject, "subject_code");
     $q1Final     = data_get($grades, "$code.1.final");
@@ -28,7 +28,7 @@
     $finalEffort = data_get($grades, "$code.5.effort");
     $unit        = data_get($grades, "$code.unit");
     $remarks     = data_get($grades, "$code.remarks") ?? ($na ? 'N / A' : '');
-@endphp
+?>
 <tr style='mso-height-source:userset;{{ $height }}'>
     <td colspan=12 class=subjecttitle width=180>{{ $title }}</td>
     <td colspan=6 class=grade width=45>{{ $q1Final ?? '' }}</td>
