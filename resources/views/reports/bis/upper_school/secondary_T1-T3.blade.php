@@ -3,812 +3,812 @@
 @extends('reports.templates._layouts.T1-T3')
 
 @section('content')
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td height=20 class=blank style='height:15.0pt'></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=2 class=midquarterlabels>Grades</td>
-        <td colspan=4 class=midquarterlabels>Remarks</td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=2 class=midquarterlabels>Grades</td>
-        <td colspan=4 class=midquarterlabels>Remarks</td>
-        <td class=blank></td>
+    <tr style='height:15.0pt'>
+        <td height=20 class=report-card__blank style='height:15.0pt'></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=2 class=midquarterreport-card__student-label>Grades</td>
+        <td colspan=4 class=midquarterreport-card__student-label>Remarks</td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=2 class=midquarterreport-card__student-label>Grades</td>
+        <td colspan=4 class=midquarterreport-card__student-label>Remarks</td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=9 height=20 class=midquartersubjects style='height:15.0pt'>LANGUAGE ARTS - GRAMMAR
+    <tr style='height:15.0pt'>
+        <td colspan=9 height=20 class=midquarter-report__subjects style='height:15.0pt'>LANGUAGE ARTS - GRAMMAR
         </td>
-        <td colspan=8 class=midquarterminor>{{ $grades['ENGLISH']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['ENGLISH']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['ENGLISH'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquartersubjects>MATHEMATICS</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['MATH']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__subjects>MATHEMATICS</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['MATH']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['MATH'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Uses correct sentence structure in
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Uses correct sentence structure in
             oral/written form
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S1'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=17 class=midquartercomments>Comprehends math concepts</td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['MATH']['S1'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S1'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=17 class=midquarter-report__comments>Comprehends math concepts</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['MATH']['S1'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Uses capital letters and punctuation
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Uses capital letters and punctuation
             marks
             correctly
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S2'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=17 class=midquartercomments>Has mastered basic facts</td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['MATH']['S2'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S2'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=17 class=midquarter-report__comments>Has mastered basic facts</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['MATH']['S2'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Expresses ideas in paragraph form
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Expresses ideas in paragraph form
             clearly
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S3'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=17 class=midquartercomments>Applies math skills in solving word problems</td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['MATH']['S3'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S3'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=17 class=midquarter-report__comments>Applies math skills in solving word problems</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['MATH']['S3'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Applies spelling skills effectively
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Applies spelling skills effectively
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S4'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S4'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Edits written words
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Edits written words
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S5'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquartersubjects>CHRISTIAN FORMATION</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['CF']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers>{{ $grades['CF'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterblock></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S5'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__subjects>CHRISTIAN FORMATION</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['CF']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $grades['CF'][$quarter]['midquarter'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__block></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Uses proper strokes in handwriting
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Uses proper strokes in handwriting
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S6'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=17 class=midquartercomments>Applies Biblical truths in daily living</td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['CF']['S1'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S6'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=17 class=midquarter-report__comments>Applies Biblical truths in daily living</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['CF']['S1'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td height=20 class=blank style='height:15.0pt'></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
+    <tr style='height:15.0pt'>
+        <td height=20 class=report-card__blank style='height:15.0pt'></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=9 height=20 class=midquartersubjects style='height:15.0pt'>LANGUAGE ARTS -
+    <tr style='height:15.0pt'>
+        <td colspan=9 height=20 class=midquarter-report__subjects style='height:15.0pt'>LANGUAGE ARTS -
             READING
         </td>
-        <td colspan=8 class=midquarterminor>{{ $grades['ENGLISH']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['ENGLISH']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['ENGLISH'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquartersubjects>CIVICS and CULTURE</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['CIVICS']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__subjects>CIVICS and CULTURE</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['CIVICS']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['CIVICS'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Reads fluently
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Reads fluently
             with expression
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S7'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=17 class=midquartercomments>Interprets symbols and reads the map/globe
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S7'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=17 class=midquarter-report__comments>Interprets symbols and reads the map/globe
             accurately
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['CIVICS']['S1'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['CIVICS']['S1'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Reads literature materials with meaning
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Reads literature materials with meaning
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S8'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=17 class=midquartercomments>Respects flexibility in adapting to cultural
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S8'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=17 class=midquarter-report__comments>Respects flexibility in adapting to cultural
             diversity in school
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['CIVICS']['S2'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['CIVICS']['S2'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Uses new vocabulary in oral and written
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Uses new vocabulary in oral and written
             work
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S9'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S9'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Responds to reading experiences</td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S10'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquartersubjects>MINOR SUBJECTS:</td>
-        <td colspan=14 class=midquarterblock></td>
-        <td class=blank></td>
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Responds to reading experiences</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S10'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__subjects>MINOR SUBJECTS:</td>
+        <td colspan=14 class=midquarter-report__block></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Uses comprehension strategies for
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Uses comprehension strategies for
             reading and
             writing connections
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['ENGLISH']['S11'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquarterminor>LIVELIHOOD</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['LIVELIHOOD']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['ENGLISH']['S11'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__minor>LIVELIHOOD</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['LIVELIHOOD']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['LIVELIHOOD'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=blank style='height:15.0pt'>
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=report-card__blank style='height:15.0pt'>
         </td>
-        <td colspan=2 class=blank></td>
-        <td colspan=4 class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquarterminor>COMPUTER</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['COMPUTER']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+        <td colspan=2 class=report-card__blank></td>
+        <td colspan=4 class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__minor>COMPUTER</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['COMPUTER']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['COMPUTER'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=blank style='height:15.0pt'>
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=report-card__blank style='height:15.0pt'>
         </td>
-        <td colspan=2 class=blank></td>
-        <td colspan=4 class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquarterminor>MUSIC</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['MUSIC']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+        <td colspan=2 class=report-card__blank></td>
+        <td colspan=4 class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__minor>MUSIC</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['MUSIC']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['MUSIC'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td height=20 class=blank style='height:15.0pt'></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquarterminor>ART</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['ART']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+    <tr style='height:15.0pt'>
+        <td height=20 class=report-card__blank style='height:15.0pt'></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__minor>ART</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['ART']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['ART'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=9 height=20 class=midquartersubjects style='height:15.0pt'>FILIPINO</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['FILIPINO']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+    <tr style='height:15.0pt'>
+        <td colspan=9 height=20 class=midquarter-report__subjects style='height:15.0pt'>FILIPINO</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['FILIPINO']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['FILIPINO'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=9 class=midquarterminor>PE</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['PE']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers>{{ $grades['PE'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=9 class=midquarter-report__minor>PE</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['PE']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $grades['PE'][$quarter]['midquarter'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Comprehends
-            basic concepts at grade level
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Comprehends
+            basic concepts at report-card__grade level
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['FILIPINO']['S1'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['FILIPINO']['S1'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Applies knowledge in writing skills
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Applies knowledge in writing skills
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['FILIPINO']['S2'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=3 class=blank>Legend:</td>
-        <td colspan=6 class=blank><b>3</b> - Highly Proficient,</td>
-        <td colspan=4 class=blank><b>2</b> - Proficient,</td>
-        <td colspan=10 class=blank><b>1</b> - Progressing Towards Standard</td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['FILIPINO']['S2'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=3 class=report-card__blank>Legend:</td>
+        <td colspan=6 class=report-card__blank><b>3</b> - Highly Proficient,</td>
+        <td colspan=4 class=report-card__blank><b>2</b> - Proficient,</td>
+        <td colspan=10 class=report-card__blank><b>1</b> - Progressing Towards Standard</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Can express ideas in oral form
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Can express ideas in oral form
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['FILIPINO']['S3'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['FILIPINO']['S3'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td height=20 class=blank style='height:15.0pt'></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=centerlabels colspan="7" rowspan="3">
+    <tr style='height:15.0pt'>
+        <td height=20 class=report-card__blank style='height:15.0pt'></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__school-year colspan="7" rowspan="3">
             {{-- {!! signatureTeacher($homeroom_id) !!} --}}
         </td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=centerlabels colspan="7" rowspan="3">
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__school-year colspan="7" rowspan="3">
             {{-- {!! signatureMiss() !!} --}}
         </td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=9 height=20 class=midquartersubjects style='height:15.0pt'>SCIENCE</td>
-        <td colspan=8 class=midquarterminor>{{ $grades['SCIENCE']['teacher'] ?? '' }}</td>
-        <td colspan=2 class=midquarterteachers
+    <tr style='height:15.0pt'>
+        <td colspan=9 height=20 class=midquarter-report__subjects style='height:15.0pt'>SCIENCE</td>
+        <td colspan=8 class=midquarter-report__minor>{{ $grades['SCIENCE']['teacher'] ?? '' }}</td>
+        <td colspan=2 class=midquarter-report__teachers
         >{{ $grades['SCIENCE'][$quarter]['midquarter'] ?? '' }}</td>
-        <td colspan=4 class=midquarterteachers></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
+        <td colspan=4 class=midquarter-report__teachers></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Makes
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Makes
             inferences / formulates conclusions
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['SCIENCE']['S1'] ?? '' }}</td>
-        <td colspan=4 class=midquartercomments></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['SCIENCE']['S1'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__comments></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Performs
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Performs
             experiments independently
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['SCIENCE']['S2'] ?? '' }}</td>
-        <td colspan=4 class=midquartercomments></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=7 class=nametitles>{{ $homeroom ?? '' }}</td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=7 class=nametitles>{{ $principal ?? '' }}</td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['SCIENCE']['S2'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__comments></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=7 class=report-card__sidenote-title>{{ $homeroom ?? '' }}</td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=7 class=report-card__sidenote-title>{{ $principal ?? '' }}</td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Answers
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Answers
             high-order thinking questions
         </td>
-        <td colspan=2 class=midquarterteachers>{{ $comments['SCIENCE']['S3'] ?? '' }}</td>
-        <td colspan=4 class=midquartercomments></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=7 class=undertitle>Homeroom Teacher</td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td colspan=7 class=undertitle>School Principal</td>
-        <td class=blank></td>
+        <td colspan=2 class=midquarter-report__teachers>{{ $comments['SCIENCE']['S3'] ?? '' }}</td>
+        <td colspan=4 class=midquarter-report__comments></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=7 class=term-summary__undertitle>Homeroom Teacher</td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td colspan=7 class=term-summary__undertitle>School Principal</td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td height=20 class=blank style='height:15.0pt'></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
-        <td class=blank></td>
+    <tr style='height:15.0pt'>
+        <td height=20 class=report-card__blank style='height:15.0pt'></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
+        <td class=report-card__blank></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td height=20 class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
-        <td class=blank style="border-top: 2px solid black"></td>
+    <tr style='height:15.0pt'>
+        <td height=20 class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
+        <td class=report-card__blank style="border-top: 2px solid black"></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartersubjects style='height:15.0pt'>PERSONAL AND SOCIAL RELATIONSHIPS
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__subjects style='height:15.0pt'>PERSONAL AND SOCIAL RELATIONSHIPS
         </td>
-        <td colspan=3 class=midquarterteachers>English</td>
-        <td colspan=3 class=midquarterteachers>Filipino</td>
-        <td colspan=3 class=midquarterteachers>Science</td>
-        <td colspan=3 class=midquarterteachers>Math</td>
-        <td colspan=3 class=midquarterteachers>CF</td>
-        <td colspan=3 class=midquarterteachers>Civics</td>
+        <td colspan=3 class=midquarter-report__teachers>English</td>
+        <td colspan=3 class=midquarter-report__teachers>Filipino</td>
+        <td colspan=3 class=midquarter-report__teachers>Science</td>
+        <td colspan=3 class=midquarter-report__teachers>Math</td>
+        <td colspan=3 class=midquarter-report__teachers>CF</td>
+        <td colspan=3 class=midquarter-report__teachers>Civics</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Is attentive</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['PSR1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['PSR1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['PSR1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['PSR1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['PSR1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['PSR1'] ?? '' }}</td>
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Is attentive</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['PSR1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['PSR1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['PSR1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['PSR1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['PSR1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['PSR1'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Cooperates willingly with teachers and
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Cooperates willingly with teachers and
             peers
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['PSR2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['PSR2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['PSR2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['PSR2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['PSR2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['PSR2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['PSR2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['PSR2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['PSR2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['PSR2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['PSR2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['PSR2'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Shows respect for authority
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Shows respect for authority
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['PSR3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['PSR3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['PSR3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['PSR3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['PSR3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['PSR3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['PSR3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['PSR3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['PSR3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['PSR3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['PSR3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['PSR3'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Respects rights and property of others
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Respects rights and property of others
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['PSR4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['PSR4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['PSR4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['PSR4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['PSR4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['PSR4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['PSR4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['PSR4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['PSR4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['PSR4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['PSR4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['PSR4'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Exercises self-control and
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Exercises self-control and
             self-discipline
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['PSR5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['PSR5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['PSR5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['PSR5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['PSR5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['PSR5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['PSR5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['PSR5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['PSR5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['PSR5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['PSR5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['PSR5'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartersubjects style='height:15.0pt'>WORK AND STUDY SKILLS
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__subjects style='height:15.0pt'>WORK AND STUDY SKILLS
         </td>
-        <td colspan=18 class=midquarterteachers></td>
+        <td colspan=18 class=midquarter-report__teachers></td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Follows directions
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Follows directions
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['WSS1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['WSS1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['WSS1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['WSS1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['WSS1'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['WSS1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['WSS1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['WSS1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['WSS1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['WSS1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['WSS1'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['WSS1'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Completes work on time
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Completes work on time
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['WSS2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['WSS2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['WSS2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['WSS2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['WSS2'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['WSS2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['WSS2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['WSS2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['WSS2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['WSS2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['WSS2'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['WSS2'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Works independently
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Works independently
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['WSS3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['WSS3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['WSS3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['WSS3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['WSS3'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['WSS3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['WSS3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['WSS3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['WSS3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['WSS3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['WSS3'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['WSS3'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Does his / her best in assigned tasks
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Does his / her best in assigned tasks
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['WSS4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['WSS4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['WSS4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['WSS4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['WSS4'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['WSS4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['WSS4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['WSS4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['WSS4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['WSS4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['WSS4'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['WSS4'] ?? '' }}</td>
     </tr>
-    <tr style='mso-height-source:userset;height:15.0pt'>
-        <td colspan=17 height=20 class=midquartercomments style='height:15.0pt'>Contributes to class discussions
+    <tr style='height:15.0pt'>
+        <td colspan=17 height=20 class=midquarter-report__comments style='height:15.0pt'>Contributes to class discussions
         </td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['ENGLISH']['WSS5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['FILIPINO']['WSS5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['SCIENCE']['WSS5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['MATH']['WSS5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CF']['WSS5'] ?? '' }}</td>
-        <td colspan=3 class=midquarterteachers>{{ $comments['CIVICS']['WSS5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['ENGLISH']['WSS5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['FILIPINO']['WSS5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['SCIENCE']['WSS5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['MATH']['WSS5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CF']['WSS5'] ?? '' }}</td>
+        <td colspan=3 class=midquarter-report__teachers>{{ $comments['CIVICS']['WSS5'] ?? '' }}</td>
     </tr>
 @endsection

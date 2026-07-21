@@ -4,27 +4,24 @@ use App\Http\Controllers\Migration\UserMigrationController;
 use App\Http\Controllers\Migration\GradeMigrationController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
-use Barryvdh\Snappy\Facades\SnappyPdf;
 
 Route::get('/', function () {
     return redirect(url('/app'));
 });
 
-// routes/web.php or api.php
 Route::prefix('migrate')->group(function () {
-
-    // Users
-    Route::get('/users/preview',    [UserMigrationController::class, 'preview']);
-    Route::get('/users/execute',    [UserMigrationController::class, 'migrate']);
-    Route::get('/users/unfilled',   [UserMigrationController::class, 'unfilledEmails']);
-    Route::get('/users/reset',      [UserMigrationController::class, 'reset']);
-
-    Route::get('/grades/preview',     [GradeMigrationController::class, 'preview']);
-    Route::get('/grades/status',      [GradeMigrationController::class, 'status']);
-    Route::get('/grades/level/{num}', [GradeMigrationController::class, 'migrateTable']);
-    Route::get('/grades/unfilled',    [GradeMigrationController::class, 'unfilled']);
-    Route::get('/grades/reset',       [GradeMigrationController::class, 'reset']);
-    Route::get('/grades/reset/{num}', [GradeMigrationController::class, 'resetTable']);
+    Route::prefix('users')->group(function () {
+        Route::get('/preview',    [UserMigrationController::class, 'preview'])->name('users.preview');
+        Route::get('/execute',    [UserMigrationController::class, 'migrate'])->name('users.migrate');
+        Route::get('/unfilled',   [UserMigrationController::class, 'unfilledEmails'])->name('users.unfilledEmails');
+        Route::get('/reset',      [UserMigrationController::class, 'reset'])->name('users.reset');
+    });
 });
 
-Route::get('/grades/pdf/{id}', [ReportController::class, 'generatePdf'])->name('grades.pdf');
+Route::prefix('report')->group(function () {
+    Route::get('/quarter/{id}',    [ReportController::class, 'generateQuarter'])->name('report.quarter');
+    Route::get('/midQuarter/{id}', [ReportController::class, 'generateMidQuarter'])->name('report.midQuarter');
+    Route::get('/award/{id}',      [ReportController::class, 'generateAward'])->name('report.award');
+    Route::get('/tor/{id}',        [ReportController::class, 'generateTOR'])->name('report.tor');
+    Route::get('/subject/{id}',    [ReportController::class, 'generateSubject'])->name('report.subject');
+});

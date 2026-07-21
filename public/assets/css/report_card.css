@@ -1,0 +1,1736 @@
+/* ==========================================================================
+   REPORT CARD / TRANSCRIPT STYLESHEET
+   RENAME LOG (old class name -> new BEM name), grouped by block:
+
+   report-card
+     .blank            -> .report-card__blank
+     .sidenote         -> .report-card__sidenote
+     .studentlabel     -> .report-card__student-label
+     .studentinfo      -> .report-card__student-info
+     .cardlabel        -> .report-card__card-label
+     .term             -> .report-card__term
+     .grade            -> .report-card__grade
+     .sidenotetitle    -> .report-card__sidenote-title
+     .cardheader       -> .report-card__header
+     .cardheader2      -> .report-card__subheader
+     .schoolyear       -> .report-card__school-year
+     .subjecttitle     -> .report-card__subject-title
+     .commentstitle    -> .report-card__comments-title
+     .months           -> .report-card__months
+     .attendancelabel  -> .report-card__attendance-label
+     .checkmark        -> .report-card__checkmark
+     .officelabel      -> .report-card__office-label
+     .effort           -> .report-card__effort
+     .remarks          -> .report-card__remarks
+     .deportment       -> .report-card__deportment
+     .attendance       -> .report-card__attendance
+     .comments         -> .report-card__comments
+
+   term-summary
+     .bold             -> .term-summary__bold-text
+     .undertitle       -> .term-summary__undertitle
+     .quarter          -> .term-summary__quarter
+     .subjects         -> .term-summary__subjects
+     .lightlabel       -> .term-summary__label--light
+     .heavylabel       -> .term-summary__label--heavy
+     .attendancelabels -> .term-summary__attendance-label
+     .attendancebold   -> .term-summary__attendance--bold
+     .attendancelight  -> .term-summary__attendance--light
+     .finalgrade       -> .term-summary__grade--final
+     .finaleffort      -> .term-summary__effort--final
+     .generalaverage   -> .term-summary__average
+     .underline        -> .term-summary__underline
+     .commentslabels   -> .term-summary__comments-label
+     .blank2           -> .term-summary__blank
+     .effort2          -> .term-summary__effort
+     .remarks2         -> .term-summary__remarks
+     .attendance2      -> .term-summary__attendance
+     .deportment2      -> .term-summary__deportment
+     .comments2        -> .term-summary__comments
+
+   midquarter-report
+     .midquarterminor    -> .midquarter-report__minor
+     .midquartercomments -> .midquarter-report__comments
+     .midquartersubjects -> .midquarter-report__subjects
+     .midquarterteachers -> .midquarter-report__teachers
+     .midquarterblock    -> .midquarter-report__block
+     .midquarterlabels   -> .midquarter-report__label
+     .blank3             -> .midquarter-report__blank
+     .positionLabel       -> .midquarter-report__position-label
+     .positionName        -> .midquarter-report__position-name
+     .studentLabel         -> .midquarter-report__student-label
+     .commentValue         -> .midquarter-report__comment-value
+     .teacherName          -> .midquarter-report__teacher-name
+     .legend               -> .midquarter-report__legend
+
+   header / student / grades
+     .header__school_name  -> .header__school-name
+     .header__tor_label    -> .header__tor-label
+     .grades__average_value -> .grades__average-value
+     .grades__average_label -> .grades__average-label
+     .blank4 -> .tor__blank
+     (header, header__phone, header__moto, header__address, student__details,
+     student__label, grades__blank, grades__subject, grades__label,
+     grades__final, grades__table were already BEM — names unchanged)
+
+   subject-summary
+     .blank5  -> .subject-summary__blank
+     .data    -> .subject-summary__data
+     .effort3 -> .subject-summary__effort
+     .grade2  -> .subject-summary__grade
+     .label   -> .subject-summary__label
+     .quarter2 -> .subject-summary__quarter
+
+   master-summary
+     .blank6  -> .master-summary__blank
+     .name    -> .master-summary__name
+     .id      -> .master-summary__id
+     .effort4 -> .master-summary__effort
+     .grade3  -> .master-summary__grade
+     .label2  -> .master-summary__label
+
+   ========================================================================== */
+
+table {
+    mso-displayed-decimal-separator: "\.";
+    mso-displayed-thousand-separator: "\,";
+}
+
+table tr {
+    mso-height-source: userset;
+}
+
+.report-card__logo {
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+}
+
+.report-card__image {
+    height: 60pt;
+    position: absolute;
+    left: 150px;
+    top: 0;
+}
+
+/* ---------- report-card (Source 1) ---------- */
+
+.report-card__blank {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__sidenote {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__student-label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__student-info {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: none;
+    border-right: none;
+    border-bottom: 1pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__card-label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.report-card__term {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: 0.5pt solid windowtext;
+    border-right: 0.5pt solid windowtext;
+    border-bottom: none;
+    border-left: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__grade {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: middle;
+    border-top: 0.5pt solid windowtext;
+    border-bottom: 0.5pt solid windowtext;
+    border-right: none;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.report-card__sidenote-title {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__header {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 16pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__subheader {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.report-card__school-year {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__subject-title {
+    padding-top: 1px;
+    padding-right: 5px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.report-card__comments-title {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+    border-bottom: none;
+}
+
+.report-card__months {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__attendance-label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: italic;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__checkmark {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: none;
+    border-right: none;
+    border-bottom: 0.5pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__office-label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__effort {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 10pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    border-top: 0.5pt solid windowtext;
+    border-right: 0.5pt solid windowtext;
+    border-bottom: 0.5pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__remarks {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border-top: 0.5pt solid windowtext;
+    border-right: 0.5pt solid windowtext;
+    border-bottom: 0.5pt solid windowtext;
+    border-left: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__deportment {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.report-card__attendance {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.report-card__comments {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+/* ---------- term-summary (Source 2) ---------- */
+
+.term-summary__bold-text {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__undertitle {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__quarter {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: 1pt solid windowtext;
+    border-bottom: 1pt solid windowtext;
+    border-left: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__subjects {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: middle;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.term-summary__label--light {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__label--heavy {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__attendance-label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__attendance--bold {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: middle;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__attendance--light {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 10pt;
+    font-weight: 400;
+    font-style: italic;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: middle;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__grade--final {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: middle;
+    border-top: 1pt solid windowtext;
+    border-right: none;
+    border-bottom: 1pt solid windowtext;
+    border-left: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.term-summary__effort--final {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: 1pt solid windowtext;
+    border-bottom: 1pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__average {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: middle;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.term-summary__underline {
+    border-bottom: 1pt solid windowtext;
+    text-align: center;
+    font-weight: bold;
+}
+
+.term-summary__comments-label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__blank {
+    padding: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__effort {
+    font-size: 10px;
+}
+
+.term-summary__remarks {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__attendance {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.term-summary__deportment {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border-top: 1pt solid windowtext;
+    border-right: none;
+    border-bottom: 1pt solid windowtext;
+    border-left: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.term-summary__comments {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: none;
+    border-right: none;
+    border-bottom: 1pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+/* ---------- midquarter-report (Source 2 midquarter* + Source 3) ---------- */
+
+.midquarter-report__minor {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__comments {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__subjects {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: white;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    border: 1pt solid windowtext;
+    background: black;
+    mso-pattern: black none;
+    white-space: nowrap;
+}
+
+.midquarter-report__teachers {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__block {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__blank {
+    padding-right: 5px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__position-label {
+    padding-right: 5px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: 1.5pt solid windowtext;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__position-name {
+    padding-right: 5px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__student-label {
+    padding-right: 5px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__comment-value {
+    padding-right: 5px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.midquarter-report__teacher-name {
+    padding-right: 5px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.midquarter-report__legend {
+    padding-right: 5px;
+    padding-left: 5px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 10pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+/* ---------- header / student / grades / tor (Source 4 — TOR) ---------- */
+
+.header {
+    padding: 0;
+    mso-ignore: padding;
+    color: windowtext;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.header__phone {
+    color: #002060;
+    font-size: 9pt;
+    font-family: Calibri, sans-serif;
+}
+
+.header__moto {
+    color: #002060;
+    font-size: 20pt;
+    font-weight: 700;
+    font-family: Mistral, cursive;
+}
+
+.header__school-name {
+    font-size: 14pt;
+    font-family: "Copperplate Gothic Bold", sans-serif;
+}
+
+.header__address {
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+}
+
+.header__tor-label {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: "Berlin Sans FB Demi", sans-serif;
+    font-style: italic;
+}
+
+.student__details {
+    padding: 0;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 16px;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border-top: none;
+    border-right: none;
+    border-bottom: 2px solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.student__label {
+    padding: 0;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 14px;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border-top: 0.5pt solid windowtext;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.grades__blank {
+    padding: 0;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 7pt;
+    font-weight: 400;
+    font-style: italic;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.grades__subject {
+    padding: 5px 10px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    border: 1px solid #000000;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.grades__label {
+    padding: 8px;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12px;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border: 1px solid #000000;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.grades__final {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #000000;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: normal;
+}
+
+.grades__table {
+    border-collapse: collapse;
+    border: 1px;
+}
+
+.grades__average-value {
+    padding: 0;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12px;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.grades__average-label {
+    padding: 0;
+    mso-ignore: padding;
+    color: windowtext;
+    font-size: 12px;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.tor__blank {
+    border: none;
+}
+
+/* ---------- subject-summary (Source 6) ---------- */
+
+.subject-summary__blank {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: bottom;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.subject-summary__data {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: none;
+    border-bottom: 1pt solid windowtext;
+    border-left: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.subject-summary__effort {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 8pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: 1pt solid black;
+    border-bottom: 1pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.subject-summary__grade {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: none;
+    border-bottom: 1pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.subject-summary__label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: 1pt solid windowtext;
+    border-bottom: none;
+    border-left: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.subject-summary__quarter {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Calibri, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: bottom;
+    border-top: 1pt solid windowtext;
+    border-right: none;
+    border-bottom: 1pt solid windowtext;
+    border-left: 1pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+/* ---------- master-summary (Source 7) ---------- */
+
+.master-summary__blank {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.master-summary__name {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.master-summary__id {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.master-summary__effort {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 8pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: left;
+    vertical-align: bottom;
+    border-top: 0.5pt solid windowtext;
+    border-right: 0.5pt solid windowtext;
+    border-bottom: 0.5pt solid windowtext;
+    border-left: none;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.master-summary__grade {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 11pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: right;
+    vertical-align: middle;
+    border-top: 0.5pt solid windowtext;
+    border-right: none;
+    border-bottom: 0.5pt solid windowtext;
+    border-left: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+}
+
+.master-summary__label {
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    mso-ignore: padding;
+    color: black;
+    font-size: 9pt;
+    font-weight: 700;
+    font-style: normal;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    mso-font-charset: 0;
+    mso-number-format: General;
+    text-align: center;
+    vertical-align: middle;
+    border: 0.5pt solid windowtext;
+    mso-background-source: auto;
+    mso-pattern: auto;
+    white-space: nowrap;
+    word-wrap: break-word;
+}

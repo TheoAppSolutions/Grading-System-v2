@@ -5,7 +5,7 @@
     <title>Summary {{ $subject->subject_id }}</title>
 
     <style>
-        .blank {
+        .report-card__blank {
             padding-top: 1px;
             padding-right: 1px;
             padding-left: 1px;
@@ -24,7 +24,7 @@
             white-space: nowrap;
         }
 
-        .data {
+        .subject-summary__data {
             padding-top: 1px;
             padding-right: 1px;
             padding-left: 1px;
@@ -47,7 +47,7 @@
             white-space: nowrap;
         }
 
-        .effort {
+        .report-card__effort {
             padding-top: 1px;
             padding-right: 1px;
             padding-left: 1px;
@@ -71,7 +71,7 @@
             text-align: center;
         }
 
-        .grade {
+        .report-card__grade {
             padding-top: 1px;
             padding-right: 1px;
             padding-left: 1px;
@@ -95,7 +95,7 @@
             text-align: center;
         }
 
-        .label {
+        .subject-summary__label {
             padding-top: 1px;
             padding-right: 1px;
             padding-left: 1px;
@@ -119,7 +119,7 @@
             white-space: nowrap;
         }
 
-        .quarter {
+        .term-summary__quarter {
             padding-top: 1px;
             padding-right: 1px;
             padding-left: 1px;
@@ -151,48 +151,48 @@
 
     <table border="0" cellpadding="0" cellspacing="0" width="361"
            style="border-collapse: collapse;table-layout:fixed;width:271pt">
-        <col class="blank" width="15" style="mso-width-source:userset;mso-width-alt: 548;width:20pt">
+        <col class="report-card__blank" width="15" style="mso-width-source:userset;mso-width-alt: 548;width:20pt">
         <col width="150" style="mso-width-source:userset;mso-width-alt:4937;width:200pt">
-        <col class="blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
-        <col class="blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
-        <col class="blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
-        <col class="blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
-        <col class="blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
-        <col class="blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
-        <col class="blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
-        <col class="blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
-        <col class="blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
-        <col class="blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
-        <col class="blank" width="15" style="mso-width-source:userset;mso-width-alt: 548;width:300pt">
+        <col class="report-card__blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
+        <col class="report-card__blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
+        <col class="report-card__blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
+        <col class="report-card__blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
+        <col class="report-card__blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
+        <col class="report-card__blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
+        <col class="report-card__blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
+        <col class="report-card__blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
+        <col class="report-card__blank" width="30" style="mso-width-source:userset;mso-width-alt: 1097;width:23pt">
+        <col class="report-card__blank" width="20" style="mso-width-source:userset;mso-width-alt: 548;width:23pt">
+        <col class="report-card__blank" width="15" style="mso-width-source:userset;mso-width-alt: 548;width:300pt">
         <tr style="height:15.0pt">
-            <td colspan=1 rowspan=2 height=40 class=label width=135
+            <td colspan=1 rowspan=2 height=40 class=subject-summary__label width=135
                 style="border-bottom:1pt solid black; height:30.0pt;width:101pt">
             </td>
-            <td colspan=1 rowspan=2 height=40 class=label width=135
+            <td colspan=1 rowspan=2 height=40 class=subject-summary__label width=135
                 style="border-bottom:1pt solid black; height:30.0pt;width:101pt">Name
             </td>
-            <td colspan=4 rowspan=1 class=label width=181 style="border-left:none;width:136pt">Semester</td>
-            <td colspan=2 rowspan=2 class=label width=45
+            <td colspan=4 rowspan=1 class=subject-summary__label width=181 style="border-left:none;width:136pt">Semester</td>
+            <td colspan=2 rowspan=2 class=subject-summary__label width=45
                 style="border-right:1pt solid black; border-bottom:1pt solid black;width:34pt">Final<br>Ave.
             </td>
-            <td colspan=5 rowspan=2 class=label width=45
+            <td colspan=5 rowspan=2 class=subject-summary__label width=45
                 style="border-right:1pt solid black; border-bottom:1pt solid black;width:34pt">Comments / Remarks /
                 Changes
             </td>
         </tr>
         <tr style="height:15.0pt">
-            <td colspan="2" class="quarter" style="border-right:1pt solid black;">1</td>
-            <td colspan="2" class="quarter" style="border-right:1pt solid black;">2</td>
+            <td colspan="2" class="term-summary__quarter" style="border-right:1pt solid black;">1</td>
+            <td colspan="2" class="term-summary__quarter" style="border-right:1pt solid black;">2</td>
         </tr>
         @foreach($students as $student)
             @php($ctr = $loop->index + 1)
             <tr style="height:15.0pt">
-                <td colspan="1" class="data" style="text-align: center">{{ $ctr }}</td>
-                <td colspan="1" class="data"
+                <td colspan="1" class="subject-summary__data" style="text-align: center">{{ $ctr }}</td>
+                <td colspan="1" class="subject-summary__data"
                     style="border-right: 1pt solid black">{{ $student->lastname . ', ' . $student->firstname }}</td>
                 @for($quarter = 1; $quarter <= 3; $quarter++)
                     @php($final = isset($grade[$student->student_id][$quarter]['final'])?$grade[$student->student_id][$quarter]['final']:'')
-                    @php($effort = isset($grade[$student->student_id][$quarter]['effort'])?$grade[$student->student_id][$quarter]['effort']:'')
+                    @php($effort = isset($grade[$student->student_id][$quarter]['report-card__effort'])?$grade[$student->student_id][$quarter]['report-card__effort']:'')
                     @php($color='')
                     @if($final>0)
                         @if($final < 60)
@@ -202,11 +202,11 @@
                         @endif
                     @endif
                     <td colspan=1 style="{!! $color !!}"
-                        class=grade>{{ $grade[$student->student_id][$quarter]['final'] ?? '' }}</td>
+                        class=report-card__grade>{{ $grade[$student->student_id][$quarter]['final'] ?? '' }}</td>
                     <td colspan=1 style="{!! $color !!}"
-                        class=effort>{{ $grade[$student->student_id][$quarter]['effort'] ?? '' }}</td>
+                        class=report-card__effort>{{ $grade[$student->student_id][$quarter]['report-card__effort'] ?? '' }}</td>
                 @endfor
-                <td colspan=5 class="blank" style='border:1pt solid black;'>
+                <td colspan=5 class="report-card__blank" style='border:1pt solid black;'>
                     &nbsp;
                 </td>
             </tr>
