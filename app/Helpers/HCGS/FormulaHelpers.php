@@ -1,14 +1,8 @@
 <?php
 
-namespace App\Helpers\Formulas;
+namespace App\Helpers\HCGS;
 
-/**
- * Grade computation helpers: per-subject final averages, general average,
- * effort ratings, and deportment averages.
- *
- * Moved from App\Formula to App\Helpers\Formulas.
- */
-class HCGS
+class FormulaHelpers
 {
     /** Passing threshold used for subject and general-average remarks. */
     private const PASSING_GRADE = 60;

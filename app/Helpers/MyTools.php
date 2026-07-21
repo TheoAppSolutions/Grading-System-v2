@@ -105,45 +105,45 @@ class MyTools
         return trim(preg_replace('/[^A-Za-z0-9\-]/', '', $string) ?? '');
     }
 
-public static function fetchGit(bool $forceFetch = false): bool
-{
-    $cacheKey = 'git.update_available';
+    public static function fetchGit(bool $forceFetch = false): bool
+    {
+        $cacheKey = 'git.update_available';
 
-    // Non-login pages: just return whatever was last computed, no git calls at all
-    if (! $forceFetch) {
-        return Cache::get($cacheKey, false);
-    }
-
-    try {
-        $repoPath = base_path();
-
-        $branch = trim(
-            Process::path($repoPath)->run('git rev-parse --abbrev-ref HEAD')->output()
-        );
-
-        if ($branch === '' || $branch === 'HEAD') {
-            // detached HEAD or not a git repo, just fall back to cache
+        // Non-login pages: just return whatever was last computed, no git calls at all
+        if (! $forceFetch) {
             return Cache::get($cacheKey, false);
         }
 
-        // The only actual network call in this whole method
-        Process::path($repoPath)
-            ->timeout(10)
-            ->run('git fetch origin ' . escapeshellarg($branch));
+        try {
+            $repoPath = base_path();
 
-        $localHash  = trim(Process::path($repoPath)->run('git rev-parse HEAD')->output());
-        $remoteHash = trim(Process::path($repoPath)->run('git rev-parse origin/' . escapeshellarg($branch))->output());
+            $branch = trim(
+                Process::path($repoPath)->run('git rev-parse --abbrev-ref HEAD')->output()
+            );
 
-        $hasUpdate = $localHash !== '' && $remoteHash !== '' && $localHash !== $remoteHash;
+            if ($branch === '' || $branch === 'HEAD') {
+                // detached HEAD or not a git repo, just fall back to cache
+                return Cache::get($cacheKey, false);
+            }
 
-        // Cache it so the next N pages don't trigger fetchGit() with forceFetch again
-        Cache::put($cacheKey, $hasUpdate, now()->addMinutes(15));
+            // The only actual network call in this whole method
+            Process::path($repoPath)
+                ->timeout(10)
+                ->run('git fetch origin ' . escapeshellarg($branch));
 
-        return $hasUpdate;
-    } catch (\Throwable $e) {
-        report($e);
+            $localHash  = trim(Process::path($repoPath)->run('git rev-parse HEAD')->output());
+            $remoteHash = trim(Process::path($repoPath)->run('git rev-parse origin/' . escapeshellarg($branch))->output());
 
-        return Cache::get($cacheKey, false);
+            $hasUpdate = $localHash !== '' && $remoteHash !== '' && $localHash !== $remoteHash;
+
+            // Cache it so the next N pages don't trigger fetchGit() with forceFetch again
+            Cache::put($cacheKey, $hasUpdate, now()->addMinutes(15));
+
+            return $hasUpdate;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return Cache::get($cacheKey, false);
+        }
     }
-}
 }

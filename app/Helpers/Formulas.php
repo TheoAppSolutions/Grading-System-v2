@@ -2,7 +2,8 @@
 
 namespace App\Helpers;
 
-use App\Helpers\Formulas\HCGS as Formula;
+// use App\Helpers\BIS\FormulaHelpers as Formula;
+use App\Helpers\HCGS\FormulaHelpers as Formula;
 
 class Formulas extends Formula
 {

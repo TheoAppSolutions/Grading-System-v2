@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Helpers\Formulas;
+namespace App\Helpers\BIS;
 
 use App\Models\SubjectUnit;
 
-class BIS
+class FormulaHelpers
 {
     // ─── Constants ────────────────────────────────────────────────────────────
     private const FINAL_INDEX         = 5;
