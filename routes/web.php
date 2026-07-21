@@ -22,6 +22,6 @@ Route::prefix('report')->group(function () {
     Route::get('/quarter/{id}',    [ReportController::class, 'generateQuarter'])->name('report.quarter');
     Route::get('/midQuarter/{id}', [ReportController::class, 'generateMidQuarter'])->name('report.midQuarter');
     Route::get('/award/{id}',      [ReportController::class, 'generateAward'])->name('report.award');
-    Route::get('/tor/{id}',        [ReportController::class, 'generateTOR'])->name('report.tor');
+    Route::get('/tor/{student_id}',        [ReportController::class, 'generateTOR'])->name('report.tor');
     Route::get('/subject/{id}',    [ReportController::class, 'generateSubject'])->name('report.subject');
 });

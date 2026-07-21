@@ -6,7 +6,7 @@
 </head>
 <body>
     <div style="position: relative;">
-        <img src="{{ url('images/logo.png') }}" alt="" style="height: 100px; width: 80px; position: absolute; left: 50px;">
+        <img src="{{ url('assets/images/logo.png') }}" alt="" style="height: 100px; width: 80px; position: absolute; left: 200px;">
 
         <table class=report-card__blank style='border-collapse:collapse;table-layout:fixed;'>
             @for($i=0; $i<38; $i++)
@@ -69,7 +69,7 @@
                             <td colspan="8" class="student__details">{{ $student->gender == "M" ? "MALE" : "FEMALE" }}</td>
                             <td colspan="8" class="student__details">{{ $student->birthdate ?? '' }}</td>
                             <td colspan="16" class="student__details">{{ $student->address ?? '' }}</td>
-                            <td colspan="6" class="student__details">{{ array_key_first($schoolyears) ?? '' }}</td>
+                            <td colspan="6" class="student__details">{{ $schoolyears[0] ?? '' }}</td>
                             <td height="10" class="report-card__blank"></td>
                         </tr>
 
@@ -100,7 +100,8 @@
             </tr>
 
             @php($ctr = 1)
-            @foreach($schoolyears as $schoolyearx => $grades)
+            @foreach($records as $record)
+                @php($grades = $record['grades'])
                 @if($ctr==1)
                     {!! "<tr>" !!}
                     <td height="10" class="grades__report-card__blank"></td>
@@ -116,9 +117,9 @@
                             <td class="grades__report-card__blank"></td>
                             <td colspan="3" class="grades__label">Year Level:</td>
                             <td colspan="3" class="grades__label">
-                                {{ $grades['gradelevel'] ?? '' }}</td>
+                                {{ $record['gradeLevel'] ?? '' }}</td>
                             <td colspan="3" class="grades__label">School Year:</td>
-                            <td colspan="3" class="grades__label">{{ $schoolyearx }}
+                            <td colspan="3" class="grades__label">{{ $record['schoolYear'] }}
                             </td>
                         </tr>
                         <tr>
@@ -135,21 +136,21 @@
                             <td height="10" class="grades__report-card__blank"></td>
                         </tr>
 
-                        @foreach($subjects[$grades['gradelevel']] as $subject)
+                        @foreach($record['subjects'] as $subjectTitle => $subject)
                             @if(isset($grades[$subject->subjectname][1]["final"]) or isset($grades[$subject->subjectname][2]["final"]) or isset($grades[$subject->subjectname][3]["final"]) or isset($grades[$subject->subjectname][4]["final"]))
                                 <tr>
                                     <td height="10" class="grades__report-card__blank"></td>
-                                    <td colspan="4" class="grades__subject" style="white-space: normal;">{{ $subject->subjectname }}</td>
+                                    <td colspan="4" class="grades__subject" style="white-space: normal;">{{ $subject->subject_title }}</td>
                                     @if(isset($grades[$subject->subjectname][1]["final"]) and $grades[$subject->subjectname][1]["final"] > 0 and isset($grades[$subject->subjectname][2]["final"]) and $grades[$subject->subjectname][2]["final"] > 0)
                                         <td colspan="3"
-                                            class="grades__final">{{ average($grades[$subject->subjectname][1]["final"], $grades[$subject->subjectname][2]["final"]) }}</td>
+                                            class="grades__final">{{ \App\Helpers\Formulas::average($grades[$subject->subjectname][1]["final"], $grades[$subject->subjectname][2]["final"]) ?? '' }}</td>
                                     @else
                                         <td colspan="3" class="grades__final"></td>
                                     @endif
 
                                     @if(isset($grades[$subject->subjectname][3]["final"]) and $grades[$subject->subjectname][3]["final"] > 0 and isset($grades[$subject->subjectname][4]["final"]) and $grades[$subject->subjectname][4]["final"] > 0)
                                         <td colspan="3"
-                                            class="grades__final">{{ average($grades[$subject->subjectname][3]["final"], $grades[$subject->subjectname][4]["final"]) }}</td>
+                                            class="grades__final">{{ \App\Helpers\Formulas::average($grades[$subject->subjectname][3]["final"], $grades[$subject->subjectname][4]["final"]) ?? '' }}</td>
                                     @else
                                         <td colspan="3" class="grades__final"></td>
                                     @endif
@@ -158,7 +159,7 @@
                                         class="grades__final">{{ $grades[$subject->subjectname][5]["final"] ?? "" }}</td>
                                     <td colspan="3" class="grades__final">
                                         @isset($grades[$subject->subjectname][5]["final"])
-                                            {{ letterGrade($grades[$subject->subjectname][5]["final"])['letter'] }}
+                                            {{ \App\Helpers\Formulas::getFinalLetterGrade("A") }} {{--$grades[$subject->subjectname][5]["final"])['letter']--}}
                                         @endisset
                                     </td>
                                     <td colspan="2"
@@ -219,7 +220,7 @@
                     </tr>
                     @php($ctr = 0)
                 @endif
-                @if(count($schoolyears) <= 1)
+                @if(count($records) <= 1)
                     <td colspan="18" style="vertical-align: top;"></td>
                 @endif
                 @php($ctr += 1)
