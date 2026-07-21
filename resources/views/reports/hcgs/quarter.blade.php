@@ -19,29 +19,45 @@
 
 @section('content')
     <?php
-        $subjectRows = [
-            ['title' => 'Agriculture', 'key' => 'AGRICULTURE'],
-            ['title' => 'The Arts', 'key' => 'ARTS'],
-            ['title' => 'Business Studies', 'key' => 'BUSINESS STUDIES'],
-            ['title' => 'Civics/Geography', 'key' => 'CIVICS'],
-            ['title' => 'CRE', 'key' => 'CRE'],
-            ['title' => 'English', 'key' => 'ENGLISH'],
-            ['title' => 'Personal Development (Health)', 'key' => 'HEALTH'],
-            ['title' => 'History', 'key' => 'HISTORY'],
-            ['title' => 'ICT/Practical Skills', 'key' => 'ICT/PRACTICAL SKILLS'],
-            ['title' => 'Making A Living/Home Economics', 'key' => 'LIVING/HOME ECONOMICS'],
-            ['title' => 'Mathematics', 'key' => 'MATHEMATICS'],
-            ['title' => 'Physical Education', 'key' => 'P.E.'],
-            ['title' => 'Science', 'key' => 'SCIENCE'],
-            ['title' => 'Social Science', 'key' => 'SOCIAL SCIENCE'],
-            ['title' => 'Elective (Music Private Lessons)', 'key' => 'MUSIC'],
-        ];
+        if($gradeLevel->id >= 1 && $gradeLevel->id <= 6 || $gradeLevel->id >= 11 && $gradeLevel->id <= 12):
+            $subjectRows = [
+                ['title' => 'CRE', 'key' => 'CRE'],
+                ['title' => 'English', 'key' => 'ENGLISH'],
+                ['title' => 'HASS', 'key' => 'HASS'],
+                ['title' => 'Health', 'key' => 'HEALTH'],
+                ['title' => 'ICT/Practical Skills', 'key' => 'ICT/PRACTICAL SKILLS'],
+                ['title' => 'Making A Living', 'key' => 'LIVING/HOME ECONOMICS'],
+                ['title' => 'Mathematics', 'key' => 'MATHEMATICS'],
+                ['title' => 'P.E.', 'key' => 'P.E.'],
+                ['title' => 'Science', 'key' => 'SCIENCE'],
+                ['title' => 'The Arts', 'key' => 'ARTS'],
+                ['title' => 'Elective (Music Private Lessons)', 'key' => 'MUSIC'],
+            ];
+        elseif($gradeLevel->id >= 7 && $gradeLevel->id <= 10):
+            $subjectRows = [
+                ['title' => 'Agriculture', 'key' => 'AGRICULTURE'],
+                ['title' => 'The Arts', 'key' => 'ARTS'],
+                ['title' => 'Business Studies', 'key' => 'BUSINESS STUDIES'],
+                ['title' => 'Civics/Geography', 'key' => 'CIVICS'],
+                ['title' => 'CRE', 'key' => 'CRE'],
+                ['title' => 'English', 'key' => 'ENGLISH'],
+                ['title' => 'Personal Development (Health)', 'key' => 'HEALTH'],
+                ['title' => 'History', 'key' => 'HISTORY'],
+                ['title' => 'ICT/Practical Skills', 'key' => 'ICT/PRACTICAL SKILLS'],
+                ['title' => 'Making A Living/Home Economics', 'key' => 'LIVING/HOME ECONOMICS'],
+                ['title' => 'Mathematics', 'key' => 'MATHEMATICS'],
+                ['title' => 'P.E.', 'key' => 'P.E.'],
+                ['title' => 'Science', 'key' => 'SCIENCE'],
+                ['title' => 'Social Science', 'key' => 'SOCIAL SCIENCE'],
+                ['title' => 'Elective (Music Private Lessons)', 'key' => 'MUSIC'],
+            ];
+        endif;
     ?>
 
     @foreach ($subjectRows as $row)
         @include('reports.templates.parts.subject_row', [
             'title' => $row['title'],
-            'subject' => $subjects[$row['key']] ?? '',
+            'subject' => $subjects[$row['key']] ?? 'NA',
             'grades' => $grades,
         ])
     @endforeach

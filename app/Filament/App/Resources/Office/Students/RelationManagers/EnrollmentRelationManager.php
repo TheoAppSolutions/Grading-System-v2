@@ -48,6 +48,7 @@ class EnrollmentRelationManager extends RelationManager
                     ->icon(Heroicon::OutlinedDocumentText)
                     ->size(Size::ExtraSmall)
                     ->outlined(true)
+                    ->openUrlInNewTab()
             ])
             ->headerActions([
                 Action::make('tor')
@@ -56,7 +57,9 @@ class EnrollmentRelationManager extends RelationManager
                     ->color(Color::Amber)
                     ->icon(Heroicon::OutlinedDocumentText)
                     ->size(Size::ExtraSmall)
+                    ->url(fn() => route('report.tor', [$this->ownerRecord->id]))
                     ->outlined(true)
+                    ->openUrlInNewTab()
             ]);
     }
 }

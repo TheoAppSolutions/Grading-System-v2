@@ -66,7 +66,7 @@
 
             <td class=report-card__blank></td>
             <td colspan=7 class=report-card__student-label>Year Level:</td>
-            <td colspan=4 class=report-card__student-info>{{ $gradeLevel ?? '' }}</td>
+            <td colspan=4 class=report-card__student-info>{{ $gradeLevel->label ?? '' }}</td>
         </tr>
 
         @include('reports.templates.parts.blank_row')

@@ -38,6 +38,9 @@
                         <tr>
                             <td height="10" class="report-card__blank"></td>
                         </tr>
+                        <tr>
+                            <td height="10" class="report-card__blank"></td>
+                        </tr>
 
                         <tr>
                             <td height="10" class="report-card__blank"></td>
