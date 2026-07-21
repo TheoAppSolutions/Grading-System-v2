@@ -2,6 +2,7 @@
 
 namespace App\Models\Config;
 
+use App\Helpers\MyTools;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Sushi\Sushi;
@@ -27,18 +28,6 @@ class GradeLevel extends Model
     {
         $rows = $this->rows;
 
-        if (config('app.name') === 'HCGS') {
-            $rows = array_merge($rows, [
-                ['id' => 11, 'sort_order' => 1, 'label' => 'Kindy', 'category' => 'pre-primary'],
-                ['id' => 12, 'sort_order' => 2, 'label' => 'Prep', 'category' => 'pre-primary'],
-            ]);
-        } elseif (config('app.name') === 'BIS') {
-            $rows = array_merge($rows, [
-                ['id' => 11, 'sort_order' => 13, 'label' => '11th Grade', 'category' => 'shs'],
-                ['id' => 12, 'sort_order' => 14, 'label' => '12th Grade', 'category' => 'shs'],
-            ]);
-        }
-
-        return $rows;
+        return MyTools::handleExtraGrades($rows);
     }
 }

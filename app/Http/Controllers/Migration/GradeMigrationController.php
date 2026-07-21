@@ -87,14 +87,13 @@ class GradeMigrationController extends BaseMigrationController
         $this->buildSchoolYearMap();
 
         $gradeLevelId = $this->resolveGradeLevel($num);
-        if (config('app.name') === 'HCGS') {
-            if ($num === 11) {
-                $num = 'kindy';
-            } elseif ($num === 12) {
-                $num = 'prep';
-            }
-        }
-// RE CHECK GRADES MIGRATION ON BIS
+
+        $num = match ($num) {
+            11 => config('system-features.extended_grade.11'),
+            12 => config('system-features.extended_grade.12'),
+            default => $num
+        };
+
         $oldTable = "grades_{$num}";
 
         $stats = $this->runMigration(

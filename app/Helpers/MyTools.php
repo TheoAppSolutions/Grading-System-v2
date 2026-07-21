@@ -2,13 +2,16 @@
 
 namespace App\Helpers;
 
+// use App\Helpers\BIS\HelperTools as Helpers;
+use App\Helpers\HCGS\HelperTools as Helpers;
+
 use App\Models;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Process;
 
-class MyTools
+class MyTools extends Helpers
 {
     public static function systemLogo(): string
     {
