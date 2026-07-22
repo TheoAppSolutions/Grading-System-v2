@@ -43,36 +43,8 @@ class ReportController extends Controller
             $schoolYear
         );
 
-        // --- Comments: scoped to this enrollment's student + school_year ---
-        $commentRecords = Comment::where('student_id', $record->student_id)
-            ->where('school_year_id', $record->school_year_id)
-            ->with('criteria')
-            ->get();
-
-        $comments = [];
-        foreach ($commentRecords as $comment) {
-            $comments[$comment->criteria_id] = [
-                'criteria' => $comment->criteria,
-                'score' => $comment->score,
-            ];
-        }
-
-        // --- Attendance: scoped to this enrollment's student + school_year ---
-        $attendanceRecord = Attendance::where('student_id', $record->student_id)
-            ->where('school_year_id', $record->school_year_id)
-            ->first();
-
-        $attendance = [];
-        if ($attendanceRecord && $attendanceRecord->attendance) {
-            $decoded = json_decode($attendanceRecord->attendance, true);
-
-            foreach ($decoded as $key => $att) {
-                $attendance[$key] = [
-                    'absent' => $att['A'] ?? 0,
-                    'tardy' => $att['T'] ?? 0,
-                ];
-            }
-        }
+        $comments = Formulas::getComments($record->student_id, $record->school_year_id);
+        $attendance = Formulas::getAttendance($record->student_id, $record->school_year_id);
 
         $data = [
             'grades' => $records['grades'],
@@ -86,7 +58,7 @@ class ReportController extends Controller
             'attendance' => $attendance,
         ];
 
-        dd($data);
+        // dd($data);
         if (config('app.env') == 'local') {
             return view('reports.'.config('app.name').'.quarter', $data);
         }

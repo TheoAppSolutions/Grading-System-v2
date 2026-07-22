@@ -47,9 +47,7 @@
             <td colspan=62 class=report-card__header>PROGRESS REPORT</td>
         </tr>
         <tr style="height: 17pt;">
-            <td colspan=62 class=report-card__school-year>School Year
-                {{ $records['school_years']['subject-summary__label'] ?? '' }}
-            </td>
+            <td colspan=62 class=report-card__school-year>School Year {{ $schoolYear }}</td>
         </tr>
 
         @include('reports.templates.parts.blank_row')

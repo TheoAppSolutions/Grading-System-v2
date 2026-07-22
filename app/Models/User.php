@@ -79,7 +79,7 @@ class User extends Authenticatable implements FilamentUser
     // Helpers
     public function getFullNameAttribute(): string
     {
-        return trim("{$this->title} {$this->firstname} {$this->middlename} {$this->lastname} {$this->suffix}");
+        return trim("{$this->honorifics} {$this->first_name} {$this->middle_name} {$this->last_name} {$this->suffix}");
     }
 
     public function isActive(): bool
