@@ -6,6 +6,9 @@ namespace App\Helpers;
 use App\Helpers\HCGS\FormulaHelpers as Formula;
 use App\Models\Grade;
 use App\Models\Subject;
+use App\Models\Comment;
+use App\Models\Attendance;
+use App\Models\SchoolYearInfo;
 
 class Formulas extends Formula
 {
@@ -126,5 +129,66 @@ class Formulas extends Formula
             $grade >= 60 => 'D-',
             default      => 'F',
         };
+    }
+
+    /**
+     * Get comments keyed by criteria_id for a student/school year.
+     */
+    public static function getComments(int $studentId, int $schoolYearId): array
+    {
+        $commentRecords = Comment::where('student_id', $studentId)
+            ->where('school_year_id', $schoolYearId)
+            ->with('criteria')
+            ->get();
+
+        $comments = [];
+        foreach ($commentRecords as $comment) {
+            $comments[$comment->criteria_id] = [
+                'criteria' => $comment->criteria,
+                'score' => $comment->score,
+            ];
+        }
+
+        return $comments;
+    }
+
+    /**
+     * Get decoded attendance (absent/tardy) for a student/school year.
+     */
+    public static function getAttendance(int $studentId, int $schoolYearId): array
+    {
+        $attendanceRecord = Attendance::where('student_id', $studentId)
+            ->where('school_year_id', $schoolYearId)
+            ->first();
+
+        $attendance = [];
+        $calendarDays = SchoolYearInfo::where('school_year_id', $schoolYearId)->pluck('days', 'coverage')->toArray();
+
+        if ($attendanceRecord && $attendanceRecord->attendance) {
+            $decoded = json_decode($attendanceRecord->attendance, true);
+
+            foreach ($decoded as $key => $att) {
+                $attendance[$key] = [
+                    'absent' => $att['A'] ?? 0,
+                    'tardy' => $att['T'] ?? 0,
+                    'present' => $calendarDays[$key] - $att['A'],
+                    'schooldays' => $calendarDays[$key],
+                ];
+            }
+        }
+
+        return $attendance;
+    }
+
+
+    public static function getHomeroomAdvisor(int $schoolYearId, int $gradeLevelId)
+    {
+        $advisors = Homeroom::with('user')
+            ->where('school_year_id', $schoolYearId)
+            ->where('grade_level_id', $gradeLevelId)
+            ->first()
+            ->pluck('user.full_name');
+
+        return $advisors;
     }
 }
