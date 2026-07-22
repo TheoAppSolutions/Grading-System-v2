@@ -6,15 +6,16 @@ use App\Helpers\Formulas;
 use App\Models\Attendance;
 use App\Models\Comment;
 use App\Models\Enrollment;
-use App\Models\SchoolYear;
 use Barryvdh\Snappy\Facades\SnappyPdf;
 
 class ReportController extends Controller
 {
-    public function generateQuarter($id)
+    public function generateQuarter($school_year_id, $student_id)
     {
-        // Load enrollment with all needed relationships up front
-        $record = Enrollment::with(['gradeLevel', 'schoolYear', 'student'])->findOrFail($id);
+        $record = Enrollment::with(['gradeLevel', 'schoolYear', 'student'])
+            ->where('student_id', $student_id)
+            ->where('school_year_id', $school_year_id)
+            ->first();
 
         $type = 'semestral';
         $quarter = 2;
@@ -85,22 +86,23 @@ class ReportController extends Controller
             'attendance' => $attendance,
         ];
 
-        // dd($data);
-        return view('reports.'.config('app.name').'.quarter', $data);
+        dd($data);
+        if (config('app.env') == 'local') {
+            return view('reports.'.config('app.name').'.quarter', $data);
+        }
+
         $viewName = 'reports.'.config('app.name').'.templates.upper_school';
         $pdf = SnappyPdf::loadView($viewName, $data)
             ->setOption('page-size', 'A4')
             ->setOption('orientation', 'Portrait');
 
-        return $pdf->inline("Report-{$id}.pdf");
+        return $pdf->inline("Report-{$student_id}.pdf");
     }
 
     public function generateTOR($student_id)
     {
         $type = 'semestral';
         $quarter = 2;
-
-        $schoolYears = SchoolYear::all()->pluck('label')->toArray();
 
         $enrollments = Enrollment::where('student_id', $student_id)
             ->with(['gradeLevel', 'schoolYear'])
@@ -113,6 +115,7 @@ class ReportController extends Controller
 
         foreach ($enrollments as $enrollment) {
             $schoolYearLabel = $enrollment->schoolYear->label;
+            $schoolYears[] = $schoolYearLabel;
             $schoolYear = (int) explode('-', $schoolYearLabel)[0];
             $gradeLevel = $enrollment->gradeLevel->label;
             $subjects = $enrollment->matchedSubjects()->with('subjectCategory')->get();
@@ -146,7 +149,10 @@ class ReportController extends Controller
         ];
 
         // dd($data);
-        // return view("reports." . config('app.name') . ".tor", $data);
+        if (config('app.env') == 'local') {
+            return view("reports." . config('app.name') . ".tor", $data);
+        }
+
         $viewName = 'reports.'.config('app.name').'.tor';
         $pdf = SnappyPdf::loadView($viewName, $data)
             ->setOption('page-size', 'A4')
@@ -155,9 +161,9 @@ class ReportController extends Controller
         return $pdf->inline("Report-{$student_id}.pdf");
     }
 
-    public function generateAward($id) {}
+    public function generateAward($school_year_id, $student_id) {}
 
-    public function generateMidQuarter($id) {}
+    public function generateMidQuarter($school_year_id, $student_id) {}
 
-    public function generateSubject($id) {}
+    public function generateSubject($school_year_id, $student_id) {}
 }

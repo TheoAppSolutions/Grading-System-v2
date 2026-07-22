@@ -31,7 +31,7 @@ class MigrationHelpers
                 'ENG' => 'ENGLPR',
                 'CRE' => 'CREPR', // CREPR
                 'ARTS' => 'ARTSPR',
-                'PE' => 'PE',
+                'PE' => 'PEPR',
                 default => $old_id,
             },
             default => $old_id,
@@ -41,7 +41,7 @@ class MigrationHelpers
     public static function skipSubjectId(string $subject_id): bool
     {
         return match (config('app.name')) {
-            'HCGS' => in_array($subject_id, ['MATH3', 'MATH', 'MAT', 'SCI', 'ENG', 'CRE', 'ARTS']),
+            'HCGS' => in_array($subject_id, ['MATH3', 'MATH', 'MAT', 'SCI', 'ENG', 'CRE', 'ARTS', 'PE']),
             default => false
         };
     }

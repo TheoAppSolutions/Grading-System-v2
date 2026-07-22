@@ -94,7 +94,7 @@ class SubjectUserMigrationController extends BaseMigrationController
     {
         $now = now()->toDateTimeString();
 
-        if (! $row->user_id) {
+        if (!$row->user_id) {
             return [];
         }
 

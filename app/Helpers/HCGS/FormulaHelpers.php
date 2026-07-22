@@ -84,7 +84,7 @@ class FormulaHelpers
                 continue;
             }
 
-            if (count($subAverage['final']) !== $expectedPeriods) {
+            if (count($subAverage['final']) !== 4 && count($subAverage['final']) !== 2) {
                 continue;
             }
 
@@ -102,8 +102,7 @@ class FormulaHelpers
                 }
             }
 
-            $gradeset[$subjectCode]['remarks'] =
-                $gradeset[$subjectCode][5]['final'] >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
+            $gradeset[$subjectCode]['remarks'] = $gradeset[$subjectCode][5]['final'] >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
 
             if (!isset($gradeset[$subjectCode]['unit']) || $lastSubjectCode === $subjectCode) {
                 continue;
@@ -115,14 +114,41 @@ class FormulaHelpers
             if ($gradeset[$subjectCode]['unit'] > 0) {
                 $totalUnits += $gradeset[$subjectCode]['unit'];
                 $gradeset[$subjectCode]['unit'] = number_format($gradeset[$subjectCode]['unit'], 2);
-                $gradeset[$subjectCode]['grade_point'] = number_format(
-                    letterGrade($gradeset[$subjectCode][5]['final'])['gpa'] * $gradeset[$subjectCode]['unit'],
-                    2
-                );
+                // TODO: GRADE POINT AND LETTER GRADE
+                $gradeset[$subjectCode]['grade_point'] = number_format(($gradeset[$subjectCode][5]['final'] * $gradeset[$subjectCode]['unit']), 2);
                 $totalGpa[] = $gradeset[$subjectCode]['grade_point'];
             } else {
                 $gradeset[$subjectCode]['unit'] = 0;
             }
+        }
+
+        // Consolidate 4 quarters into 2 semester slots per subject.
+        // Slot 1 = average of Q1 & Q2; Slot 2 = average of Q3 & Q4; Q3 & Q4 are then removed.
+        foreach ($subjects as $subject) {
+            $subjectCode = data_get($subject, 'subject_code');
+
+            if (!isset($gradeset[$subjectCode])) {
+                continue;
+            }
+
+            $q1 = $gradeset[$subjectCode][1]['rawfinal'] ?? null;
+            $q2 = $gradeset[$subjectCode][2]['rawfinal'] ?? null;
+            $q3 = $gradeset[$subjectCode][3]['rawfinal'] ?? null;
+            $q4 = $gradeset[$subjectCode][4]['rawfinal'] ?? null;
+
+            if ($q1 !== null && $q2 !== null) {
+                $sem1Avg = number_format(($q1 + $q2) / 2, 2);
+                $gradeset[$subjectCode][1]['rawfinal'] = $sem1Avg;
+                $gradeset[$subjectCode][1]['final']    = $sem1Avg;
+            }
+
+            if ($q3 !== null && $q4 !== null) {
+                $sem2Avg = number_format(($q3 + $q4) / 2, 2);
+                $gradeset[$subjectCode][2]['rawfinal'] = $sem2Avg;
+                $gradeset[$subjectCode][2]['final']    = $sem2Avg;
+            }
+
+            unset($gradeset[$subjectCode][3], $gradeset[$subjectCode][4]);
         }
 
         if (isset($gradeset['finalave']) && $totalUnits > 1) {
@@ -223,10 +249,6 @@ class FormulaHelpers
         if (empty($first) || empty($second) || $first == 0 || $second == 0) {
             return '';
         }
-        return ($first + $second) / 2;
-    }
-
-    public static function getFinalLetterGrade($finalGrade) {
-        return 'A+';
+        return number_format((($first + $second) / 2), 2);
     }
 }

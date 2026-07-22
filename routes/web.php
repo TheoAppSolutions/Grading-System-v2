@@ -19,9 +19,9 @@ Route::prefix('migrate')->group(function () {
 });
 
 Route::prefix('report')->group(function () {
-    Route::get('/quarter/{id}',    [ReportController::class, 'generateQuarter'])->name('report.quarter');
-    Route::get('/midQuarter/{id}', [ReportController::class, 'generateMidQuarter'])->name('report.midQuarter');
-    Route::get('/award/{id}',      [ReportController::class, 'generateAward'])->name('report.award');
-    Route::get('/tor/{student_id}',        [ReportController::class, 'generateTOR'])->name('report.tor');
-    Route::get('/subject/{id}',    [ReportController::class, 'generateSubject'])->name('report.subject');
+    Route::get('/quarter/{school_year_id}/{student_id}',    [ReportController::class, 'generateQuarter'])->name('report.quarter');
+    Route::get('/midQuarter/{school_year_id}/{student_id}', [ReportController::class, 'generateMidQuarter'])->name('report.midQuarter');
+    Route::get('/award/{school_year_id}/{student_id}',      [ReportController::class, 'generateAward'])->name('report.award');
+    Route::get('/subject/{school_year_id}/{student_id}',    [ReportController::class, 'generateSubject'])->name('report.subject');
+    Route::get('/tor/{student_id}',                         [ReportController::class, 'generateTOR'])->name('report.tor');
 });

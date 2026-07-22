@@ -472,7 +472,7 @@ abstract class BaseMigrationController extends Controller
             'graduates'        => ['student_id', 'school_year_id'],
             'awards'           => ['student_id', 'subject_id', 'school_year_id'],
             'sections'         => ['label', 'grade_level_id', 'school_year_id'],
-            'subject_users'    => ['subject_id', 'user_id', 'school_year_id', 'section_id'],
+            'subject_users'    => ['subject_id', 'school_year_id', 'section_id'],
             'user_roles'       => ['user_id', 'role_id'],
             'homerooms'        => ['section_id', 'school_year_id', 'grade_level_id'],
             'users'            => ['old_id'],
@@ -492,6 +492,4 @@ abstract class BaseMigrationController extends Controller
 
         return [];
     }
-
-    protected function ensureSqliteFileExists(): void {}
 }

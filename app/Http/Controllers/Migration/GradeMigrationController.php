@@ -89,8 +89,8 @@ class GradeMigrationController extends BaseMigrationController
         $gradeLevelId = $this->resolveGradeLevel($num);
 
         $num = match ($num) {
-            11 => config('system-features.extended_grade.11'),
-            12 => config('system-features.extended_grade.12'),
+            11 => strtolower(config('system-features.extended_grade.11')),
+            12 => strtolower(config('system-features.extended_grade.12')),
             default => $num
         };
 

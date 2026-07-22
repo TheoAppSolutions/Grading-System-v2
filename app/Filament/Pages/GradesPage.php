@@ -174,25 +174,36 @@ class GradesPage extends Page implements HasTable
             Action::make('save')
                 ->label('Save Grades')
                 ->action(function () {
-                    foreach ($this->pendingGrades as $studentId => $fields) {
+                    $quarter = $this->quarter_entry;
+
+                    foreach ($this->pendingGrades as $studentId => $quarters) {
+                        if (! array_key_exists($quarter, $quarters)) {
+                            continue; // nothing pending for the active quarter
+                        }
+
                         Grade::updateOrCreate(
                             [
                                 'student_id' => $studentId,
                                 'subject_id' => $this->subjectId,
                                 'school_year_id' => SchoolYear::getActive()->id,
+                                'quarter' => $quarter,
                             ],
                             array_merge(
                                 [
                                     'user_id' => Auth::id(),
                                     'grade_level_id' => $this->gradeLevelId,
-                                    'quarter' => 1,
                                 ],
-                                $fields[$this->quarter_entry]
+                                $quarters[$quarter]
                             )
                         );
+
+                        unset($this->pendingGrades[$studentId][$quarter]);
+
+                        if (empty($this->pendingGrades[$studentId])) {
+                            unset($this->pendingGrades[$studentId]);
+                        }
                     }
 
-                    $this->pendingGrades = [];
                     Notification::make()->title('Grades saved')->success()->send();
                 }),
         ];

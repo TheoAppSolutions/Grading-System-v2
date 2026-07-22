@@ -29,8 +29,8 @@
     $unit        = data_get($grades, "$code.unit");
     $remarks     = data_get($grades, "$code.remarks") ?? ($na ? 'N / A' : '');
 
-    $q1Final = is_numeric($q1Final) ? number_format((float) $q1Final, 0) : $q1Final;
-    $q2Final = is_numeric($q2Final) ? number_format((float) $q2Final, 0) : $q2Final;
+    $q1Final     = is_numeric($q1Final) ? number_format((float) $q1Final, 0) : $q1Final;
+    $q2Final     = is_numeric($q2Final) ? number_format((float) $q2Final, 0) : $q2Final;
 ?>
 <tr style='height: 17pt'>
     <td colspan=12 class=report-card__subject-title width=180>{{ $title }}</td>
