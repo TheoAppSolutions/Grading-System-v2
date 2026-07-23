@@ -5,10 +5,12 @@ namespace App\Helpers;
 // use App\Helpers\BIS\FormulaHelpers as Formula;
 use App\Helpers\HCGS\FormulaHelpers as Formula;
 use App\Models\Grade;
-use App\Models\Subject;
 use App\Models\Comment;
 use App\Models\Attendance;
 use App\Models\SchoolYearInfo;
+use App\Models\User;
+use App\Models\Homeroom;
+use App\Models\UserRole;
 
 class Formulas extends Formula
 {
@@ -134,22 +136,25 @@ class Formulas extends Formula
     /**
      * Get comments keyed by criteria_id for a student/school year.
      */
-    public static function getComments(int $studentId, int $schoolYearId): array
+    public static function getComments(int $studentId, int $schoolYearId, string $type = 'quarter'): array
     {
-        $commentRecords = Comment::where('student_id', $studentId)
+        $records = Comment::where('student_id', $studentId)
             ->where('school_year_id', $schoolYearId)
-            ->with('criteria')
-            ->get();
+            ->select('comments_quarter', 'comments_midquarter')
+            ->first();
 
-        $comments = [];
-        foreach ($commentRecords as $comment) {
-            $comments[$comment->criteria_id] = [
-                'criteria' => $comment->criteria,
-                'score' => $comment->score,
-            ];
-        }
+        $quarterComments = json_decode($records->comments_quarter ?? '', true) ?? [];
+        $midQuarterComments = json_decode($records->comments_midquarter ?? '', true) ?? [];
 
-        return $comments;
+        return match ($type) {
+            'quarter' => $quarterComments,
+            'midquarter' => $midQuarterComments,
+            'both' => [
+                'comments_quarter' => $quarterComments,
+                'comments_midquarter' => $midQuarterComments,
+            ],
+            default => throw new \InvalidArgumentException("Invalid comment type: {$type}"),
+        };
     }
 
     /**
@@ -183,12 +188,22 @@ class Formulas extends Formula
 
     public static function getHomeroomAdvisor(int $schoolYearId, int $gradeLevelId)
     {
-        $advisors = Homeroom::with('user')
+        $advisors = Homeroom::with('adviser')
             ->where('school_year_id', $schoolYearId)
             ->where('grade_level_id', $gradeLevelId)
             ->first()
-            ->pluck('user.full_name');
+            ->adviser;
 
-        return $advisors;
+        return $advisors->honorifics .' ' . $advisors->name;
+    }
+
+    public static function getPrincipal(): ?string
+    {
+        $principal = UserRole::with('user')
+            ->where('role_id', 2)
+            ->first()
+            ->user;
+
+        return $principal->honorifics .' ' . $principal->name;
     }
 }
