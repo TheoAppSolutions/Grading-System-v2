@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class MigrateGraduateCommand extends Command
 {
-    protected $signature = 'migrate:Graduates
+    protected $signature = 'migrate:graduates
                             {--fresh : Reset Graduates table before migrating}';
 
     protected $description = 'Migrate Graduates from old MySQL to new SQLite';
