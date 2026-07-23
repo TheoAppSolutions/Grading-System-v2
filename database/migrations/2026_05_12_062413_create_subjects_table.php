@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
             $table->string('subject_code')->nullable()->unique();
-            $table->integer('grade_level_id');
             $table->integer('subject_category_id')->nullable();
             $table->string('subject_title');
             $table->tinyInteger('active')->default(1);
@@ -29,6 +28,7 @@ return new class extends Migration
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();
             $table->integer('school_year_id');
             $table->integer('section_id')->nullable();
+            $table->integer('grade_level_id');
             $table->string('semester')->default('');
             $table->string('category')->default('');
             $table->index('subject_id');
@@ -38,6 +38,7 @@ return new class extends Migration
         Schema::create('subject_units', function (Blueprint $table) {
             $table->id();
             $table->integer('subject_id')->nullable();
+            $table->integer('grade_level_id')->nullable();
             $table->string('school_year_id')->nullable();
             $table->index('subject_id');
             $table->float('units');
