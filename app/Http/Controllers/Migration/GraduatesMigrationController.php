@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Migration;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\MigrationTools;
+use App\Models\SchoolYear;
+use App\Models\Graduate;
+use App\Models\Enrollment;
 
 class GraduatesMigrationController extends BaseMigrationController
 {
@@ -54,26 +58,29 @@ class GraduatesMigrationController extends BaseMigrationController
     {
         $this->buildSchoolYearMap(); // from BaseMigrationController
 
-        $stats = $this->runMigration(
-            newTable:    'graduates',
-            oldTable:    'graduates',
-            orderColumn: 'entry_id',
-            mapper:      fn ($r) => $this->mapRow($r),
-            columnCount: 4, // student_id, school_year_id, created_at, updated_at
-            dedupeKey:   'entry_id'
-        );
+        // $stats = $this->runMigration(
+        //     newTable:    'graduates',
+        //     oldTable:    'graduates',
+        //     orderColumn: 'entry_id',
+        //     mapper:      fn ($r) => $this->mapRow($r),
+        //     columnCount: 4, // student_id, school_year_id, created_at, updated_at
+        //     dedupeKey:   'entry_id'
+        // );
 
-        $unfilled = DB::connection('new_db')
-            ->table('graduates')
-            ->whereNull('school_year_id')
-            ->count();
+        // $unfilled = DB::connection('new_db')
+        //     ->table('graduates')
+        //     ->whereNull('school_year_id')
+        //     ->count();
+        
+        $stats = $this->syncFromEnrollments();
 
         return response()->json([
             'status'   => empty($stats['errors']) ? 'done' : 'done_with_errors',
-            'unfilled' => $unfilled,
-            'note'     => $unfilled > 0
-                ? "{$unfilled} row(s) have unresolved school_year_id. Call GET /migrate/graduates/unfilled."
-                : 'All school_year_id values resolved successfully.',
+            // 'unfilled' => $unfilled,
+            'inserted' => $stats,
+            // 'note'     => $unfilled > 0
+            //     ? "{$unfilled} row(s) have unresolved school_year_id. Call GET /migrate/graduates/unfilled."
+            //     : 'All school_year_id values resolved successfully.',
             ...$stats,
         ]);
     }
@@ -126,5 +133,37 @@ class GraduatesMigrationController extends BaseMigrationController
             'updated_at'     => $now,
         ];
         // 4 columns — keep in sync with columnCount above
+    }
+
+    public function syncFromEnrollments(): array
+    {
+        $latestSchoolYearId = SchoolYear::orderByDesc('label')->value('id');
+        $lastGradeLevelId = MigrationTools::last_grade_level_id();
+        $pastSchoolYearIds = SchoolYear::where('id', '!=', $latestSchoolYearId)->pluck('id');
+        $existingGraduateIds = Graduate::pluck('student_id')->all();
+        $candidates = Enrollment::where('grade_level_id', $lastGradeLevelId)
+            ->whereIn('school_year_id', $pastSchoolYearIds)
+            ->whereNotIn('student_id', $existingGraduateIds)
+            ->get()
+            ->groupBy('student_id');
+
+        $inserted = 0;
+
+        foreach ($candidates as $row) {
+            $row = $row[0];
+            Graduate::create([
+                'student_id'     => $row->student_id,
+                'school_year_id' => $row->school_year_id,
+            ]);
+            $inserted++;
+        }
+
+        return [
+            'status'                => 'done',
+            'latest_school_year_id' => $latestSchoolYearId,
+            'last_grade_level_id'   => $lastGradeLevelId,
+            'candidates_found'      => $candidates->count(),
+            'inserted'              => $inserted,
+        ];
     }
 }

@@ -307,9 +307,9 @@ abstract class BaseMigrationController extends Controller
                                     'old' => $row,
                                     'new' => $mapped,
                                 ];
-                            } else {
-                                $skippedRecords[$oldTable][] = $row;
-                                $stats['skipped']++;
+                            // } else {
+                                // $skippedRecords[$oldTable][] = $row;
+                                // $stats['skipped']++;
                             }
                         } catch (Throwable $e) {
                             $stats['errors'][] = [
@@ -432,7 +432,7 @@ abstract class BaseMigrationController extends Controller
         });
 
         if ($skippedRecords) {
-            Log::channel('migrationlog')->info("Duplicate record in [{$newTable}]", [
+            Log::channel('migrationlog')->info("Skipped record in [{$newTable}]", [
                 'value' => $skippedRecords,
             ]);
         }

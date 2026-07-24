@@ -110,11 +110,15 @@ class SubjectMigrationController extends BaseMigrationController
             return [];
         }
 
+        if (MigrationTools::replaceSubjectId($row->subject_id)) {
+            $row->subject_id = MigrationTools::replaceSubjectId($row->subject_id);
+        }
+
         return [
             'subject_code' => $row->subject_id,
             'grade_level_id' => $this->resolveGradeLevel($row->gradelevel ?? null),
-            'subject_category_id' => $this->resolveSubjectCategory($row->subjecttitle ?? null),
-            'subject_title' => $row->gradelevel > 10 ? $row->subjecttitle : Str::upper($row->subjectname),
+            'subject_category_id' => $this->resolveSubjectCategory($row->subjectname ?? null),
+            'subject_title' => strtoupper($row->subjectname),
             'created_at'     => $row->created_at ?? $now,
             'updated_at'     => $row->updated_at ?? $now,
         ];

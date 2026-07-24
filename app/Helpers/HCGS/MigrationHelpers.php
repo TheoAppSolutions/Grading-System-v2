@@ -32,6 +32,9 @@ class MigrationHelpers
                 'CRE' => 'CREPR', // CREPR
                 'ARTS' => 'ARTSPR',
                 'PE' => 'PEPR',
+                'SOCSCI7' => 'SOCSCI07',
+                'SOCSCI8' => 'SOCSCI08',
+                'SOCSCI9' => 'SOCSCI09',
                 default => $old_id,
             },
             default => $old_id,
@@ -66,5 +69,10 @@ class MigrationHelpers
             ],
             default => [],
         };
+    }
+
+    public static function last_grade_level_id(): int
+    {
+        return 10; // 10th Grade
     }
 }
