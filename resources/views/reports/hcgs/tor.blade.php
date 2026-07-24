@@ -44,12 +44,12 @@
 
                         <tr>
                             <td height="10" class="report-card__blank"></td>
-                            <td colspan="8" class="student__details">{{ $student->lastname }}</td>
-                            <td colspan="8" class="student__details">{{ $student->firstname }}</td>
-                            <td colspan="7" class="student__details">{{ $student->middlename }}</td>
+                            <td colspan="8" class="student__details">{{ $student->last_name }}</td>
+                            <td colspan="8" class="student__details">{{ $student->first_name }}</td>
+                            <td colspan="7" class="student__details">{{ $student->middle_name }}</td>
                             <td colspan="3" class="student__details">{{ $student->suffix }}</td>
                             <td colspan="6" class="student__details">{{ $student->citizenship ?? '' }}</td>
-                            <td colspan="6" class="student__details">{{ $student->student_id }}</td>
+                            <td colspan="6" class="student__details">{{ $student->id }}</td>
                             <td height="10" class="report-card__blank"></td>
                         </tr>
                         <tr>
@@ -70,8 +70,8 @@
                         <tr>
                             <td height="10" class="report-card__blank"></td>
                             <td colspan="8" class="student__details">{{ $student->gender == "M" ? "MALE" : "FEMALE" }}</td>
-                            <td colspan="8" class="student__details">{{ $student->birthdate ?? '' }}</td>
-                            <td colspan="16" class="student__details">{{ $student->address ?? '' }}</td>
+                            <td colspan="8" class="student__details">{{ $student->info->birth_date ?? '' }}</td>
+                            <td colspan="16" class="student__details">{{ $student->info->address ?? '' }}</td>
                             <td colspan="6" class="student__details">{{ $schoolyears[0] ?? '' }}</td>
                             <td height="10" class="report-card__blank"></td>
                         </tr>
