@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Filament\Exports;
+
+use App\Models\SubjectUser;
+use Filament\Actions\Exports\ExportColumn;
+use Filament\Actions\Exports\Exporter;
+use Filament\Actions\Exports\Models\Export;
+use Illuminate\Support\Number;
+
+class SubjectUserExporter extends Exporter
+{
+    protected static ?string $model = SubjectUser::class;
+
+    public static function getColumns(): array
+    {
+        return [
+            ExportColumn::make('id')
+                ->label('ID'),
+            ExportColumn::make('subject.id'),
+            ExportColumn::make('user_id'),
+            ExportColumn::make('school_year_id'),
+            ExportColumn::make('section_id'),
+            ExportColumn::make('semester'),
+            ExportColumn::make('category'),
+        ];
+    }
+
+    public static function getCompletedNotificationBody(Export $export): string
+    {
+        $body = 'Your subject user export has completed and ' . Number::format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+
+        if ($failedRowsCount = $export->getFailedRowsCount()) {
+            $body .= ' ' . Number::format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';
+        }
+
+        return $body;
+    }
+}

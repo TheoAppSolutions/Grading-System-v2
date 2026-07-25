@@ -14,12 +14,12 @@ class CommentCriteria extends Model
     // Relationships
     public function midquarterScores(): HasMany
     {
-        return $this->hasMany(CommentMidquarter::class, 'criteria_id');
+        return $this->hasMany(Comment::class, 'criteria_id');
     }
 
     public function quarterScores(): HasMany
     {
-        return $this->hasMany(CommentQuarter::class, 'criteria_id');
+        return $this->hasMany(Comment::class, 'criteria_id');
     }
 
     // Helpers

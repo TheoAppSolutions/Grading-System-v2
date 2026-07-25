@@ -84,9 +84,9 @@
 
     @include('reports.templates.parts.comments_section', [
         'height' => '17pt',
-        'selectedComments' => $selectedComments ?? [],
-        'homeroomAdviser' => $homeroomAdviser ?? '',
-        'schoolPrincipal' => $schoolPrincipal ?? '',
+        'comments' => $comments ?? [],
+        'homeroom' => $homeroom ?? '',
+        'principal' => $principal ?? '',
         'eligibleFor' => $eligibleFor ?? '',
     ])
 @endsection

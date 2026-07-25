@@ -13,6 +13,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Actions\ExportBulkAction;
+use App\Filament\Exports\StudentExporter;
 
 class StudentsTable
 {
@@ -73,6 +76,12 @@ class StudentsTable
             ->defaultPaginationPageOption(25)
             ->toolbarActions([
                 BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->label('Export to Excel')
+                        ->exporter(StudentExporter::class)
+                        ->formats([
+                            ExportFormat::Xlsx,
+                        ]),
                     DeleteBulkAction::make(),
                 ]),
             ])

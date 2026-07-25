@@ -7,6 +7,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Health\Checks\Checks\DebugModeCheck;
 use Spatie\Health\Checks\Checks\EnvironmentCheck;
 use Spatie\Health\Checks\Checks\OptimizedAppCheck;
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Schema::defaultStringLength(191);
         Table::configureUsing(function (Table $table): void {
             $table
                 ->defaultPaginationPageOption(25)

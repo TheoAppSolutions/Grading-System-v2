@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class MigrateAwardCommand extends Command
 {
-    protected $signature = 'migrate:Awards
+    protected $signature = 'migrate:awards
                             {--fresh : Reset Awards table before migrating}';
 
     protected $description = 'Migrate Awards from old MySQL to new SQLite';

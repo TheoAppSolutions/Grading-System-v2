@@ -20,55 +20,28 @@ class ReportController extends Controller
         $type = 'semestral';
         $quarter = 2;
 
-        $schoolYearLabel = $record->schoolYear->label;
-        $schoolYear = (int) explode('-', $schoolYearLabel)[0];
-        $gradeLevel = $record->gradeLevel;
-        $student = $record->student;
-
-        // --- Subjects: scoped to this enrollment's school_year_id + grade_level_id ---
-        $subjects = $record->matchedSubjects()
-            ->with('subjectCategory')
-            ->with(['subjectUnit' => function ($query) use ($record) {
-                $query->where('school_year_id', $record->school_year_id);
-            }])
-            ->get();
-
-        $records = Formulas::buildGradesAndSubjects(
-            $record->student_id,
-            $record->grade_level_id,
-            $record->school_year_id,
-            $subjects,
-            $type,
-            $quarter,
-            $schoolYear
-        );
-
-        $comments = Formulas::getComments($record->student_id, $record->school_year_id);
-        $attendance = Formulas::getAttendance($record->student_id, $record->school_year_id);
+        $bucket = $this->buildEnrollmentBucket($record, $type, $quarter);
 
         $data = [
-            'grades' => $records['grades'],
-            'gradeLevel' => $gradeLevel,
-            'subjects' => $records['subjects'] ?? [],
+            'grades' => $bucket['grades'],
+            'gradeLevel' => $record->gradeLevel,
+            'subjects' => $bucket['subjects'],
             'quarter' => $quarter,
             'type' => $type,
-            'student' => $student,
-            'comments' => $comments,
-            'schoolYear' => $schoolYear,
-            'attendance' => $attendance,
+            'student' => $record->student,
+            'schoolYear' => $bucket['schoolYear'],
+            'homeroom' => $bucket['homeroom'],
+            'principal' => $bucket['principal'],
+            'comments' => Formulas::getComments($record->student_id, $record->school_year_id, 'quarter'),
+            'attendance' => Formulas::getAttendance($record->student_id, $record->school_year_id),
         ];
 
         // dd($data);
-        if (config('app.env') == 'local') {
-            return view('reports.'.config('app.name').'.quarter', $data);
-        }
-
-        $viewName = 'reports.'.config('app.name').'.templates.upper_school';
-        $pdf = SnappyPdf::loadView($viewName, $data)
-            ->setOption('page-size', 'A4')
-            ->setOption('orientation', 'Portrait');
-
-        return $pdf->inline("Report-{$student_id}.pdf");
+        return $this->renderOrGeneratePdf(
+            viewName: 'reports.'.config('app.name').'.quarter',
+            data: $data,
+            filename: "Report-{$student_id}.pdf"
+        );
     }
 
     public function generateTOR($student_id)
@@ -84,29 +57,17 @@ class ReportController extends Controller
         $student = $enrollments->first()?->student()->first();
 
         $torRecords = [];
+        $schoolYears = [];
 
         foreach ($enrollments as $enrollment) {
-            $schoolYearLabel = $enrollment->schoolYear->label;
-            $schoolYears[] = $schoolYearLabel;
-            $schoolYear = (int) explode('-', $schoolYearLabel)[0];
-            $gradeLevel = $enrollment->gradeLevel->label;
-            $subjects = $enrollment->matchedSubjects()->with('subjectCategory')->get();
-
-            $bucket = Formulas::buildGradesAndSubjects(
-                $enrollment->student_id,
-                $enrollment->grade_level_id,
-                $enrollment->school_year_id,
-                $subjects,
-                $type,
-                $quarter,
-                $schoolYear
-            );
+            $bucket = $this->buildEnrollmentBucket($enrollment, $type, $quarter);
+            $schoolYears[] = $enrollment->schoolYear->label;
 
             $torRecords[] = [
-                'gradeLevel' => $gradeLevel,
-                'schoolYear' => $schoolYear,
-                'subjects' => $bucket['subjects'] ?? [],
-                'grades' => $bucket['grades'] ?? [],
+                'gradeLevel' => $enrollment->gradeLevel->label,
+                'schoolYear' => $bucket['schoolYear'],
+                'subjects' => $bucket['subjects'],
+                'grades' => $bucket['grades'],
             ];
         }
 
@@ -120,17 +81,55 @@ class ReportController extends Controller
             'schoolyears' => $schoolYears,
         ];
 
-        // dd($data);
+        return $this->renderOrGeneratePdf(
+            viewName: 'reports.'.config('app.name').'.tor',
+            data: $data,
+            filename: "Report-{$student_id}.pdf"
+        );
+    }
+
+    /**
+     * Build the grades/subjects bucket for a single enrollment record,
+     * plus the parsed numeric school year.
+     */
+    private function buildEnrollmentBucket(Enrollment $enrollment, string $type, int $quarter): array
+    {
+        $schoolYear = $enrollment->schoolYear->label;
+        $subjects = $enrollment->matchedSubjects()->get();
+
+        $result = Formulas::buildGradesAndSubjects(
+            $enrollment->student_id,
+            $enrollment->grade_level_id,
+            $enrollment->school_year_id,
+            $subjects,
+            $type,
+            $quarter,
+            $schoolYear
+        );
+
+        return [
+            'schoolYear' => $schoolYear,
+            'subjects' => $result['subjects'] ?? [],
+            'grades' => $result['grades'] ?? [],
+            'homeroom' => Formulas::getHomeroomAdvisor($enrollment->school_year_id, $enrollment->grade_level_id),
+            'principal' => Formulas::getPrincipal(),
+        ];
+    }
+    
+    /**
+     * Either dump the raw Blade view (local env) or render the PDF via Snappy.
+     */
+    private function renderOrGeneratePdf(string $viewName, array $data, string $filename)
+    {
         if (config('app.env') == 'local') {
-            return view("reports." . config('app.name') . ".tor", $data);
+            return view($viewName, $data);
         }
 
-        $viewName = 'reports.'.config('app.name').'.tor';
         $pdf = SnappyPdf::loadView($viewName, $data)
             ->setOption('page-size', 'A4')
             ->setOption('orientation', 'Portrait');
 
-        return $pdf->inline("Report-{$student_id}.pdf");
+        return $pdf->inline($filename);
     }
 
     public function generateAward($school_year_id, $student_id) {}
