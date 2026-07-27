@@ -14,6 +14,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 class AttendancesTable
 {
@@ -41,6 +43,17 @@ class AttendancesTable
                     ->label('Name')
                     ->getStateUsing(fn ($record) => $record->student->first_name.' '.$record->student->middle_name.' '.$record->student->last_name),
 
+                TextInputColumn::make('school_days')
+                    ->label('School Days')
+                    ->type('number')
+                    ->extraInputAttributes([
+                        'readonly' => true,
+                        'wire:ignore.self'
+                    ])
+                    ->getStateUsing(
+                        fn ($record, $livewire) => $livewire->pendingChanges[$record->student_id]['school_days'] ?? 0
+                    ),
+                
                 TextInputColumn::make('absent')
                     ->label('Absent')
                     ->type('number')
@@ -50,7 +63,10 @@ class AttendancesTable
                             ?? data_get($record->attendance_data, $record->student_id.'.A', '')
                     )
                     ->updateStateUsing(
-                        fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->student_id]['absent'] = $state
+                        function ($record, $state, $livewire) {
+                            $livewire->pendingChanges[$record->student_id]['absent'] = $state;
+                            $livewire->pendingChanges[$record->student_id]['present'] = $state; // replaces $set('present', $state)
+                        }
                     ),
 
                 TextInputColumn::make('tardy')
@@ -64,6 +80,17 @@ class AttendancesTable
                     ->updateStateUsing(
                         fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->student_id]['tardy'] = $state
                     ),
+
+                TextInputColumn::make('present')
+                    ->label('Present')
+                    ->type('number')
+                    ->getStateUsing(
+                        fn ($record, $livewire) => $livewire->pendingChanges[$record->student_id]['absent']
+                            ?? data_get($record->attendance_data, $record->student_id.'.A', '')
+                    )
+                    ->updateStateUsing(
+                        fn ($record, $state, $livewire) => $livewire->pendingChanges[$record->student_id]['absent'] = $state
+                    ),
             ])
             ->filters([
                 SelectFilter::make('grade_level_id')
@@ -76,7 +103,7 @@ class AttendancesTable
                 Filter::make('attendance_entry')
                     ->schema([
                         Select::make('attendance_entry')
-                            ->label('Entry #')
+                            ->label('Semester')
                             ->searchable()
                             ->options(function () {
                                 $schoolYear = SchoolYear::getActive();
