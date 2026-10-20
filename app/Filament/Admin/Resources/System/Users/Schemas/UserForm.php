@@ -68,7 +68,19 @@ class UserForm
                                 }),
                         ])->columns(2),
                         FileUpload::make('photo')
-                            ->label('User Image'),
+                            ->label('User Image')
+                            ->image()
+                            ->imageEditor()
+                            ->imagePreviewHeight('200')
+                            ->disk('public')
+                            ->directory(fn (?User $record): string => 'photos/' . ($record?->getKey() ?? 'pending'))
+                            ->visibility('public')
+                            ->default(fn (?User $record): ?string => $record?->photo_path)
+                            ->afterStateHydrated(function (FileUpload $component, ?User $record): void {
+                                if (blank($component->getState()) && $record?->photo_path) {
+                                    $component->state($record->photo_path);
+                                }
+                            }),
                     ]),
                 Tabs::make('information')
                     ->columnSpan(2)

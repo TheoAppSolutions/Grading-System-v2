@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Office\Students\Schemas;
 
 use App\Enums\Gender;
 use App\Enums\Suffix;
+use App\Models\Student;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -49,8 +50,15 @@ class StudentForm
                             ->imageEditor()
                             ->imagePreviewHeight('200')
                             ->disk('public')
-                            ->directory('students/photos')
+                            ->directory(fn (?Student $record): string => 'photos/students/' . ($record?->getKey() ?? 'pending'))
                             ->visibility('public')
+                            ->dehydrated(false)
+                            ->default(fn (?Student $record): ?string => $record?->photo_path)
+                            ->afterStateHydrated(function (FileUpload $component, ?Student $record): void {
+                                if (blank($component->getState()) && $record?->photo_path) {
+                                    $component->state($record->photo_path);
+                                }
+                            })
                             ->columnSpan(1),
                     ]),
                 Tabs::make()
@@ -77,22 +85,26 @@ class StudentForm
                             ]),
                         Tab::make('Additional Information')
                             ->schema([
-                                DateTimePicker::make('birth_date')
-                                    ->label('Birth Date')
-                                    ->time(false),
-                                Select::make('house_team')
-                                    ->label('House Team')
-                                    ->visible(config('system-features.house_team.enabled'))
-                                    ->native(false)
-                                    ->selectablePlaceholder(true)
-                                    ->options(config('system-features.house_team.options')),
-                                TextInput::make('contact')
-                                    ->label('Contact Number'),
-                                TextInput::make('address')
-                                    ->label('Address'),
-                                TextInput::make('email_address')
-                                    ->label('Email Address')
-                                    ->email(true),
+                                Section::make()
+                                    ->relationship('info')
+                                    ->schema([
+                                        DateTimePicker::make('birth_date')
+                                            ->label('Birth Date')
+                                            ->time(false),
+                                        Select::make('house_team')
+                                            ->label('House Team')
+                                            ->visible(config('system-features.house_team.enabled'))
+                                            ->native(false)
+                                            ->selectablePlaceholder(true)
+                                            ->options(config('system-features.house_team.options')),
+                                        TextInput::make('contact')
+                                            ->label('Contact Number'),
+                                        TextInput::make('address')
+                                            ->label('Address'),
+                                        TextInput::make('email_address')
+                                            ->label('Email Address')
+                                            ->email(true),
+                                    ]),
                             ]),
                     ]),
             ]);

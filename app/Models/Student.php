@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Storage;
 use Saade\FilamentFacehash\Concerns\HasFacehashAvatar;
 
 #[Table('students')]
@@ -90,9 +92,9 @@ class Student extends Model
         return $this->hasMany(CommentQuarter::class, 'student_id', 'id');
     }
 
-    public function fileStorage(): HasMany
+    public function fileStorage(): MorphMany
     {
-        return $this->hasMany(FileStorage::class, 'owner_id', 'id');
+        return $this->morphMany(FileStorage::class, 'owner');
     }
 
     // Helpers
@@ -121,6 +123,28 @@ class Student extends Model
     public function getGradesByYear(string $schoolyear): HasMany
     {
         return $this->grades()->where('school_year_id', $schoolyear);
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->photo_url ?? $this->facehash_avatar_url;
+    }
+
+    public function getPhotoPathAttribute(): ?string
+    {
+        $paths = Storage::disk('public')->files('photos/students/' . $this->getKey());
+
+        return collect($paths)
+            ->filter(fn (string $path): bool => preg_match('/\.(jpe?g|png|gif|webp)$/i', $path) === 1)
+            ->sort()
+            ->first();
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo_path
+            ? '/storage/' . ltrim($this->photo_path, '/')
+            : null;
     }
 
     public function scopeActive($query)

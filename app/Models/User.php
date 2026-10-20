@@ -11,8 +11,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Config\Role;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -72,9 +74,31 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(Homeroom::class);
     }
 
-    public function fileStorage(): HasMany
+    public function fileStorage(): MorphMany
     {
-        return $this->hasMany(FileStorage::class, 'owner_id', 'id');
+        return $this->morphMany(FileStorage::class, 'owner');
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->photo_url ?? $this->facehash_avatar_url;
+    }
+
+    public function getPhotoPathAttribute(): ?string
+    {
+        $paths = Storage::disk('public')->files('photos/' . $this->getKey());
+
+        return collect($paths)
+            ->filter(fn (string $path): bool => preg_match('/\.(jpe?g|png|gif|webp)$/i', $path) === 1)
+            ->sort()
+            ->first();
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo_path
+            ? '/storage/' . ltrim($this->photo_path, '/')
+            : null;
     }
 
     // Helpers

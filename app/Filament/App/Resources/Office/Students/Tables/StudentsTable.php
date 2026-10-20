@@ -4,15 +4,19 @@ namespace App\Filament\App\Resources\Office\Students\Tables;
 
 use App\Enums\Gender;
 use App\Enums\Status;
+use App\Models\Student;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Actions\ExportBulkAction;
 use App\Filament\Exports\StudentExporter;
@@ -27,9 +31,33 @@ class StudentsTable
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
-                ImageColumn::make('facehash_avatar_url')
+                ImageColumn::make('photo_path')
                     ->label('Image')
-                    ->circular(),
+                    ->disk('public')
+                    ->visibility('public')
+                    ->circular()
+                    ->imageHeight('3rem')
+                    ->imageWidth('3rem')
+                    ->defaultImageUrl(fn (Student $record): string => $record->facehash_avatar_url)
+                    ->action(
+                        Action::make('view_avatar')
+                            ->label('View image')
+                            ->visible(fn (Student $record): bool => filled($record->photo_path))
+                            ->modalHeading(fn (Student $record): string => $record->full_name . ' image')
+                            ->modalWidth(Width::FitContent)
+                            ->modalContent(function (Student $record): HtmlString {
+                                $imageUrl = $record->photo_url ?? $record->facehash_avatar_url;
+
+                                return new HtmlString(
+                                    '<div style="display: flex; justify-content: center; align-items: center;">'
+                                    . '<img src="' . e($imageUrl) . '" alt="' . e($record->full_name) . '" '
+                                    . 'style="display: block; width: auto; height: auto; max-width: 90vw; max-height: 70vh; object-fit: contain;" />'
+                                    . '</div>'
+                                );
+                            })
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                    ),
                 TextColumn::make('student_lrn')
                     ->visible(config('system-features.student_lrn'))
                     ->searchable(),
