@@ -2,14 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Filament\App\Resources\Homeroom\Attendances\AttendanceResource;
 use App\Filament\Imports\AttendanceImporter;
 use App\Helpers\Formulas;
 use App\Models\Attendance;
 use App\Models\CommentCriteria;
 use App\Models\Enrollment;
+use App\Models\Homeroom;
 use App\Models\SchoolYear;
 use App\Models\SchoolYearInfo;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -17,6 +20,48 @@ use Tests\TestCase;
 class AcademicRecordsTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_attendance_navigation_requires_a_homeroom_assignment_for_the_active_school_year(): void
+    {
+        $schoolYear = SchoolYear::query()->create([
+            'label' => '2026-2027',
+            'active' => 1,
+            'attendance_entries' => 4,
+        ]);
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $this->assertFalse(AttendanceResource::shouldRegisterNavigation());
+
+        Homeroom::query()->create([
+            'school_year_id' => $schoolYear->id,
+            'grade_level_id' => 5,
+            'user_id' => $user->id,
+        ]);
+
+        $this->assertTrue(AttendanceResource::shouldRegisterNavigation());
+    }
+
+    public function test_attendance_navigation_accepts_a_co_adviser_assignment(): void
+    {
+        $schoolYear = SchoolYear::query()->create([
+            'label' => '2026-2027',
+            'active' => 1,
+            'attendance_entries' => 4,
+        ]);
+        $user = User::factory()->create();
+
+        Homeroom::query()->create([
+            'school_year_id' => $schoolYear->id,
+            'grade_level_id' => 5,
+            'user2_id' => $user->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $this->assertTrue(AttendanceResource::shouldRegisterNavigation());
+    }
 
     public function test_attendance_is_cast_and_present_is_calculated_from_school_days(): void
     {

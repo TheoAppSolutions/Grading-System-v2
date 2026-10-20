@@ -19,6 +19,6 @@ class SubjectCategory extends Model
 
     public function subjects(): HasMany
     {
-        return $this->hasMany(Subject::class, 'category_id', 'id');
+        return $this->hasMany(Subject::class, 'subject_category_id', 'id');
     }
 }

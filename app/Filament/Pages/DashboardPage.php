@@ -3,7 +3,8 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
-use Marcelodelgado\Announcements\Filament\Widgets\AnnouncementsWidget;
+use App\Filament\Widgets\ReadAnnouncementsWidget;
+use App\Filament\Widgets\ActiveAnnouncementsWidget;
 use Override;
 
 class DashboardPage extends BaseDashboard
@@ -14,7 +15,8 @@ class DashboardPage extends BaseDashboard
     public function getWidgets(): array
     {
         return [
-            AnnouncementsWidget::class
+            ActiveAnnouncementsWidget::class,
+            ReadAnnouncementsWidget::class,
         ];
     }
 }

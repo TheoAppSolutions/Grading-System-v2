@@ -1,7 +1,9 @@
 @php
-    $name = filled($user->full_name ?? null)
-        ? $user->full_name
-        : filament()->getUserName($user);
+    $name = strcasecmp((string) ($user->first_name ?? ''), 'Admin') === 0
+        ? 'Admin'
+        : (filled($user->full_name ?? null)
+            ? $user->full_name
+            : filament()->getUserName($user));
 @endphp
 
 @if (filled($name))

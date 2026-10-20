@@ -36,6 +36,8 @@ use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use Saade\FilamentFacehash\FacehashPlugin;
 use Saade\FilamentFacehash\FacehashProvider;
+use App\Filament\Plugins\AnnouncementsPlugin;
+use App\Filament\Resources\AnnouncementResource;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -94,6 +96,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->defaultAvatarProvider(FacehashProvider::class)
             ->plugins([
+                AnnouncementsPlugin::make(),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResultsPage::class),
                 FilamentSpatieLaravelBackupPlugin::make()
@@ -124,15 +127,25 @@ class AdminPanelProvider extends PanelProvider
             ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
                 $autoItems = collect(Filament::getResources())
                     ->filter(fn($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn($resource) => $resource::getNavigationItems());
+                    ->flatMap(fn($resource) => $resource::getNavigationItems())
+                    ->map(function ($item) {
+                        if ($item->getKey() === AnnouncementResource::class) {
+                            $item->group('Office Menu');
+                        }
+
+                        return $item;
+                    })
+                    ->reject(fn ($item) => $item->getGroup() === 'Office Menu');
 
                 $pageItems = collect([
                     ...Pages\DashboardPage::getNavigationItems(),
                     ...Pages\HomeroomsPage::getNavigationItems(),
-                    ...Pages\EnrollmentsPage::getNavigationItems(),
+                    ...(Pages\EnrollmentsPage::shouldRegisterNavigation()
+                        ? Pages\EnrollmentsPage::getNavigationItems()
+                        : []),
                     ...Pages\GraduatesPage::getNavigationItems(),
                     ...Pages\FileStoragePage::getNavigationItems(),
-                ]);
+                ])->reject(fn ($item) => $item->getGroup() === 'Office Menu');
 
                 $groupedPageItems = $pageItems->filter(fn($item) => $item->getGroup() !== null);
                 $ungroupedPageItems = $pageItems->reject(fn($item) => $item->getGroup() !== null);

@@ -51,7 +51,7 @@ class Subject extends Model
 
     public function subjectCategory(): BelongsTo
     {
-        return $this->belongsTo(Config\SubjectCategory::class, 'subject_title', 'label');
+        return $this->belongsTo(Config\SubjectCategory::class, 'subject_category_id', 'id');
     }
 
     // Helpers

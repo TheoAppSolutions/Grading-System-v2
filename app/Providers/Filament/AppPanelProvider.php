@@ -34,6 +34,8 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Saade\Facehash\Enums\Variant;
 use Saade\FilamentFacehash\FacehashPlugin;
 use Saade\FilamentFacehash\FacehashProvider;
+use App\Filament\Plugins\AnnouncementsPlugin;
+use App\Filament\Resources\AnnouncementResource;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -89,6 +91,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->defaultAvatarProvider(FacehashProvider::class)
             ->plugins([
+                AnnouncementsPlugin::make(),
                 FacehashPlugin::make()
                     ->size(40)                       // Avatar size in pixels (default: 40)
                     ->variant(Variant::Gradient)     // Variant::Gradient or Variant::Solid (default: Gradient)
@@ -113,12 +116,21 @@ class AppPanelProvider extends PanelProvider
                 $schoolYear = MyTools::getSchoolYear();
                 $autoItems = collect(Filament::getResources())
                     ->filter(fn ($resource) => $resource::shouldRegisterNavigation())
-                    ->flatMap(fn ($resource) => $resource::getNavigationItems());
+                    ->flatMap(fn ($resource) => $resource::getNavigationItems())
+                    ->map(function ($item) {
+                        if ($item->getKey() === AnnouncementResource::class) {
+                            $item->group('Office Menu');
+                        }
+
+                        return $item;
+                    });
 
                 $pageItems = collect([
                     ...Pages\DashboardPage::getNavigationItems(),
                     ...Pages\HomeroomsPage::getNavigationItems(),
-                    ...Pages\EnrollmentsPage::getNavigationItems(),
+                    ...(Pages\EnrollmentsPage::shouldRegisterNavigation()
+                        ? Pages\EnrollmentsPage::getNavigationItems()
+                        : []),
                     ...Pages\GraduatesPage::getNavigationItems(),
                 ]);
 
@@ -181,7 +193,7 @@ class AppPanelProvider extends PanelProvider
 
         return $subjects
             ->groupBy(function (SubjectUser $subjectUser) {
-                return $subjectUser->subject->subjectCategory->label ?? 'Test';
+                return $subjectUser->subject->subjectCategory->label ?? 'Uncategorized';
             })
             ->map(function ($groupedSubjects, string $subjectTitle) {
                 $items = $groupedSubjects

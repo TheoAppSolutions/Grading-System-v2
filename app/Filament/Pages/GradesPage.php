@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use App\Helpers\MyTools;
 use App\Filament\Imports\GradeImporter;
+use App\Helpers\MyTools;
 use App\Models\Config\CardTemplate;
 use App\Models\Grade;
 use App\Models\SchoolYear;
@@ -66,6 +66,56 @@ class GradesPage extends Page implements HasTable
     public ?int $gradeLevelId = null;
 
     public array $pendingGrades = [];
+
+    /**
+     * Keep the subject assignment check on the page itself so a user cannot
+     * bypass the subject navigation by changing sid/gid in the URL.
+     */
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        // Administrators may review any subject, including subjects that are
+        // not assigned to a teacher in the active school year.
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $subjectId = request()->integer('sid');
+        $gradeLevelId = request()->integer('gid');
+
+        // Filament calls canAccess() again while Livewire hydrates the page.
+        // The /livewire-*/update request does not carry the original page's
+        // sid/gid query parameters, so defer subject authorization to the
+        // page instance in mount() and canManageCurrentSubject().
+        if (! $subjectId && ! $gradeLevelId) {
+            return true;
+        }
+
+        $schoolYearId = SchoolYear::getActive()?->id;
+
+        if (! $subjectId || ! $gradeLevelId || ! $schoolYearId) {
+            return false;
+        }
+
+        return Subject::query()
+            ->whereKey($subjectId)
+            ->where('grade_level_id', $gradeLevelId)
+            ->whereHas('subjectUser', function ($query) use ($schoolYearId, $user): void {
+                $query
+                    ->where('school_year_id', $schoolYearId)
+                    ->where(function ($query) use ($user): void {
+                        $query
+                            ->where('user_id', $user->id)
+                            ->orWhere('user2_id', $user->id);
+                    });
+            })
+            ->exists();
+    }
 
     public function mount(): void
     {
@@ -296,6 +346,8 @@ class GradesPage extends Page implements HasTable
                 ->color('success')
                 ->icon('heroicon-o-document-check')
                 ->action(function () {
+                    abort_unless($this->canManageCurrentSubject(), 403);
+
                     foreach ($this->pendingGrades as $studentId => $quarters) {
                         foreach ($quarters as $quarter => $values) {
                             Grade::updateOrCreate(
@@ -321,6 +373,39 @@ class GradesPage extends Page implements HasTable
                 })
                 ->visible(fn (): bool => SchoolYear::getActive() !== null && $this->subjectId !== null),
         ];
+    }
+
+    private function canManageCurrentSubject(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $schoolYearId = SchoolYear::getActive()?->id;
+
+        if (! $this->subjectId || ! $this->gradeLevelId || ! $schoolYearId) {
+            return false;
+        }
+
+        return Subject::query()
+            ->whereKey($this->subjectId)
+            ->where('grade_level_id', $this->gradeLevelId)
+            ->whereHas('subjectUser', function ($query) use ($schoolYearId, $user): void {
+                $query
+                    ->where('school_year_id', $schoolYearId)
+                    ->where(function ($query) use ($user): void {
+                        $query
+                            ->where('user_id', $user->id)
+                            ->orWhere('user2_id', $user->id);
+                    });
+            })
+            ->exists();
     }
 
     #[Override]

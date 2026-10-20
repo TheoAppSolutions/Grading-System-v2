@@ -53,7 +53,7 @@ class EnrollmentsPage extends Page implements HasTable
     {
         $schoolYear = MyTools::getSchoolYear();
 
-        if ($schoolYear && Auth::user()->isOffice()) {
+        if ($schoolYear && static::isEligibleUser()) {
             return true;
         }
 
@@ -62,7 +62,17 @@ class EnrollmentsPage extends Page implements HasTable
 
     public static function canAccess(): bool
     {
-        return Auth::check() && Auth::user()->isOffice();
+        return static::isEligibleUser();
+    }
+
+    /**
+     * Filament uses canAccess() to guard the generated page route as well as
+     * the navigation item. Keep the role check in one place so a direct URL
+     * cannot bypass the navigation visibility rule.
+     */
+    private static function isEligibleUser(): bool
+    {
+        return Auth::check() && Auth::user()?->isOffice() === true;
     }
 
     #[Override]
