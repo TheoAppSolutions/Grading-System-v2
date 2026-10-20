@@ -11,9 +11,15 @@ use App\Models\Student;
 use App\Models\Subject;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Actions\Imports\ImportAction;
+use Filament\Actions\ImportAction;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -24,11 +30,17 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
+use League\Csv\Bom;
+use League\Csv\Writer;
 use Override;
+use SplTempFileObject;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
 class GradesPage extends Page implements HasTable
 {
+    use InteractsWithForms;
     use InteractsWithTable;
 
     protected static ?string $model = Grade::class;
@@ -73,14 +85,65 @@ class GradesPage extends Page implements HasTable
 
     public function updatedQuarterEntry(): void
     {
-        $this->pendingGrades = [];
+        // Keep edits for the other quarters in Livewire state while the table
+        // is rebuilt for the newly selected quarter.
         $this->resetTable();
     }
 
     public function updatedQuarterType(): void
     {
-        $this->pendingGrades = [];
+        // Midquarter and quarter edits can both be pending for the same
+        // student/quarter, so changing the displayed type must not clear them.
         $this->resetTable();
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make()
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Text::make(new HtmlString(
+                                    '<div class="space-y-1 pt-1">'
+                                    .'<div class="text-lg font-semibold text-gray-950 dark:text-white">Grade period</div>'
+                                    .'<div class="text-sm text-gray-500 dark:text-gray-400">Select the quarter and grading period to display.</div>'
+                                    .'</div>'
+                                )),
+
+                                Grid::make(1)
+                                    ->schema([
+                                        ToggleButtons::make('quarter_entry')
+                                            ->label('Quarter')
+                                            ->options([
+                                                1 => '1st',
+                                                2 => '2nd',
+                                            ])
+                                            ->inline()
+                                            ->grouped()
+                                            ->live()
+                                            ->required()
+                                            ->colors([
+                                                1 => 'warning',
+                                                2 => 'warning',
+                                            ]),
+
+                                        ToggleButtons::make('quarter_type')
+                                            ->label('Type')
+                                            ->options([
+                                                'Quarter' => 'Quarter',
+                                                'Midquarter' => 'Midquarter',
+                                            ])
+                                            ->inline()
+                                            ->grouped()
+                                            ->live()
+                                            ->required()
+                                            ->visible(fn (): bool => (bool) config('system-features.midquarter')),
+                                    ]),
+                            ]),
+                    ]),
+            ]);
     }
 
     public function table(Table $table): Table
@@ -173,10 +236,44 @@ class GradesPage extends Page implements HasTable
             ]);
     }
 
+    public function getGradeCsvOptions(): array
+    {
+        $schoolYear = SchoolYear::getActive();
+
+        if (! $schoolYear || ! $this->subjectId || ! $this->gradeLevelId) {
+            return [];
+        }
+
+        return [
+            'school_year_id' => $schoolYear->id,
+            'grade_level_id' => $this->gradeLevelId,
+            'subject_id' => $this->subjectId,
+            'quarter' => $this->quarter_entry,
+        ];
+    }
+
+    public function downloadGradeImportTemplate(): StreamedResponse
+    {
+        $options = $this->getGradeCsvOptions();
+        $csv = Writer::createFromFileObject(new SplTempFileObject);
+
+        $csv->insertOne(['student_id', 'student_name', 'midquarter', 'final', 'effort', 'deportment', 'remarks']);
+        $csv->insertAll(GradeImporter::getExampleRows($options));
+
+        return response()->streamDownload(function () use ($csv): void {
+            $csv->setOutputBOM(Bom::Utf8);
+
+            echo $csv->toString();
+        }, 'grades-quarter-'.$this->quarter_entry.'.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             ImportAction::make()
+                ->label('Import CSV')
                 ->importer(GradeImporter::class)
                 ->options(fn (): array => [
                     'user_id' => Auth::id(),
@@ -185,6 +282,13 @@ class GradesPage extends Page implements HasTable
                     'school_year_id' => SchoolYear::getActive()?->id,
                     'quarter' => $this->quarter_entry,
                 ])
+                ->registerModalActions([
+                    Action::make('downloadGradeTemplate')
+                        ->label('Download populated CSV template')
+                        ->link()
+                        ->action(fn (): StreamedResponse => $this->downloadGradeImportTemplate()),
+                ])
+                ->modalDescription(fn (ImportAction $action) => $action->getModalAction('downloadGradeTemplate'))
                 ->visible(fn (): bool => config('system-features.grade_import') && SchoolYear::getActive() !== null),
 
             Action::make('save')
@@ -192,36 +296,27 @@ class GradesPage extends Page implements HasTable
                 ->color('success')
                 ->icon('heroicon-o-document-check')
                 ->action(function () {
-                    $quarter = $this->quarter_entry;
-
                     foreach ($this->pendingGrades as $studentId => $quarters) {
-                        if (! array_key_exists($quarter, $quarters)) {
-                            continue; // nothing pending for the active quarter
-                        }
-
-                        Grade::updateOrCreate(
-                            [
-                                'student_id' => $studentId,
-                                'subject_id' => $this->subjectId,
-                                'school_year_id' => SchoolYear::getActive()?->id,
-                                'quarter' => $quarter,
-                            ],
-                            array_merge(
+                        foreach ($quarters as $quarter => $values) {
+                            Grade::updateOrCreate(
                                 [
-                                    'user_id' => Auth::id(),
-                                    'grade_level_id' => $this->gradeLevelId,
+                                    'student_id' => $studentId,
+                                    'subject_id' => $this->subjectId,
+                                    'school_year_id' => SchoolYear::getActive()?->id,
+                                    'quarter' => $quarter,
                                 ],
-                                $quarters[$quarter]
-                            )
-                        );
-
-                        unset($this->pendingGrades[$studentId][$quarter]);
-
-                        if (empty($this->pendingGrades[$studentId])) {
-                            unset($this->pendingGrades[$studentId]);
+                                array_merge(
+                                    [
+                                        'user_id' => Auth::id(),
+                                        'grade_level_id' => $this->gradeLevelId,
+                                    ],
+                                    $values
+                                )
+                            );
                         }
                     }
 
+                    $this->pendingGrades = [];
                     Notification::make()->title('Grades saved')->success()->send();
                 })
                 ->visible(fn (): bool => SchoolYear::getActive() !== null && $this->subjectId !== null),

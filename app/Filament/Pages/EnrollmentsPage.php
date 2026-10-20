@@ -12,7 +12,6 @@ use BackedEnum;
 use Filament\Actions\BulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Utilities\Get;
@@ -26,6 +25,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Override;
 use UnitEnum;
@@ -60,6 +60,11 @@ class EnrollmentsPage extends Page implements HasTable
         return false;
     }
 
+    public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->isOffice();
+    }
+
     #[Override]
     public function getTitle(): string|Htmlable
     {
@@ -73,6 +78,7 @@ class EnrollmentsPage extends Page implements HasTable
                 Student::where('active', 1)
                 // ->whereDoesntHave('graduate')
             )
+            ->selectable(true)
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
@@ -221,29 +227,13 @@ class EnrollmentsPage extends Page implements HasTable
                 BulkAction::make('bulk_enroll')
                     ->label('Enroll Student')
                     ->schema(
-                        function (Collection $records) {
-                            $gradeLevelOptions = $records
-                                ->flatMap(fn ($student) => $student->enrollments)
-                                ->map(fn ($enrollment) => $enrollment->gradeLevel)
-                                ->filter()
-                                ->unique('id')
-                                ->pluck('id')
-                                ->toArray();
-
-                            if (count($gradeLevelOptions) > 1) {
-                                return [
-                                    TextEntry::make('Multiple Gradelevel Selected, do you want to enroll all student with 1 level increase?'),
-                                ];
-                            }
-
-                            return [
-                                Select::make('grade_level_id')
-                                    ->label('Grade Level')
-                                    ->searchable()
-                                    ->options(GradeLevel::orderBy('sort_order')->pluck('label', 'id'))
-                                    ->required(),
-                            ];
-                        }
+                        [
+                            Select::make('grade_level_id')
+                                ->label('Grade Level')
+                                ->searchable()
+                                ->options(GradeLevel::orderBy('sort_order')->pluck('label', 'id'))
+                                ->required(),
+                        ]
                     )
                     ->action(fn (Collection $records, array $data) => static::enrollStudents($records, $data))
                     ->deselectRecordsAfterCompletion()
@@ -251,11 +241,27 @@ class EnrollmentsPage extends Page implements HasTable
                     ->modalHeading('Bulk Enroll Students')
                     ->modalSubmitActionLabel('Enroll')
                     ->visible(function ($livewire) {
-                        if ($livewire->tableFilters['enrollment']['school_year_id'] == SchoolYear::getActive()?->id) {
-                            return true;
-                        }
+                        $activeSchoolYearId = SchoolYear::getActive()?->id;
 
-                        return false;
+                        return ($livewire->tableFilters['enrollment']['enrollment_status'] ?? 'enrolled') === 'not_enrolled'
+                            && $activeSchoolYearId !== null
+                            && (string) ($livewire->tableFilters['enrollment']['school_year_id'] ?? '') === (string) $activeSchoolYearId;
+                    }),
+                BulkAction::make('bulk_deactivate')
+                    ->label('Deactivate Enrollment')
+                    ->action(fn (Collection $records) => static::deactivateStudents($records))
+                    ->deselectRecordsAfterCompletion()
+                    ->requiresConfirmation()
+                    ->color('danger')
+                    ->modalHeading('Bulk Deactivate Enrollments')
+                    ->modalDescription('This removes the selected students from the active school year. Historical enrollments are preserved.')
+                    ->modalSubmitActionLabel('Deactivate')
+                    ->visible(function ($livewire) {
+                        $activeSchoolYearId = SchoolYear::getActive()?->id;
+
+                        return ($livewire->tableFilters['enrollment']['enrollment_status'] ?? 'enrolled') === 'enrolled'
+                            && $activeSchoolYearId !== null
+                            && (string) ($livewire->tableFilters['enrollment']['school_year_id'] ?? '') === (string) $activeSchoolYearId;
                     }),
             ])
             ->recordActions([
@@ -281,6 +287,17 @@ class EnrollmentsPage extends Page implements HasTable
             return;
         }
 
+        $gradeLevelId = $data['grade_level_id'] ?? null;
+
+        if (! $gradeLevelId) {
+            Notification::make()
+                ->title('Select a grade level before enrolling students.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
         $alreadyEnrolled = Enrollment::where('school_year_id', $schoolYear->id)
             ->whereIn('student_id', $records->pluck('id'))
             ->pluck('student_id')
@@ -290,8 +307,8 @@ class EnrollmentsPage extends Page implements HasTable
 
         $enrollments = $newStudents->map(fn ($student) => [
             'student_id' => $student->id,
-            'grade_level_id' => $data['grade_level_id'],
-            'school_year_id' => $data['school_year_id'],
+            'grade_level_id' => $gradeLevelId,
+            'school_year_id' => $schoolYear->id,
             'created_at' => now(),
             'updated_at' => now(),
         ])->toArray();
@@ -305,13 +322,52 @@ class EnrollmentsPage extends Page implements HasTable
             return;
         }
 
-        Enrollment::insert($enrollments);
+        $insertedCount = DB::transaction(fn () => Enrollment::insertOrIgnore($enrollments));
 
-        Student::whereIn('id', $newStudents->pluck('id'))
-            ->update(['current_level' => $data['grade_level_id']]);
+        if ($insertedCount === 0) {
+            Notification::make()
+                ->title('All selected students are already enrolled.')
+                ->warning()
+                ->send();
+
+            return;
+        }
 
         Notification::make()
             ->title('Students enrolled successfully.')
+            ->success()
+            ->send();
+    }
+
+    public static function deactivateStudents(Collection $records): void
+    {
+        $schoolYear = SchoolYear::getActive();
+
+        if (! $schoolYear) {
+            Notification::make()
+                ->title('Configure an active school year before deactivating students.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $deactivatedCount = DB::transaction(fn () => Enrollment::query()
+            ->where('school_year_id', $schoolYear->id)
+            ->whereIn('student_id', $records->pluck('id'))
+            ->delete());
+
+        if ($deactivatedCount === 0) {
+            Notification::make()
+                ->title('No active enrollments were found for the selected students.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->title('Students deactivated successfully.')
             ->success()
             ->send();
     }

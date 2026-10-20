@@ -168,6 +168,11 @@ class AdminPanelProvider extends PanelProvider
                     'logoutLink' => filament()->getLogoutUrl(),
                 ]);
             })
+            ->renderHook(PanelsRenderHook::USER_MENU_BEFORE, function () {
+                return view('filament.user-menu-name', [
+                    'user' => Filament::auth()->user(),
+                ]);
+            })
             ->renderHook(PanelsRenderHook::FOOTER, function () {
                 return view('filament.footer');
             });

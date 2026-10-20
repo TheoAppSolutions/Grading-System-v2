@@ -170,14 +170,18 @@ class Formulas extends Formula
         $calendarDays = SchoolYearInfo::where('school_year_id', $schoolYearId)->pluck('days', 'coverage')->toArray();
 
         if ($attendanceRecord && $attendanceRecord->attendance) {
-            $decoded = json_decode($attendanceRecord->attendance, true);
+            $decoded = is_array($attendanceRecord->attendance)
+                ? $attendanceRecord->attendance
+                : json_decode($attendanceRecord->attendance, true);
 
             foreach ($decoded as $key => $att) {
+                $schoolDays = (float) ($calendarDays[$key] ?? 0);
+                $absent = (float) ($att['A'] ?? 0);
                 $attendance[$key] = [
-                    'absent' => $att['A'] ?? 0,
+                    'absent' => $absent,
                     'tardy' => $att['T'] ?? 0,
-                    'present' => $calendarDays[$key] - $att['A'],
-                    'schooldays' => $calendarDays[$key],
+                    'present' => max(0.0, $schoolDays - $absent),
+                    'schooldays' => $schoolDays,
                 ];
             }
         }

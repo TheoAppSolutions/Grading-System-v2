@@ -3,6 +3,7 @@
 namespace App\Filament\Imports;
 
 use App\Models\Grade;
+use App\Models\Enrollment;
 use App\Models\Student;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
@@ -63,6 +64,53 @@ class GradeImporter extends Importer
             'school_year_id' => $schoolYearId,
             'quarter' => (int) $this->options['quarter'],
         ]);
+    }
+
+    public static function getExampleRows(array $options): array
+    {
+        $schoolYearId = (int) ($options['school_year_id'] ?? 0);
+        $gradeLevelId = (int) ($options['grade_level_id'] ?? 0);
+        $subjectId = (int) ($options['subject_id'] ?? 0);
+        $quarter = (int) ($options['quarter'] ?? 1);
+
+        return Enrollment::query()
+            ->with([
+                'student.grades' => fn ($query) => $query
+                    ->where('school_year_id', $schoolYearId)
+                    ->where('subject_id', $subjectId)
+                    ->where('quarter', $quarter),
+            ])
+            ->where('school_year_id', $schoolYearId)
+            ->where('grade_level_id', $gradeLevelId)
+            ->whereHas('student', fn ($query) => $query->where('active', 1))
+            ->join('students', 'enrollments.student_id', '=', 'students.id')
+            ->orderBy('students.gender', 'desc')
+            ->orderBy('students.last_name')
+            ->orderBy('students.first_name')
+            ->orderBy('students.id')
+            ->select('enrollments.*')
+            ->get()
+            ->map(function (Enrollment $enrollment): array {
+                $student = $enrollment->student;
+                $name = trim(implode(' ', array_filter([
+                    $student?->first_name,
+                    $student?->middle_name,
+                    $student?->last_name,
+                    $student?->suffix,
+                ])));
+                $grade = $student?->grades?->first();
+
+                return [
+                    $enrollment->student_id,
+                    preg_match('/^[=+\-@]/', $name) ? "'{$name}" : $name,
+                    $grade?->midquarter,
+                    $grade?->final,
+                    $grade?->effort,
+                    $grade?->deportment,
+                    $grade?->remarks,
+                ];
+            })
+            ->all();
     }
 
     protected function beforeFill(): void

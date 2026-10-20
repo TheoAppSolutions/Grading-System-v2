@@ -2,6 +2,7 @@
 
 namespace App\Models\Config;
 
+use App\Helpers\MyTools;
 use Illuminate\Database\Eloquent\Model;
 use Sushi\Sushi;
 
@@ -32,20 +33,7 @@ class CardTemplate extends Model
         return match ($id) {
             2 => [1 => '1st Semester', 2 => '2nd Semester'],
             4 => [1 => '1st Quarter', 2 => '2nd Quarter', 3 => '3rd Quarter', 4 => '4th Quarter'],
-            10 => [
-                1 => 'January',
-                2 => 'February',
-                3 => 'March',
-                4 => 'April',
-                5 => 'May',
-                6 => 'June',
-                7 => 'July',
-                8 => 'August',
-                9 => 'September',
-                10 => 'October',
-                11 => 'November',
-                12 => 'December',
-            ],
+            10, 12 => MyTools::getMonths(),
             default => [],
         };
     }
@@ -53,8 +41,9 @@ class CardTemplate extends Model
     public static function getOptionsLabel(int $id): string
     {
         return match ($id) {
-            2 => "Semester",
-            default => "Quarter",
+            2 => 'Semester',
+            10, 12 => 'Month',
+            default => 'Quarter',
         };
     }
 

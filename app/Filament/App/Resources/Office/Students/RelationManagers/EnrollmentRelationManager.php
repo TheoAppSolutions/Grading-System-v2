@@ -9,7 +9,6 @@ use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class EnrollmentRelationManager extends RelationManager
 {
@@ -20,16 +19,21 @@ class EnrollmentRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with(['schoolYear', 'gradeLevel', 'section']))
             ->columns([
                 TextColumn::make('schoolYear.label')
-                    ->label('School Year'),
+                    ->label('School Year')
+                    ->placeholder('—'),
                 TextColumn::make('gradeLevel.label')
-                    ->label('Grade Level'),
+                    ->label('Grade Level')
+                    ->placeholder('—'),
                 TextColumn::make('section.label')
                     ->label('Section/Strand')
-                    ->visible(config('system-features.sections'))
+                    ->placeholder('—')
+                    ->visible(config('system-features.sections')),
             ])
             ->emptyStateHeading('No Enrollment Records Found.')
+            ->emptyStateDescription('This student does not have an enrollment record yet.')
             ->recordActions([
                 Action::make('show_report')
                     ->label('Report Card')
@@ -37,18 +41,10 @@ class EnrollmentRelationManager extends RelationManager
                     ->icon(Heroicon::OutlinedDocumentText)
                     ->size(Size::ExtraSmall)
                     ->color('success')
-                    ->url(fn($record) => route('report.quarter', [$record->school_year_id, $record->student_id]))
-                    ->outlined(true)
-                    ->openUrlInNewTab(),
-                Action::make('show_awards')
-                    ->label('Awards Card')
-                    ->button()
-                    ->color(Color::Indigo)
-                    ->url(fn($record) => route('report.award', [$record->school_year_id, $record->student_id]))
-                    ->icon(Heroicon::OutlinedDocumentText)
-                    ->size(Size::ExtraSmall)
+                    ->url(fn ($record) => route('report.quarter', [$record->school_year_id, $record->student_id]))
                     ->outlined(true)
                     ->openUrlInNewTab()
+                    ->visible(fn ($record): bool => filled($record->school_year_id) && filled($record->student_id)),
             ])
             ->headerActions([
                 Action::make('tor')
@@ -57,9 +53,10 @@ class EnrollmentRelationManager extends RelationManager
                     ->color(Color::Amber)
                     ->icon(Heroicon::OutlinedDocumentText)
                     ->size(Size::ExtraSmall)
-                    ->url(fn() => route('report.tor', [$this->ownerRecord->id]))
+                    ->url(fn () => route('report.tor', [$this->ownerRecord->id]))
                     ->outlined(true)
-                    ->openUrlInNewTab()
-            ]);
+                    ->openUrlInNewTab(),
+            ])
+            ->defaultSort('school_year_id', 'desc');
     }
 }

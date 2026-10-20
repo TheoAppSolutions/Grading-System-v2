@@ -44,6 +44,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login(Login::class)
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->profile(EditProfile::class, isSimple: false)
             ->globalSearch(false)
             ->colors([
@@ -154,6 +155,11 @@ class AppPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::SIDEBAR_NAV_END, function () {
                 return Blade::render('<form action="{{ $logoutLink }}" method="post" id="logout">@csrf</form>', [
                     'logoutLink' => filament()->getLogoutUrl(),
+                ]);
+            })
+            ->renderHook(PanelsRenderHook::USER_MENU_BEFORE, function () {
+                return view('filament.user-menu-name', [
+                    'user' => Filament::auth()->user(),
                 ]);
             })
             ->renderHook(PanelsRenderHook::FOOTER, function () {

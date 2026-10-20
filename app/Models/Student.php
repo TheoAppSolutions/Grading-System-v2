@@ -16,6 +16,10 @@ class Student extends Model
 {
     use HasFacehashAvatar;
 
+    protected $casts = [
+        'active' => 'boolean',
+    ];
+
     public $incrementing = false;
 
     public function facehashAvatarName(): Attribute
