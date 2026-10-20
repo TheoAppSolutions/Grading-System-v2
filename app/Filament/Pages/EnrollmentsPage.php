@@ -63,7 +63,7 @@ class EnrollmentsPage extends Page implements HasTable
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Enrollment (S.Y. '.SchoolYear::getActive()->label.')';
+        return 'Enrollment (S.Y. '.(SchoolYear::getActive()?->label ?? 'Not configured').')';
     }
 
     public function table(Table $table): Table
@@ -93,7 +93,7 @@ class EnrollmentsPage extends Page implements HasTable
                     ->label('Current Grade')
                     ->state(function ($record, $livewire) {
                         $filters = $livewire->tableFilters['enrollment'] ?? [];
-                        $schoolYearId = SchoolYear::getActive()->id;
+                        $schoolYearId = SchoolYear::getActive()?->id;
                         $enrollmentStatus = $filters['enrollment_status'] ?? null;
 
                         if ($enrollmentStatus === 'enrolled' && $schoolYearId) {
@@ -118,7 +118,7 @@ class EnrollmentsPage extends Page implements HasTable
                     })
                     ->sortable(query: function (Builder $query, string $direction, $livewire): Builder {
                         $filters = $livewire->tableFilters['enrollment'] ?? [];
-                        $schoolYearId = SchoolYear::getActive()->id;
+                        $schoolYearId = SchoolYear::getActive()?->id;
                         $enrollmentStatus = $filters['enrollment_status'] ?? null;
 
                         if ($enrollmentStatus === 'enrolled' && $schoolYearId) {
@@ -158,7 +158,7 @@ class EnrollmentsPage extends Page implements HasTable
                             ->afterStateUpdated(function (Get $get, Set $set) {
                                 if ($get('enrollment_status') === 'not_enrolled') {
                                     $set('grade_level_id', '');
-                                    $set('school_year_id', SchoolYear::getActive()->id);
+                                    $set('school_year_id', SchoolYear::getActive()?->id);
                                 }
                             })
                             ->default('enrolled')
@@ -251,7 +251,7 @@ class EnrollmentsPage extends Page implements HasTable
                     ->modalHeading('Bulk Enroll Students')
                     ->modalSubmitActionLabel('Enroll')
                     ->visible(function ($livewire) {
-                        if ($livewire->tableFilters['enrollment']['school_year_id'] == SchoolYear::getActive()->id) {
+                        if ($livewire->tableFilters['enrollment']['school_year_id'] == SchoolYear::getActive()?->id) {
                             return true;
                         }
 
@@ -270,7 +270,18 @@ class EnrollmentsPage extends Page implements HasTable
 
     public static function enrollStudents(Collection $records, array $data): void
     {
-        $alreadyEnrolled = Enrollment::where('school_year_id', SchoolYear::getActive())
+        $schoolYear = SchoolYear::getActive();
+
+        if (! $schoolYear) {
+            Notification::make()
+                ->title('Configure an active school year before enrolling students.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $alreadyEnrolled = Enrollment::where('school_year_id', $schoolYear->id)
             ->whereIn('student_id', $records->pluck('id'))
             ->pluck('student_id')
             ->toArray();

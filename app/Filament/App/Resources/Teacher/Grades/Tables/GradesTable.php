@@ -19,13 +19,14 @@ class GradesTable
 {
     public static function configure(Table $table): Table
     {
-        $schoolYearId = SchoolYear::getActive()->id;
+        $schoolYearId = SchoolYear::getActive()?->id;
         $gradeLevelId = request('gid');
         $subjectId = request('sid');
 
         return $table
             ->query(
                 Student::query()
+                    ->when(! $schoolYearId, fn ($query) => $query->whereRaw('1 = 0'))
                     ->whereHas('enrollments', function ($query) use ($schoolYearId, $gradeLevelId, $subjectId) {
                         $query->where('school_year_id', $schoolYearId)
                             ->where('grade_level_id', $gradeLevelId);

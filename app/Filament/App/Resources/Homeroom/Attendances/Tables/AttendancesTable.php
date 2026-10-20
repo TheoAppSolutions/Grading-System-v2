@@ -5,27 +5,34 @@ namespace App\Filament\App\Resources\Homeroom\Attendances\Tables;
 use App\Models\Config\CardTemplate;
 use App\Models\Config\GradeLevel;
 use App\Models\Enrollment;
+use App\Models\Homeroom;
 use App\Models\SchoolYear;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Facades\Auth;
 
 class AttendancesTable
 {
     public static function configure(Table $table): Table
     {
-        $schoolYearx = SchoolYear::getActive();
-
         return $table
             ->query(function () {
-                $schoolYear = SchoolYear::getActive()->id;
+                $schoolYear = SchoolYear::getActive()?->id;
+
+                if (! $schoolYear) {
+                    return Enrollment::query()->whereRaw('1 = 0');
+                }
+
+                $homeroom = Homeroom::where(['user_id' => Auth::id(), 'school_year_id' => $schoolYear])->first();
+
+                if (! $homeroom) {
+                    return Enrollment::query()->whereRaw('1 = 0');
+                }
 
                 return Enrollment::with([
                     'schoolYear' => function ($query) use ($schoolYear) {
@@ -33,6 +40,7 @@ class AttendancesTable
                     },
                 ])->where([
                     'school_year_id' => $schoolYear,
+                    'grade_level_id' => $homeroom->grade_level_id,
                 ]);
             })
             ->columns([
@@ -48,12 +56,12 @@ class AttendancesTable
                     ->type('number')
                     ->extraInputAttributes([
                         'readonly' => true,
-                        'wire:ignore.self'
+                        'wire:ignore.self',
                     ])
                     ->getStateUsing(
                         fn ($record, $livewire) => $livewire->pendingChanges[$record->student_id]['school_days'] ?? 0
                     ),
-                
+
                 TextInputColumn::make('absent')
                     ->label('Absent')
                     ->type('number')
@@ -84,6 +92,10 @@ class AttendancesTable
                 TextInputColumn::make('present')
                     ->label('Present')
                     ->type('number')
+                    ->extraInputAttributes([
+                        'readonly' => true,
+                        'wire:ignore.self',
+                    ])
                     ->getStateUsing(
                         fn ($record, $livewire) => $livewire->pendingChanges[$record->student_id]['absent']
                             ?? data_get($record->attendance_data, $record->student_id.'.A', '')
@@ -108,7 +120,9 @@ class AttendancesTable
                             ->options(function () {
                                 $schoolYear = SchoolYear::getActive();
 
-                                return CardTemplate::getOptions($schoolYear->attendance_entries) ?? [];
+                                return $schoolYear
+                                    ? (CardTemplate::getOptions($schoolYear->attendance_entries) ?? [])
+                                    : [];
                             })
                             ->live()
                             ->default(1)

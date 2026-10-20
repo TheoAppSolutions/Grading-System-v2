@@ -6,8 +6,8 @@ use App\Enums\Gender;
 use App\Enums\Suffix;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -30,7 +30,9 @@ class StudentForm
                             ->schema([
                                 Group::make()
                                     ->schema([
-                                        Toggle::make('active'),
+                                        Toggle::make('active')
+                                            ->default(true)
+                                            ->visible(false),
                                         TextInput::make('id')
                                             ->label('Student ID')
                                             ->inlineLabel()

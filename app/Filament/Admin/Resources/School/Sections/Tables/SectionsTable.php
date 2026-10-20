@@ -16,7 +16,12 @@ class SectionsTable
 
         return $table
             ->query(
-                Section::where('school_year_id', $schoolYear->id)
+                Section::query()
+                    ->when(
+                        $schoolYear,
+                        fn ($query) => $query->where('school_year_id', $schoolYear->id),
+                        fn ($query) => $query->whereRaw('1 = 0'),
+                    )
             )
             ->columns([
                 TextColumn::make('label')

@@ -70,7 +70,7 @@ class GraduatesPage extends Page implements HasTable
                 TextColumn::make('schoolYear.label')
                     ->label('Graduate School Year'),
             ])
-            ->defaultSort('label', 'desc')
+            ->defaultSort('school_year_id', 'desc')
             ->recordActions([
                 ViewAction::make()
                     ->button()

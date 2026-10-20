@@ -18,13 +18,15 @@ class SubjectsTable
     public static function configure(Table $table): Table
     {
         $teachers = User::pluck('name', 'id');
+        $schoolYearId = SchoolYear::getActive()?->id;
 
         return $table
             ->query(
-                Subject::with(['subjectUser' => function ($query) {
-                    $query->where('school_year_id', SchoolYear::getActive()->id);
+                Subject::with(['subjectUser' => function ($query) use ($schoolYearId) {
+                    $query->where('school_year_id', $schoolYearId);
                 }])
                     ->where('active', true)
+                    ->when(! $schoolYearId, fn ($query) => $query->whereRaw('1 = 0'))
             )
             ->columns([
                 TextColumn::make('subject_title')

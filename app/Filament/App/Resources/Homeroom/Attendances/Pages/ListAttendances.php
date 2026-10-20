@@ -21,7 +21,7 @@ class ListAttendances extends ListRecords
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Attendance (S.Y. '.SchoolYear::getActive()->label.')';
+        return 'Attendance (S.Y. '.(SchoolYear::getActive()?->label ?? 'Not configured').')';
     }
 
     #[Override]
@@ -39,6 +39,13 @@ class ListAttendances extends ListRecords
     public function saveAttendance(): void
     {
         $schoolYear = SchoolYear::getActive();
+
+        if (! $schoolYear) {
+            Notification::make()->title('No active school year is configured.')->danger()->send();
+
+            return;
+        }
+
         foreach ($this->pendingChanges as $studentId => $changes) {
             $attendance = Attendance::where(['student_id' => $studentId, 'school_year_id' => $schoolYear->id])->first();
 

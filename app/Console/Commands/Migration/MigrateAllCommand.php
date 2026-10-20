@@ -25,10 +25,10 @@ class MigrateAllCommand extends Command
         ['command' => 'migrate:homeroom',     'label' => 'Homerooms'],
         ['command' => 'migrate:comments',     'label' => 'Comments'],
         ['command' => 'migrate:attendance',   'label' => 'Attendance'],
-        ['command' => 'migrate:award',        'label' => 'Award'],
-        ['command' => 'migrate:graduate',     'label' => 'Graduate'],
+        ['command' => 'migrate:awards',       'label' => 'Award'],
+        ['command' => 'migrate:graduates',    'label' => 'Graduate'],
         ['command' => 'migrate:deportment',   'label' => 'Deportment'],
-        // ['command' => 'migrate:grades',       'label' => 'Grades'],
+        ['command' => 'migrate:grades',        'label' => 'Grades'],
     ];
 
     public function handle(): int
@@ -38,6 +38,14 @@ class MigrateAllCommand extends Command
         $startedAt  = now();
         $failed     = [];
         $skipped    = [];
+
+        foreach ($this->pipeline as $step) {
+            if (! $this->getApplication()?->has($step['command'])) {
+                $this->error("Migration command [{$step['command']}] is not registered.");
+
+                return self::FAILURE;
+            }
+        }
 
         $this->newLine();
         $this->line('╔══════════════════════════════════════╗');
@@ -89,13 +97,7 @@ class MigrateAllCommand extends Command
 
             $args = $fresh ? ['--fresh' => true] : [];
 
-            if ($step['command'] === 'migrate:grades' && $fresh) {
-                $args     = [];
-                $this->callSilently('migrate:grades', ['--fresh' => true]);
-                $exitCode = $this->call('migrate:grades');
-            } else {
-                $exitCode = $this->call($step['command'], $args);
-            }
+            $exitCode = $this->call($step['command'], $args);
 
             if ($exitCode !== self::SUCCESS) {
                 $failed[] = $step['label'];

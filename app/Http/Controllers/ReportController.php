@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Formulas;
-use App\Models\Attendance;
-use App\Models\Comment;
 use App\Models\Enrollment;
 use Barryvdh\Snappy\Facades\SnappyPdf;
+use Illuminate\Support\Facades\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ReportController extends Controller
 {
@@ -15,7 +15,7 @@ class ReportController extends Controller
         $record = Enrollment::with(['gradeLevel', 'schoolYear', 'student'])
             ->where('student_id', $student_id)
             ->where('school_year_id', $school_year_id)
-            ->first();
+            ->firstOrFail();
 
         $type = 'semestral';
         $quarter = 2;
@@ -36,9 +36,8 @@ class ReportController extends Controller
             'attendance' => Formulas::getAttendance($record->student_id, $record->school_year_id),
         ];
 
-        // dd($data);
         return $this->renderOrGeneratePdf(
-            viewName: 'reports.'.config('app.name').'.quarter',
+            viewName: 'reports.'.strtolower(config('app.name')).'.quarter',
             data: $data,
             filename: "Report-{$student_id}.pdf"
         );
@@ -54,7 +53,11 @@ class ReportController extends Controller
             ->orderBy('school_year_id')
             ->get();
 
-        $student = $enrollments->first()?->student()->first();
+        if ($enrollments->isEmpty()) {
+            throw new NotFoundHttpException('No enrollment history was found for this student.');
+        }
+
+        $student = $enrollments->first()->student;
 
         $torRecords = [];
         $schoolYears = [];
@@ -82,7 +85,7 @@ class ReportController extends Controller
         ];
 
         return $this->renderOrGeneratePdf(
-            viewName: 'reports.'.config('app.name').'.tor',
+            viewName: 'reports.'.strtolower(config('app.name')).'.tor',
             data: $data,
             filename: "Report-{$student_id}.pdf"
         );
@@ -121,6 +124,8 @@ class ReportController extends Controller
      */
     private function renderOrGeneratePdf(string $viewName, array $data, string $filename)
     {
+        abort_unless(View::exists($viewName), 404, "Report template [{$viewName}] was not found.");
+
         if (config('app.env') == 'local') {
             return view($viewName, $data);
         }
@@ -132,9 +137,4 @@ class ReportController extends Controller
         return $pdf->inline($filename);
     }
 
-    public function generateAward($school_year_id, $student_id) {}
-
-    public function generateMidQuarter($school_year_id, $student_id) {}
-
-    public function generateSubject($school_year_id, $student_id) {}
 }

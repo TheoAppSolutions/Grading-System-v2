@@ -7,8 +7,6 @@ use App\Models\Homeroom;
 use App\Models\SchoolYear;
 use App\Models\User;
 use BackedEnum;
-use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
@@ -44,7 +42,7 @@ class HomeroomsPage extends Page implements HasTable
     {
         $schoolYear = MyTools::getSchoolYear();
 
-        if ($schoolYear && Auth::user()->isOffice()) {
+        if ($schoolYear && Auth::user()->isHomeroom()) {
             return true;
         }
 
@@ -54,34 +52,13 @@ class HomeroomsPage extends Page implements HasTable
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return 'Homerooms (S.Y. ' . SchoolYear::getActive()->label . ')';
+        return 'Homerooms (S.Y. '.(SchoolYear::getActive()?->label ?? 'Not configured').')';
     }
 
     #[Override]
     public function getHeaderActions(): array
     {
-        $schoolYearList = SchoolYear::all();
-        return [
-            Action::make('import')
-                ->label('Pre-Load Records')
-                ->modalDescription('Select school year to reuse subject teachers.')
-                ->color('success')
-                ->modal()
-                ->schema([
-                    Select::make('schoolYear')
-                        ->searchable()
-                        ->options(function () use ($schoolYearList) {
-                            return $schoolYearList->sortByDesc('id')->pluck('label', 'id');
-                        })
-                ])
-                ->modalFooterActions([
-                    Action::make('submit')
-                        ->label('Import')
-                        ->action(function ($data) {
-                            dd($data);
-                        })
-                ]),
-        ];
+        return [];
     }
 
     public function table(Table $table): Table
@@ -91,7 +68,12 @@ class HomeroomsPage extends Page implements HasTable
 
         return $table
             ->query(function () use ($schoolYearActive) {
-                return Homeroom::where('school_year_id', $schoolYearActive->id);
+                return Homeroom::query()
+                    ->when(
+                        $schoolYearActive,
+                        fn ($query) => $query->where('school_year_id', $schoolYearActive->id),
+                        fn ($query) => $query->whereRaw('1 = 0'),
+                    );
             })
             ->columns([
                 TextColumn::make('gradeLevel.label'),

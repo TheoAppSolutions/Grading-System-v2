@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Helpers\MyTools;
+use App\Filament\Imports\GradeImporter;
 use App\Models\Config\CardTemplate;
 use App\Models\Grade;
 use App\Models\SchoolYear;
@@ -10,6 +11,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\Imports\ImportAction;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -64,8 +66,9 @@ class GradesPage extends Page implements HasTable
     {
         $this->subjectId ??= (int) request('sid');
         $subject = Subject::find($this->subjectId);
+        $schoolYear = SchoolYear::getActive();
 
-        return $subject->subject_code . ' (' . SchoolYear::getActive()->label . ')';
+        return ($subject?->subject_code ?? 'Grades').' ('.($schoolYear?->label ?? 'School year not configured').')';
     }
 
     public function updatedQuarterEntry(): void
@@ -83,6 +86,7 @@ class GradesPage extends Page implements HasTable
     public function table(Table $table): Table
     {
         $schoolYear = SchoolYear::getActive();
+        $schoolYearId = $schoolYear?->id;
         $quarter = $this->quarter_entry;
         $isQuarter = $this->quarter_type === 'Quarter';
 
@@ -90,13 +94,14 @@ class GradesPage extends Page implements HasTable
             ->query(
                 Student::query()
                     ->where('active', 1)
-                    ->whereHas('enrollments', fn($q) => $q
-                        ->where('school_year_id', $schoolYear->id)
+                    ->when(! $schoolYearId, fn ($query) => $query->whereRaw('1 = 0'))
+                    ->whereHas('enrollments', fn ($q) => $q
+                        ->where('school_year_id', $schoolYearId)
                         ->where('grade_level_id', $this->gradeLevelId))
-                    ->leftJoin('grades', function ($join) use ($schoolYear, $quarter) {
+                    ->leftJoin('grades', function ($join) use ($schoolYearId, $quarter) {
                         $join->on('grades.student_id', '=', 'students.id')
                             ->where('grades.subject_id', $this->subjectId)
-                            ->where('grades.school_year_id', $schoolYear->id)
+                            ->where('grades.school_year_id', $schoolYearId)
                             ->where('grades.quarter', $quarter);
                     })
                     ->select(
@@ -113,31 +118,31 @@ class GradesPage extends Page implements HasTable
                 TextColumn::make('#')->rowIndex(),
                 TextColumn::make('id')->label('Student ID'),
                 TextColumn::make('name')
-                    ->getStateUsing(fn($record) => "{$record->last_name}, {$record->first_name} ({$record->gender})"),
+                    ->getStateUsing(fn ($record) => "{$record->last_name}, {$record->first_name} ({$record->gender})"),
 
                 TextInputColumn::make('final')
                     ->type('number')
                     ->visible($isQuarter)
-                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.final", $record->final))
-                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['final'] = $state),
+                    ->getStateUsing(fn ($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.final", $record->final))
+                    ->updateStateUsing(fn ($record, $state) => $this->pendingGrades[$record->id][$quarter]['final'] = $state),
 
                 TextInputColumn::make('effort')
                     ->type('number')
                     ->visible($isQuarter)
-                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.effort", $record->effort))
-                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['effort'] = $state),
+                    ->getStateUsing(fn ($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.effort", $record->effort))
+                    ->updateStateUsing(fn ($record, $state) => $this->pendingGrades[$record->id][$quarter]['effort'] = $state),
 
                 TextInputColumn::make('deportment')
                     ->type('number')
                     ->visible($isQuarter)
-                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.deportment", $record->deportment))
-                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['deportment'] = $state),
+                    ->getStateUsing(fn ($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.deportment", $record->deportment))
+                    ->updateStateUsing(fn ($record, $state) => $this->pendingGrades[$record->id][$quarter]['deportment'] = $state),
 
                 TextInputColumn::make('midquarter')
                     ->type('number')
                     ->visible(! $isQuarter)
-                    ->getStateUsing(fn($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.midquarter", $record->midquarter))
-                    ->updateStateUsing(fn($record, $state) => $this->pendingGrades[$record->id][$quarter]['midquarter'] = $state),
+                    ->getStateUsing(fn ($record) => data_get($this->pendingGrades, "{$record->id}.{$quarter}.midquarter", $record->midquarter))
+                    ->updateStateUsing(fn ($record, $state) => $this->pendingGrades[$record->id][$quarter]['midquarter'] = $state),
             ])
             ->filters([
                 // SelectFilter::make('quarter')
@@ -171,8 +176,21 @@ class GradesPage extends Page implements HasTable
     protected function getHeaderActions(): array
     {
         return [
+            ImportAction::make()
+                ->importer(GradeImporter::class)
+                ->options(fn (): array => [
+                    'user_id' => Auth::id(),
+                    'subject_id' => $this->subjectId,
+                    'grade_level_id' => $this->gradeLevelId,
+                    'school_year_id' => SchoolYear::getActive()?->id,
+                    'quarter' => $this->quarter_entry,
+                ])
+                ->visible(fn (): bool => config('system-features.grade_import') && SchoolYear::getActive() !== null),
+
             Action::make('save')
                 ->label('Save Grades')
+                ->color('success')
+                ->icon('heroicon-o-document-check')
                 ->action(function () {
                     $quarter = $this->quarter_entry;
 
@@ -185,7 +203,7 @@ class GradesPage extends Page implements HasTable
                             [
                                 'student_id' => $studentId,
                                 'subject_id' => $this->subjectId,
-                                'school_year_id' => SchoolYear::getActive()->id,
+                                'school_year_id' => SchoolYear::getActive()?->id,
                                 'quarter' => $quarter,
                             ],
                             array_merge(
@@ -205,7 +223,8 @@ class GradesPage extends Page implements HasTable
                     }
 
                     Notification::make()->title('Grades saved')->success()->send();
-                }),
+                })
+                ->visible(fn (): bool => SchoolYear::getActive() !== null && $this->subjectId !== null),
         ];
     }
 

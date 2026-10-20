@@ -1,58 +1,203 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Grading System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A role-based school grading and records application for managing students, enrollments, subjects, grades, homerooms, attendance, conduct, and academic reports from one interface.
 
-## About Laravel
+## Project goal
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The system is designed to replace fragmented or legacy grading workflows with a centralized application for school administrators, office staff, homeroom advisers, and subject teachers. It provides separate operational and administrative panels, keeps academic records organized by school year and grade level, and produces printable student records such as report cards and transcripts.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Main capabilities
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Role-aware access for administrators, principals, office staff, homeroom advisers, and teachers
+- Student profiles, enrollment history, grade levels, sections, and school years
+- Subject setup and subject-teacher assignments
+- Grade entry and optional spreadsheet-based grade imports
+- Homeroom management, attendance, comments, and deportment records
+- Graduate and award records
+- PDF report cards and transcripts of records
+- Migration commands for importing data from a legacy database
+- Configurable school-specific features and report templates
+- Administrative health checks, backups, logs, and file storage
 
-## Learning Laravel
+## Tech stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Layer | Technology |
+| --- | --- |
+| Backend | PHP 8.3+, Laravel 13, Eloquent ORM |
+| Admin and application UI | Filament 5, Livewire-based server-rendered panels, Blade |
+| Frontend styling | Tailwind CSS 4, Filament UI, Instrument Sans |
+| Asset pipeline | Vite 8, Laravel Vite Plugin |
+| Database | Eloquent ORM with MySQL configured by `.env.example`; SQLite is also supported and used by the legacy-import workflow |
+| Legacy data import | A second configurable database connection for the old system |
+| PDF/report generation | Blade templates and `wkhtmltopdf` through Laravel Snappy; DOMPDF and Browsershot are also installed |
+| Browser automation | Puppeteer |
+| Monitoring and operations | Laravel Telescope, Laravel Debugbar, Spatie Laravel Health, Spatie Laravel Backup |
+| Testing and quality | PHPUnit 12, Laravel Pint, Mockery, Faker |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Application structure
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+The application exposes two Filament panels:
 
-## Agentic Development
+- `/app` — the main workspace for office staff, teachers, and homeroom advisers
+- `/admin` — administration for users, school years, sections, subjects, settings, backups, and health checks; access is restricted to administrators
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+The root URL redirects to `/app`. Report endpoints are available under `/report`, while the report layouts live in `resources/views/reports`. School-specific helpers and templates currently exist for BIS and HCGS configurations.
+
+## Requirements
+
+- PHP 8.3 or newer with the extensions required by Laravel and the selected database
+- Composer
+- Node.js and npm
+- MySQL for the provided environment template, or SQLite/another Laravel-supported database
+- `wkhtmltopdf` for PDF output outside the local environment
+
+If legacy data will be imported, access to the source database and its appropriate PHP database driver are also required.
+
+## Local setup
+
+1. Clone the repository and enter the project directory.
+2. Create the environment file and configure the database, school details, and feature flags:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Install and initialize the application:
+
+   ```bash
+   composer run setup
+   ```
+
+   This installs PHP and JavaScript dependencies, preserves the configured `.env`, generates the application key, runs database migrations, and builds the frontend assets.
+
+4. Optionally seed a development user:
+
+   ```bash
+   php artisan db:seed
+   ```
+
+5. Start the development services:
+
+   ```bash
+   composer run dev
+   ```
+
+The development command starts the Laravel server, queue listener, application log viewer, and Vite development server. Open `http://localhost:8000`; the application redirects to the main panel.
+
+### Manual setup
+
+If you prefer to run each step separately:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The supplied `.env.example` is configured for MySQL, so create the named database and provide valid `DB_*` credentials before migrating. To use SQLite instead, create `database/database.sqlite`, set `DB_CONNECTION=sqlite`, and remove or leave unused the other `DB_*` values.
 
-## Contributing
+## Configuration
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Besides Laravel's standard environment variables, the application uses these project-specific settings.
 
-## Code of Conduct
+### School identity
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```dotenv
+APP_NAME="School Name"
+SCHOOL_NAME="School Name"
+SCHOOL_ADDRESS="School Address"
+SCHOOL_COUNTRY="Country"
+SCHOOL_QUARTER_TERM=4
+```
 
-## Security Vulnerabilities
+`APP_NAME` also selects school-specific report views in parts of the application, so it must match an available report template directory when PDF reports are enabled.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Optional features
+
+The following flags default to `false` and can be enabled per deployment:
+
+```dotenv
+FEATURE_SECTION=false
+FEATURE_GRADE_IMPORT=false
+FEATURE_CARD_TEMPLATE=false
+FEATURE_HOMEROOM_DEPORTMENT=false
+FEATURE_STUDENT_LRN=false
+FEATURE_MIDQUARTER=false
+FEATURE_HOUSE_TEAM=false
+```
+
+After changing environment values in a cached environment, run `php artisan config:clear`.
+
+### Legacy database migration
+
+Set the `OLD_DB_*` variables to connect to the legacy data source:
+
+```dotenv
+OLD_DB_CONNECTION=mysql
+OLD_DB_HOST=127.0.0.1
+OLD_DB_PORT=3306
+OLD_DB_DATABASE=legacy_grading_system
+OLD_DB_USERNAME=root
+OLD_DB_PASSWORD=
+```
+
+Create the new application schema first, then run the migration pipeline:
+
+```bash
+php artisan migrate
+php artisan migrate:all
+```
+
+Use `php artisan migrate:all --fresh` only when you intentionally want the command to reset target data. Individual import commands such as `migrate:students`, `migrate:subjects`, and `migrate:grades` are also available.
+
+## Reports and PDF generation
+
+Quarter reports and transcripts are rendered from Blade templates. In a local environment, report routes return HTML for easier development and debugging. In non-local environments, the same views are converted to A4 portrait PDFs using `wkhtmltopdf` through Laravel Snappy.
+
+Before deploying PDF output, configure the Snappy binary paths for the target operating system and verify that the selected school report templates exist.
+
+## Development commands
+
+```bash
+# Run the automated test suite
+composer test
+
+# Format PHP code
+./vendor/bin/pint
+
+# Build production frontend assets
+npm run build
+
+# Run application health checks
+php artisan health:check
+
+# Create an application backup
+php artisan backup:run
+```
+
+## Key directories
+
+```text
+app/Filament/               Filament panels, pages, resources, imports, and exports
+app/Helpers/                Grade formulas and school-specific behavior
+app/Http/Controllers/       Report and legacy-migration controllers
+app/Models/                 Academic and system data models
+database/migrations/        Application database schema
+resources/views/reports/    Report-card and transcript templates
+config/system-features.php  Deployment feature flags
+tests/                      PHPUnit feature and unit tests
+```
+
+## Current implementation notes
+
+- Quarter report and transcript generation are implemented.
+- Award, mid-quarter, and subject reports are not currently exposed; only implemented report routes are registered.
+- The bundled seeder creates only a development test user; production users and roles should be provisioned through an approved deployment or migration process.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project currently inherits the MIT license declaration from its Laravel project metadata. Confirm the intended project license before public distribution.
