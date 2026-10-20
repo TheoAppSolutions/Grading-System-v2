@@ -16,6 +16,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Config\Role;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Saade\FilamentFacehash\Concerns\HasFacehashAvatar;
@@ -24,7 +25,7 @@ use Marcelodelgado\Announcements\Traits\HasAnnouncements;
 #[Table('users')]
 #[Fillable(['name', 'email', 'last_name', 'first_name', 'middle_name', 'suffix', 'honorifics', 'password', 'active'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasFacehashAvatar, HasAnnouncements;
@@ -90,7 +91,7 @@ class User extends Authenticatable implements FilamentUser
 
         return collect($paths)
             ->filter(fn (string $path): bool => preg_match('/\.(jpe?g|png|gif|webp)$/i', $path) === 1)
-            ->sort()
+            ->sortByDesc(fn (string $path): int => Storage::disk('public')->lastModified($path))
             ->first();
     }
 

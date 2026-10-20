@@ -9,9 +9,11 @@ use App\Models\Grade;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Support\ImportCodeWorkbook;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ImportAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Notifications\Notification;
@@ -29,8 +31,10 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
 use League\Csv\Bom;
 use League\Csv\Writer;
 use Override;
@@ -155,13 +159,6 @@ class GradesPage extends Page implements HasTable
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                Text::make(new HtmlString(
-                                    '<div class="space-y-1 pt-1">'
-                                    .'<div class="text-lg font-semibold text-gray-950 dark:text-white">Grade period</div>'
-                                    .'<div class="text-sm text-gray-500 dark:text-gray-400">Select the quarter and grading period to display.</div>'
-                                    .'</div>'
-                                )),
-
                                 Grid::make(1)
                                     ->schema([
                                         ToggleButtons::make('quarter_entry')
@@ -341,6 +338,43 @@ class GradesPage extends Page implements HasTable
                 ->modalDescription(fn (ImportAction $action) => $action->getModalAction('downloadGradeTemplate'))
                 ->visible(fn (): bool => config('system-features.grade_import') && SchoolYear::getActive() !== null),
 
+            Action::make('importGrades')
+                ->label('Import Grades')
+                ->outlined()
+                ->color('warning')
+                ->schema([
+                    FileUpload::make('workbook')
+                        ->label('Excel workbook')
+                        ->helperText('The workbook must contain an IMPORT CODE column.')
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-excel',
+                        ])
+                        ->storeFiles(false)
+                        ->required(),
+                ])
+                ->action(function (array $data): void {
+                    abort_unless($this->canManageCurrentSubject(), 403);
+
+                    try {
+                        $records = ImportCodeWorkbook::read($this->uploadedFilePath($data['workbook'] ?? null));
+                        $this->stageImportedGrades($records);
+                    } catch (ValidationException $exception) {
+                        Notification::make()
+                            ->title('Grades were not imported')
+                            ->body(collect($exception->errors())->flatten()->implode(' '))
+                            ->danger()
+                            ->send();
+                    } catch (\Throwable $exception) {
+                        Notification::make()
+                            ->title('Grades were not imported')
+                            ->body($exception->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                })
+                ->visible(fn (): bool => config('system-features.grade_import') && SchoolYear::getActive() !== null),
+
             Action::make('save')
                 ->label('Save Grades')
                 ->color('success')
@@ -406,6 +440,106 @@ class GradesPage extends Page implements HasTable
                     });
             })
             ->exists();
+    }
+
+    private function uploadedFilePath(mixed $file): string
+    {
+        if ($file instanceof UploadedFile && $file->getRealPath()) {
+            return $file->getRealPath();
+        }
+
+        throw ValidationException::withMessages([
+            'workbook' => 'Please upload a readable Excel workbook.',
+        ]);
+    }
+
+    private function stageImportedGrades(array $records): void
+    {
+        $schoolYearId = SchoolYear::getActive()?->id;
+
+        if (! $schoolYearId || ! $this->subjectId || ! $this->gradeLevelId) {
+            throw ValidationException::withMessages([
+                'workbook' => 'The current subject, grade level, or school year is unavailable.',
+            ]);
+        }
+
+        $studentIds = collect($records)->pluck('student_id')->unique()->values();
+        $validStudentIds = Student::query()
+            ->whereIn('id', $studentIds)
+            ->where('active', 1)
+            ->whereHas('enrollments', fn ($query) => $query
+                ->where('school_year_id', $schoolYearId)
+                ->where('grade_level_id', $this->gradeLevelId))
+            ->pluck('id');
+
+        $validStudentIdLookup = $validStudentIds
+            ->mapWithKeys(fn ($studentId): array => [(string) $studentId => true]);
+
+        $staged = [];
+        $ignoredCount = 0;
+
+        foreach ($records as $record) {
+            $studentId = (string) $record['student_id'];
+
+            if (! preg_match('/^\d+$/', $studentId)) {
+                $ignoredCount++;
+
+                continue;
+            }
+
+            // Use the exact student ID as the key. Codes for students outside
+            // the current grade level are ignored and can never overwrite a row.
+            if (! isset($validStudentIdLookup[$studentId])) {
+                $ignoredCount++;
+
+                continue;
+            }
+
+            // If a workbook contains the same student on more than one sheet,
+            // the last exact student-ID match is the value staged for review.
+            $staged[$studentId] = [
+                'midquarter' => $this->validateImportedGrade($record['midquarter'], 'midquarter', 100),
+                'final' => $this->validateImportedGrade($record['final'], 'final', 100),
+                'effort' => $this->validateImportedGrade($record['effort'], 'effort', 5),
+                'deportment' => $this->validateImportedGrade($record['deportment'], 'deportment', 100),
+            ];
+        }
+
+        if ($staged === []) {
+            throw ValidationException::withMessages([
+                'workbook' => 'No IMPORT CODE student IDs exactly matched an active student in the selected grade level and school year.',
+            ]);
+        }
+
+        foreach ($staged as $studentId => $values) {
+            // Keep the import in Livewire state. The existing Save Grades action
+            // is the only path that writes these values to the database.
+            $this->pendingGrades[$studentId][$this->quarter_entry] = $values;
+        }
+
+        $this->resetTable();
+
+        Notification::make()
+            ->title('Grades imported for review')
+            ->body(count($staged).' '.str('student')->plural(count($staged)).' staged for quarter '.$this->quarter_entry.'.'
+                .($ignoredCount > 0 ? " {$ignoredCount} unmatched code(s) ignored." : ''))
+            ->success()
+            ->send();
+    }
+
+    private function validateImportedGrade(?string $value, string $field, int $max): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (! is_numeric($value) || (float) $value < 0 || (float) $value > $max) {
+            throw ValidationException::withMessages([
+                'workbook' => "Invalid {$field} grade '{$value}'. Expected a number from 0 to {$max}.",
+            ]);
+        }
+
+        return (float) $value;
     }
 
     #[Override]

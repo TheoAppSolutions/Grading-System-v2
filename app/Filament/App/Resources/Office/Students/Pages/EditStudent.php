@@ -3,7 +3,7 @@
 namespace App\Filament\App\Resources\Office\Students\Pages;
 
 use App\Filament\App\Resources\Office\Students\StudentResource;
-use App\Models\User;
+use App\Support\Concerns\CleansUpPhotoFiles;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -13,12 +13,14 @@ use Override;
 
 class EditStudent extends EditRecord
 {
+    use CleansUpPhotoFiles;
+
     protected static string $resource = StudentResource::class;
 
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return $this->record->first_name . ' ' . $this->record->middle_name . ' ' . $this->record->last_name;
+        return $this->record->first_name.' '.$this->record->middle_name.' '.$this->record->last_name;
     }
 
     protected function getHeaderActions(): array
@@ -43,5 +45,13 @@ class EditStudent extends EditRecord
     protected function getFormActions(): array
     {
         return [];
+    }
+
+    protected function afterSave(): void
+    {
+        $this->cleanupUnreferencedPhotoFiles(
+            'photos/students/'.$this->record->getKey(),
+            $this->form->getRawState()['photo'] ?? null,
+        );
     }
 }
