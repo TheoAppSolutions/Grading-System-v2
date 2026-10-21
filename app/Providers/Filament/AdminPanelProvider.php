@@ -160,6 +160,9 @@ class AdminPanelProvider extends PanelProvider
                 $groups[] = NavigationGroup::make('Developer Tools')->items([
                     ...BackupsPage::getNavigationItems(),
                     ...HealthCheckResultsPage::getNavigationItems(),
+                    NavigationItem::make('Updater')
+                        ->icon(Heroicon::ArrowPath)
+                        ->url(url('/admin/updater')),
                     NavigationItem::make('Logs')
                         ->icon(Heroicon::ExclamationTriangle)
                         ->url('/telescope')
