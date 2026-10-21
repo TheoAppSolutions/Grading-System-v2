@@ -8,8 +8,7 @@ use Illuminate\Console\Command;
 class MigrateEnrollmentsCommand extends Command
 {
     protected $signature = 'migrate:enrollments
-                            {--fresh : Reset enrollments table before migrating}
-                            {--sync-levels : Run sync-current-level after migrating}';
+                            {--fresh : Reset enrollments table before migrating}';
 
     protected $description = 'Migrate enrollments from old MySQL to new SQLite';
 
@@ -47,24 +46,6 @@ class MigrateEnrollmentsCommand extends Command
                 $this->line("  • Row [{$err['row']}]: {$err['message']}");
             }
             return self::FAILURE;
-        }
-
-        // Optionally sync students.current_level after enrollments are in
-        if ($this->option('sync-levels')) {
-            $this->newLine();
-            $this->info('Syncing students.current_level from latest enrollments...');
-
-            $syncResponse = $controller->syncCurrentLevels();
-            $syncData     = $syncResponse->getData(assoc: true);
-
-            $this->table(
-                ['Metric', 'Count'],
-                [
-                    ['Students updated', $syncData['updated'] ?? 0],
-                    ['Students skipped', $syncData['skipped'] ?? 0],
-                    ['Errors',           count($syncData['errors'] ?? [])],
-                ]
-            );
         }
 
         $this->newLine();

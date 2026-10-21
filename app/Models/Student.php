@@ -117,7 +117,7 @@ class Student extends Model
 
     public function getCurrentEnrollment(): ?Enrollment
     {
-        return $this->enrollments()->latest('entry_id')->first();
+        return $this->enrollments()->latest('school_year_id')->first();
     }
 
     public function getGradesByYear(string $schoolyear): HasMany

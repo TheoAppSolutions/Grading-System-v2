@@ -21,6 +21,19 @@ return new class extends Migration
 
             $table->unique(['grade_level_id', 'label', 'school_year_id']);
         });
+
+        Schema::create('student_sections', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            $table->foreignId('section_id')->nullable()->constrained('sections')->nullOnDelete();
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(
+                ['student_id', 'school_year_id'],
+                'student_sections_student_school_year_unique'
+            );
+        });
     }
 
     /**
@@ -28,6 +41,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('student_sections');
         Schema::dropIfExists('sections');
     }
 };

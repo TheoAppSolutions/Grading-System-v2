@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Migration;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class EnrollmentMigrationController extends BaseMigrationController
 {
@@ -146,82 +144,4 @@ class EnrollmentMigrationController extends BaseMigrationController
         // 6 columns — keep in sync with columnCount above
     }
 
-    // -------------------------------------------------------------------------
-    // Sync current_level
-    // -------------------------------------------------------------------------
-
-    /**
-     * After enrollment migration, call this to backfill students.current_level.
-     *
-     * Strategy:
-     *   1. For each student, find their latest enrollment row by the highest
-     *      school_year_id value (higher id = more recent school year).
-     *   2. Take that enrollment's grade_level_id.
-     *   3. Update students.current_level with that value.
-     *
-     * Route:
-     *   POST /migrate/enrollments/sync-current-level
-     *
-     * Safe to re-run — uses upsert-style update, not insert.
-     * Students with no enrollment rows are left untouched (current_level stays null).
-     */
-    public function syncCurrentLevels(): JsonResponse
-    {
-        $updated = 0;
-        $skipped = 0;
-        $errors = [];
-
-        // Fetch the latest enrollment per student:
-        // latest = enrollment with the highest school_year_id for that student.
-        // We use a subquery to get max(school_year_id) per student_id, then
-        // join back to get the full row (to access grade_level_id).
-        $latestEnrollments = DB::connection('new_db')
-            ->table('enrollments as e')
-            ->joinSub(
-                DB::connection('new_db')
-                    ->table('enrollments')
-                    ->select('student_id', DB::raw('MAX(school_year_id) as max_sy_id'))
-                    ->whereNotNull('grade_level_id')
-                    ->groupBy('student_id'),
-                'latest',
-                fn($join) => $join
-                    ->on('e.student_id', '=', 'latest.student_id')
-                    ->on('e.school_year_id', '=', 'latest.max_sy_id')
-            )
-            ->select('e.student_id', 'e.grade_level_id')
-            ->get();
-
-        foreach ($latestEnrollments as $enrollment) {
-            if ($enrollment->grade_level_id === null) {
-                $skipped++;
-
-                continue;
-            }
-
-            try {
-                $affected = DB::connection('new_db')
-                    ->table('students')
-                    ->where('id', $enrollment->student_id)
-                    ->update(['current_level' => $enrollment->grade_level_id]);
-
-                $affected ? $updated++ : $skipped++;
-            } catch (Throwable $e) {
-                $errors[] = [
-                    'student_id' => $enrollment->student_id,
-                    'message' => $e->getMessage(),
-                ];
-                Log::error('syncCurrentLevels error', [
-                    'student_id' => $enrollment->student_id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
-
-        return response()->json([
-            'status' => empty($errors) ? 'done' : 'done_with_errors',
-            'updated' => $updated,
-            'skipped' => $skipped,
-            'errors' => $errors,
-        ]);
-    }
 }

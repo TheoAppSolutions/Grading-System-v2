@@ -71,6 +71,8 @@ class UserRoleMigrationController extends BaseMigrationController
             dedupeKey:   'entry_id'
         );
 
+        $officeRolesAdded = $this->addOfficeRolesForEligibleUsers();
+
         $unresolved = DB::table('user_roles')->whereNull('user_id')->count();
 
         return response()->json([
@@ -79,6 +81,7 @@ class UserRoleMigrationController extends BaseMigrationController
             'note'       => $unresolved > 0
                 ? "{$unresolved} row(s) could not resolve user_id — old user may not have been migrated."
                 : 'All user_id values resolved successfully.',
+            'office_roles_added' => $officeRolesAdded,
             ...$stats,
         ]);
     }
@@ -134,5 +137,50 @@ class UserRoleMigrationController extends BaseMigrationController
             ->whereNotNull('old_id')
             ->pluck('id', 'old_id')
             ->all();
+    }
+
+    /**
+     * Users with Principal, Registrar, or Secretary access also need Office
+     * access. Add the derived role only when it does not already exist so the
+     * migration remains safe to run more than once.
+     */
+    private function addOfficeRolesForEligibleUsers(): int
+    {
+        $eligibleUserIds = DB::table('user_roles')
+            ->select('user_id')
+            ->whereNotNull('user_id')
+            ->whereIn('role_id', [2, 6, 7])
+            ->distinct()
+            ->pluck('user_id');
+
+        if ($eligibleUserIds->isEmpty()) {
+            return 0;
+        }
+
+        $officeUserIds = DB::table('user_roles')
+            ->where('role_id', 3)
+            ->whereIn('user_id', $eligibleUserIds)
+            ->pluck('user_id')
+            ->all();
+
+        $now = now()->toDateTimeString();
+        $rows = $eligibleUserIds
+            ->diff($officeUserIds)
+            ->map(fn ($userId) => [
+                'user_id' => $userId,
+                'role_id' => 3,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])
+            ->values()
+            ->all();
+
+        if ($rows === []) {
+            return 0;
+        }
+
+        DB::table('user_roles')->insert($rows);
+
+        return count($rows);
     }
 }

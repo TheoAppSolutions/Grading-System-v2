@@ -71,6 +71,7 @@ class MigrateUsersCommand extends Command
             ['Metric', 'Count'],
             [
                 ['Rows inserted',   $rolesData['inserted']   ?? 0],
+                ['Office roles added', $rolesData['office_roles_added'] ?? 0],
                 ['Rows skipped',    $rolesData['skipped']    ?? 0],
                 ['Errors',          count($rolesData['errors'] ?? [])],
                 ['Unresolved user_id', $rolesData['unresolved'] ?? 0],

@@ -25,6 +25,6 @@ class Graduate extends Model
     // Helpers
     public function scopeBySchoolYear($query, string $year)
     {
-        return $query->where('graduated_at', $year);
+        return $query->where('school_year_id', $year);
     }
 }

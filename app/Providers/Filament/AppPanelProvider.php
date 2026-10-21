@@ -146,6 +146,15 @@ class AppPanelProvider extends PanelProvider
                     ->values()
                     ->all();
 
+                // Office Menu is intended for office staff and administrators
+                // only. Remove the entire group for all other App-panel users.
+                if (Auth::user()?->isOffice() !== true) {
+                    $groups = collect($groups)
+                        ->reject(fn (NavigationGroup $group) => $group->getLabel() === 'Office Menu')
+                        ->values()
+                        ->all();
+                }
+
                 if ($schoolYear) {
                     $subjectGroups = $this->buildSubjectNavItems($schoolYear);
 

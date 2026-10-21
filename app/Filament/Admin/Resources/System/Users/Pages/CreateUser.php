@@ -5,8 +5,9 @@ namespace App\Filament\Admin\Resources\System\Users\Pages;
 use App\Filament\Admin\Resources\System\Users\UserResource;
 use App\Models\Configuration;
 use Filament\Resources\Pages\CreateRecord;
-use Override;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use Override;
 
 class CreateUser extends CreateRecord
 {
@@ -15,9 +16,17 @@ class CreateUser extends CreateRecord
     #[Override]
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        $defaultPassword = Configuration::get('default_password');
+
+        if (! is_string($defaultPassword) || trim($defaultPassword) === '') {
+            throw ValidationException::withMessages([
+                'default_password' => 'A default password must be configured before creating a user.',
+            ]);
+        }
+
         $data['name'] = $data['first_name'] . ' ' . $data['last_name'];
         $data['active'] = 1;
-        $data['password'] = bcrypt(Configuration::get('default_password', '654321'));
+        $data['password'] = bcrypt($defaultPassword);
         return parent::mutateFormDataBeforeCreate($data);
     }
 

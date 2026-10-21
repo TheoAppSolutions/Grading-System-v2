@@ -23,10 +23,10 @@ class StudentSection extends Model
         return $query->where('school_year_id', $schoolyear);
     }
 
-    public static function getCurrentSection(int $studentId, string $schoolyear): ?string
+    public static function getCurrentSection(int $studentId, string $schoolyear): ?int
     {
         return static::where('student_id', $studentId)
             ->where('school_year_id', $schoolyear)
-            ->value('section');
+            ->value('section_id');
     }
 }

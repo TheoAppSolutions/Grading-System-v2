@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Table('comments_criteria')]
 #[Unguarded]
@@ -22,16 +21,6 @@ class CommentCriteria extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(CommentCategory::class, 'comment_category_id');
-    }
-
-    public function midquarterScores(): HasMany
-    {
-        return $this->hasMany(Comment::class, 'criteria_id');
-    }
-
-    public function quarterScores(): HasMany
-    {
-        return $this->hasMany(Comment::class, 'criteria_id');
     }
 
     // Helpers
