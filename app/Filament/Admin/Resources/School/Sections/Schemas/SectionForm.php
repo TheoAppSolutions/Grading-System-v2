@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\School\Sections\Schemas;
 
 use App\Models\Config\GradeLevel;
 use App\Models\SchoolYear;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -20,10 +21,13 @@ class SectionForm
                     ->searchable()
                     ->options(
                         function () {
-                            return GradeLevel::pluck('label', 'id')->toArray();;
+                            return GradeLevel::pluck('label', 'id')->toArray();
                         }
                     ),
-                TextInput::make('section')
+                Hidden::make('school_year_id')
+                    ->default(fn (): ?int => SchoolYear::getActive()?->id)
+                    ->required(),
+                TextInput::make('label')
                     ->label('Section / Strand')
                     ->required()
                     ->columnSpanFull()
