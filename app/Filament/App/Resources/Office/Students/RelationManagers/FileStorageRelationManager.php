@@ -54,6 +54,7 @@ class FileStorageRelationManager extends RelationManager
                             FileStorage::create([
                                 'owner_id' => $owner->getKey(),
                                 'owner_type' => $owner::class,
+                                'uploaded_by' => auth()->id(),
                                 'file_name' => $data['file_names'][$path] ?? basename($path),
                                 'file_type' => Storage::disk('public')->mimeType($path) ?: 'application/octet-stream',
                                 'hashed_filename' => $path,

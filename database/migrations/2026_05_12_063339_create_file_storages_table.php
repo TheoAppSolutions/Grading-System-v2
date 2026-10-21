@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('owner_id');
             $table->string('owner_type');
+            $table->foreignId('uploaded_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->string('file_name')->nullable();
             $table->string('file_type');
             $table->string('hashed_filename')->nullable();
