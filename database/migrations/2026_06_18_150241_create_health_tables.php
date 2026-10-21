@@ -26,9 +26,6 @@ return new class extends Migration
             $table->uuid('batch');
 
             $table->timestamps();
-        });
-        
-        Schema::connection($connection)->table($tableName, function (Blueprint $table) {
             $table->index('created_at');
             $table->index('batch');
         });

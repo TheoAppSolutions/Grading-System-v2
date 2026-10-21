@@ -17,6 +17,10 @@ return new class extends Migration
             $table->integer('school_year_id')->index();
             $table->json('attendance');
             $table->timestamps();
+            $table->unique(
+                ['student_id', 'school_year_id'],
+                'attendances_student_school_year_unique'
+            );
         });
     }
 

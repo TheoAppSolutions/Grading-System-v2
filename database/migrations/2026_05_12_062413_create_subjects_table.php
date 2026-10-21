@@ -32,6 +32,10 @@ return new class extends Migration
             $table->string('semester')->default('');
             $table->string('category')->default('');
             $table->index('subject_id');
+            $table->unique(
+                ['subject_id', 'school_year_id'],
+                'subject_users_subject_year_unique'
+            );
             $table->timestamps();
         });
 
@@ -40,6 +44,10 @@ return new class extends Migration
             $table->integer('subject_id')->nullable();
             $table->string('school_year_id')->nullable();
             $table->index('subject_id');
+            $table->unique(
+                ['subject_id', 'school_year_id'],
+                'subject_units_subject_year_unique'
+            );
             $table->float('units');
             $table->timestamps();
         });

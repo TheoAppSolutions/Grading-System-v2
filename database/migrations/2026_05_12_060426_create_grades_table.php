@@ -28,6 +28,10 @@ return new class extends Migration
 
             $table->index(['student_id', 'grade_level_id', 'school_year_id']);
             $table->index(['subject_id', 'grade_level_id', 'quarter']);
+            $table->unique(
+                ['student_id', 'subject_id', 'school_year_id', 'quarter'],
+                'grades_student_subject_year_quarter_unique'
+            );
         });
     }
 

@@ -18,6 +18,10 @@ return new class extends Migration
             $table->string('grade_level_id')->nullable();
             $table->integer('section_id')->nullable();
             $table->timestamps();
+            $table->unique(
+                ['student_id', 'school_year_id'],
+                'enrollments_student_school_year_unique'
+            );
         });
     }
 
