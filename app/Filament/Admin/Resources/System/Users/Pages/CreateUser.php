@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\System\Users\Pages;
 
 use App\Filament\Admin\Resources\System\Users\UserResource;
-use App\Models\Setting;
+use App\Models\Configuration;
 use Filament\Resources\Pages\CreateRecord;
 use Override;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,7 @@ class CreateUser extends CreateRecord
     {
         $data['name'] = $data['first_name'] . ' ' . $data['last_name'];
         $data['active'] = 1;
-        $data['password'] = bcrypt(Setting::get('default_password', '654321'));
+        $data['password'] = bcrypt(Configuration::get('default_password', '654321'));
         return parent::mutateFormDataBeforeCreate($data);
     }
 

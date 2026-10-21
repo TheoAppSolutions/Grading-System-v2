@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Models\Config\CardTemplate;
 use App\Models\Grade;
 use App\Models\SchoolYear;
-use App\Models\Setting;
+use App\Models\Configuration;
 use App\Models\Student;
 use App\Models\StudentField;
 use App\Models\SubjectExcluded;
@@ -53,15 +53,15 @@ class ModelHelpersTest extends TestCase
         $this->assertDatabaseCount('student_fields', 1);
     }
 
-    public function test_setting_get_set_and_forget_round_trip_values(): void
+    public function test_configuration_get_set_and_forget_round_trip_values(): void
     {
-        $this->assertSame('fallback', Setting::get('missing', 'fallback'));
+        $this->assertSame('fallback', Configuration::get('missing', 'fallback'));
 
-        Setting::set('report.template', 'summary');
-        $this->assertSame('summary', Setting::get('report.template'));
+        Configuration::set('report.template', 'summary');
+        $this->assertSame('summary', Configuration::get('report.template'));
 
-        Setting::forget('report.template');
-        $this->assertNull(Setting::get('report.template'));
+        Configuration::forget('report.template');
+        $this->assertNull(Configuration::get('report.template'));
     }
 
     public function test_school_year_returns_the_first_active_record(): void

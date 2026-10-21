@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\Unguarded;
 use Illuminate\Database\Eloquent\Model;
 
-#[Table('settings')]
+#[Table('configurations')]
 #[Unguarded]
-class Setting extends Model
+class Configuration extends Model
 {
     // Helpers
     public static function get(string $key, mixed $default = null): mixed
