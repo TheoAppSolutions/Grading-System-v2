@@ -13,6 +13,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('body');
             $table->string('type');
+            $table->string('target_type')->default('all');
+            $table->foreignId('target_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_dismissible')->default(true);
             $table->dateTime('starts_at')->nullable();

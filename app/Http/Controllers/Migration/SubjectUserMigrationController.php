@@ -68,10 +68,41 @@ class SubjectUserMigrationController extends BaseMigrationController
             dedupeKey: 'id'
         );
 
+        $stats['teacher_roles_added'] = $this->assignTeacherRoles();
+
         return response()->json([
             'status' => empty($stats['errors']) ? 'done' : 'done_with_errors',
             ...$stats,
         ]);
+    }
+
+    private function assignTeacherRoles(): int
+    {
+        $connection = DB::connection('new_db');
+        $userIds = $connection->table('subject_users')
+            ->get(['user_id', 'user2_id'])
+            ->flatMap(fn (object $subjectUser): array => array_filter([
+                $subjectUser->user_id,
+                $subjectUser->user2_id,
+            ]))
+            ->unique();
+
+        $added = 0;
+
+        foreach ($userIds as $userId) {
+            if (! $connection->table('user_roles')->where('user_id', $userId)->where('role_id', 5)->exists()) {
+                $connection->table('user_roles')->insert([
+                    'user_id' => $userId,
+                    'role_id' => 5,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $added++;
+            }
+        }
+
+        return $added;
     }
 
     // -------------------------------------------------------------------------

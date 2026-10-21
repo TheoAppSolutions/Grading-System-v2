@@ -145,7 +145,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
     public function isTeacher(): bool
     {
-        return $this->hasRole(5) || $this->hasRole(1);
+        return $this->hasRole(5)
+            || $this->hasRole(1)
+            || SubjectUser::query()
+                ->where(function ($query): void {
+                    $query->where('user_id', $this->getKey())
+                        ->orWhere('user2_id', $this->getKey());
+                })
+                ->exists();
     }
 
     public function canAccessPanel(Panel $panel): bool

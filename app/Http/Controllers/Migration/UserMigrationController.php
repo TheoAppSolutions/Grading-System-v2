@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Migration;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class UserMigrationController extends BaseMigrationController
@@ -128,10 +129,27 @@ class UserMigrationController extends BaseMigrationController
 
     public function reset(): JsonResponse
     {
-        $deleted = DB::table('users')->delete();
-        DB::table('users')->truncate();
+        $referencedUserIds = Schema::hasTable('grades')
+            ? DB::table('grades')->whereNotNull('user_id')->distinct()->pluck('user_id')
+            : collect();
 
-        return response()->json(['status' => 'reset', 'deleted' => $deleted]);
+        $users = DB::table('users');
+
+        if ($referencedUserIds->isNotEmpty()) {
+            $users->whereNotIn('id', $referencedUserIds);
+        }
+
+        $deleted = $users->delete();
+        $preserved = DB::table('users')->count();
+
+        return response()->json([
+            'status' => 'reset',
+            'deleted' => $deleted,
+            'preserved' => $preserved,
+            'note' => $preserved > 0
+                ? 'Referenced users were preserved because grades still point to them.'
+                : null,
+        ]);
     }
 
     // -------------------------------------------------------------------------
@@ -145,6 +163,10 @@ class UserMigrationController extends BaseMigrationController
         $firstName  = Str::title(str_replace('?', 'ñ', trim($row->firstname  ?? '')));
         $lastName   = Str::title(str_replace('?', 'ñ', trim($row->lastname   ?? '')));
         $middleName = Str::title(str_replace('?', 'ñ', trim($row->middlename ?? '')));
+
+        if ($firstName === '' || Str::contains(strtolower(trim("{$firstName} {$lastName}")), 'test')) {
+            return [];
+        }
 
         if (config('app.name') === 'HCGS') {
             // Duplicate issue - forcing to true

@@ -3,9 +3,9 @@
 namespace App\Filament\Plugins;
 
 use App\Filament\Resources\AnnouncementResource;
+use App\Filament\Widgets\ActiveAnnouncementsWidget;
 use Filament\Panel;
 use Marcelodelgado\Announcements\AnnouncementsPlugin as PackageAnnouncementsPlugin;
-use Marcelodelgado\Announcements\Filament\Widgets\AnnouncementsWidget;
 
 class AnnouncementsPlugin extends PackageAnnouncementsPlugin
 {
@@ -13,6 +13,6 @@ class AnnouncementsPlugin extends PackageAnnouncementsPlugin
     {
         $panel
             ->resources([AnnouncementResource::class])
-            ->widgets([AnnouncementsWidget::class]);
+            ->widgets([ActiveAnnouncementsWidget::class]);
     }
 }

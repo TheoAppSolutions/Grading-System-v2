@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Announcement;
 use Filament\Widgets\Widget;
-use Livewire\Attributes\On;
 use Illuminate\Support\Collection;
-use Marcelodelgado\Announcements\Models\Announcement;
+use Livewire\Attributes\On;
 
 class ReadAnnouncementsWidget extends Widget
 {
@@ -26,6 +26,7 @@ class ReadAnnouncementsWidget extends Widget
             ->where('announcement_user.user_id', auth()->id())
             ->whereNotNull('announcement_user.dismissed_at')
             ->where('announcements.is_active', true)
+            ->targetedTo(auth()->user())
             ->exists();
     }
 
@@ -46,6 +47,7 @@ class ReadAnnouncementsWidget extends Widget
             ->where('announcement_user.user_id', auth()->id())
             ->whereNotNull('announcement_user.dismissed_at')
             ->where('announcements.is_active', true)
+            ->targetedTo(auth()->user())
             ->orderByDesc('announcement_user.dismissed_at')
             ->get();
     }
