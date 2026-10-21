@@ -8,6 +8,7 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\BackupsPage;
 use App\Filament\Pages\HealthCheckResultsPage;
+use App\Filament\Admin\Pages\UpdaterPage;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -160,9 +161,7 @@ class AdminPanelProvider extends PanelProvider
                 $groups[] = NavigationGroup::make('Developer Tools')->items([
                     ...BackupsPage::getNavigationItems(),
                     ...HealthCheckResultsPage::getNavigationItems(),
-                    NavigationItem::make('Updater')
-                        ->icon(Heroicon::ArrowPath)
-                        ->url(url('/admin/updater')),
+                    ...UpdaterPage::getNavigationItems(),
                     NavigationItem::make('Logs')
                         ->icon(Heroicon::ExclamationTriangle)
                         ->url('/telescope')

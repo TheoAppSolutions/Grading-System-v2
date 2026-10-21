@@ -29,7 +29,28 @@ class GitUpdater
     }
 
     /**
-     * @return array{available: bool, branch: string, local: string, remote: string}
+     * @return array{local: string, local_short: string, local_date: string}
+     */
+    public function current(): array
+    {
+        $repoPath = base_path();
+        $local = trim($this->run('git rev-parse HEAD', $repoPath)->output());
+        $localShort = trim($this->run('git rev-parse --short HEAD', $repoPath)->output());
+        $localDate = trim($this->run('git log -1 --format=%cI HEAD', $repoPath)->output());
+
+        if ($local === '' || $localShort === '' || $localDate === '') {
+            throw new RuntimeException('Could not determine the latest local Git commit.');
+        }
+
+        return [
+            'local' => $local,
+            'local_short' => $localShort,
+            'local_date' => $localDate,
+        ];
+    }
+
+    /**
+     * @return array{available: bool, branch: string, local: string, local_short: string, local_date: string, remote: string}
      */
     public function status(): array
     {
@@ -82,7 +103,7 @@ class GitUpdater
     }
 
     /**
-     * @return array{available: bool, branch: string, local: string, remote: string}
+     * @return array{available: bool, branch: string, local: string, local_short: string, local_date: string, remote: string}
      */
     private function inspect(bool $fetch): array
     {
@@ -105,7 +126,8 @@ class GitUpdater
             }
         }
 
-        $local = trim($this->run('git rev-parse HEAD', $repoPath)->output());
+        $current = $this->current();
+        $local = $current['local'];
         $remote = trim($this->run(
             'git rev-parse --verify '.escapeshellarg('refs/remotes/origin/'.$branch),
             $repoPath,
@@ -116,6 +138,7 @@ class GitUpdater
         }
 
         return [
+            ...$current,
             'available' => $local !== $remote,
             'branch' => $branch,
             'local' => $local,
