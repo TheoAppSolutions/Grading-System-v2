@@ -3,6 +3,8 @@
 namespace App\Console\Commands\Migration;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class MigrateAllCommand extends Command
 {
@@ -97,18 +99,29 @@ class MigrateAllCommand extends Command
 
             $args = $fresh ? ['--fresh' => true] : [];
 
-            $exitCode = $this->call($step['command'], $args);
+            try {
+                $exitCode = $this->call($step['command'], $args);
+            } catch (Throwable $e) {
+                $exitCode = self::FAILURE;
+                Log::channel('migrationlog')->error('Migration command exception', [
+                    'command' => $step['command'],
+                    'label' => $step['label'],
+                    'error' => $e->getMessage(),
+                    'exception' => $e::class,
+                ]);
+                $this->error("{$step['label']} threw an exception. Continuing with the next step.");
+            }
 
             if ($exitCode !== self::SUCCESS) {
                 $failed[] = $step['label'];
+                Log::channel('migrationlog')->error('Migration command failed', [
+                    'command' => $step['command'],
+                    'label' => $step['label'],
+                    'exit_code' => $exitCode,
+                ]);
                 $this->newLine();
                 $this->error("✗  {$step['label']} failed. See errors above.");
-
-                if (! $this->confirm('Continue with the next step anyway?', default: false)) {
-                    $this->newLine();
-                    $this->error('Migration aborted by user.');
-                    return self::FAILURE;
-                }
+                $this->warn('Continuing with the next migration step.');
             }
 
             $this->newLine();

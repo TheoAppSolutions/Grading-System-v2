@@ -25,8 +25,8 @@ return new class extends Migration
 
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id');
-            $table->integer('school_year_id');
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->json('comments_quarter');
             $table->json('comments_midquarter');
             $table->timestamps();

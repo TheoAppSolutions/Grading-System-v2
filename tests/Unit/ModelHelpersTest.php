@@ -8,6 +8,7 @@ use App\Models\SchoolYear;
 use App\Models\Configuration;
 use App\Models\Student;
 use App\Models\StudentField;
+use App\Models\Subject;
 use App\Models\SubjectExcluded;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -75,6 +76,31 @@ class ModelHelpersTest extends TestCase
     public function test_grade_scopes_filter_records_and_passed_helper_is_case_insensitive(): void
     {
         $user = User::factory()->create();
+        foreach ([3001, 3002] as $studentId) {
+            Student::query()->create([
+                'id' => $studentId,
+                'first_name' => 'Test',
+                'last_name' => 'Student',
+                'gender' => 'X',
+                'active' => 1,
+            ]);
+        }
+        foreach ([10, 11] as $subjectId) {
+            Subject::query()->create([
+                'id' => $subjectId,
+                'subject_title' => "Subject {$subjectId}",
+                'grade_level_id' => 7,
+                'active' => 1,
+            ]);
+        }
+        foreach ([2025, 2026] as $schoolYearId) {
+            SchoolYear::query()->create([
+                'id' => $schoolYearId,
+                'label' => (string) $schoolYearId,
+                'active' => 0,
+            ]);
+        }
+
         Grade::query()->create([
             'student_id' => 3001,
             'user_id' => $user->id,
@@ -104,6 +130,25 @@ class ModelHelpersTest extends TestCase
 
     public function test_subject_exclusion_helper_checks_student_subject_and_year(): void
     {
+        Student::query()->create([
+            'id' => 2001,
+            'first_name' => 'Test',
+            'last_name' => 'Student',
+            'gender' => 'X',
+            'active' => 1,
+        ]);
+        Subject::query()->create([
+            'id' => 10,
+            'subject_title' => 'Subject 10',
+            'grade_level_id' => 7,
+            'active' => 1,
+        ]);
+        SchoolYear::query()->create([
+            'id' => 2026,
+            'label' => '2026',
+            'active' => 0,
+        ]);
+
         SubjectExcluded::query()->create([
             'student_id' => 2001,
             'subject_id' => 10,

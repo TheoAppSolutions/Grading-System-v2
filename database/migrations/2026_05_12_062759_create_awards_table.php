@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('awards', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id')->index();
-            $table->integer('subject_id')->index();
-            $table->integer('school_year_id');
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->string('gender');
             $table->timestamps();
         });

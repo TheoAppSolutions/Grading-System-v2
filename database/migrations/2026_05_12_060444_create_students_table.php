@@ -25,7 +25,7 @@ return new class extends Migration
 
         Schema::create('student_infos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('student_id')->unique();
+            $table->foreignId('student_id')->unique()->constrained('students')->cascadeOnDelete();
             $table->date('birth_date')->nullable();
             $table->string('house_team')->nullable();
             $table->string('contact')->nullable();
@@ -38,7 +38,7 @@ return new class extends Migration
 
         Schema::create('student_fields', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('student_id')->nullable()->index();
+            $table->foreignId('student_id')->nullable()->constrained('students')->cascadeOnDelete();
             $table->string('field_name')->nullable();
             $table->string('field_value')->nullable();
             $table->timestamps();
@@ -50,8 +50,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('students');
         Schema::dropIfExists('student_infos');
         Schema::dropIfExists('student_fields');
+        Schema::dropIfExists('students');
     }
 };

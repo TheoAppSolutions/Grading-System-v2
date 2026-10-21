@@ -23,12 +23,12 @@ return new class extends Migration
 
         Schema::create('subject_users', function (Blueprint $table) {
             $table->id();
-            $table->integer('subject_id');
+            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedBigInteger('user2_id')->nullable();
             $table->foreign('user2_id')->references('id')->on('users')->nullOnDelete();
-            $table->integer('school_year_id');
-            $table->integer('section_id')->nullable();
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
+            $table->foreignId('section_id')->nullable()->constrained('sections')->nullOnDelete();
             $table->string('semester')->default('');
             $table->string('category')->default('');
             $table->index('subject_id');
@@ -41,8 +41,8 @@ return new class extends Migration
 
         Schema::create('subject_units', function (Blueprint $table) {
             $table->id();
-            $table->integer('subject_id')->nullable();
-            $table->string('school_year_id')->nullable();
+            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->index('subject_id');
             $table->unique(
                 ['subject_id', 'school_year_id'],
@@ -54,9 +54,9 @@ return new class extends Migration
 
         Schema::create('subject_excluded', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id')->index();
-            $table->integer('subject_id')->index();
-            $table->integer('school_year_id');
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->timestamps();
         });
     }

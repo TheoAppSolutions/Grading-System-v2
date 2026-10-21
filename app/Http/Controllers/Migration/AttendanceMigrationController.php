@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Migration;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceMigrationController extends BaseMigrationController
 {
+    private ?array $studentIds = null;
+
     /**
      * Migrates `attendance` from old MySQL → `attendances` in new SQLite.
      *
@@ -57,6 +60,12 @@ class AttendanceMigrationController extends BaseMigrationController
     public function migrate(): JsonResponse
     {
         $this->buildSchoolYearMap(); // from BaseMigrationController
+        $this->studentIds = DB::connection('new_db')
+            ->table('students')
+            ->pluck('id')
+            ->map(fn ($studentId) => (int) $studentId)
+            ->flip()
+            ->all();
 
         $stats = $this->runMigration(
             newTable:    'attendances',
@@ -91,10 +100,32 @@ class AttendanceMigrationController extends BaseMigrationController
     private function mapRow(object $row): array
     {
         $now = now()->toDateTimeString();
+        $studentId = (int) $row->student_id;
+        $schoolYearId = $this->resolveSchoolYear($row->schoolyear ?? null);
+
+        if (! isset($this->studentIds[$studentId])) {
+            Log::channel('migrationlog')->warning('Skipped orphan attendance row', [
+                'student_id' => $studentId,
+                'schoolyear' => $row->schoolyear ?? null,
+                'reason' => 'student does not exist in new_db.students',
+            ]);
+
+            return [];
+        }
+
+        if ($schoolYearId === null) {
+            Log::channel('migrationlog')->warning('Skipped attendance row with unknown school year', [
+                'student_id' => $studentId,
+                'schoolyear' => $row->schoolyear ?? null,
+                'reason' => 'school year does not exist in new_db.school_years',
+            ]);
+
+            return [];
+        }
 
         return [
-            'student_id'     => (int) $row->student_id,
-            'school_year_id' => $this->resolveSchoolYear($row->schoolyear ?? null),
+            'student_id'     => $studentId,
+            'school_year_id' => $schoolYearId,
             'attendance'     => $row->attendance, // JSON string preserved verbatim
             'created_at'     => $row->created_at ?? $now,
             'updated_at'     => $row->updated_at ?? $now,

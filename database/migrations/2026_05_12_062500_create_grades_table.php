@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id')->index();
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users');
-            $table->integer('subject_id')->index();
+            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
             $table->integer('grade_level_id');
-            $table->integer('school_year_id');
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->tinyInteger('quarter');
             $table->double('midquarter')->nullable();
             $table->double('final')->nullable();

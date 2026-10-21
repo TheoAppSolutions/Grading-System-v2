@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('deportments', function (Blueprint $table) {
             $table->id();
-            $table->integer('student_id')->index();
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->integer('school_year_id');
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->float('deportment')->nullable();
             $table->tinyInteger('quarter');
             $table->timestamps();

@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->integer('grade_level_id');
             $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
-            $table->integer('section_id')->nullable();
-            $table->integer('user_id')->nullable();
-            $table->integer('user2_id')->nullable();
+            $table->foreignId('section_id')->nullable()->constrained('sections')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user2_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

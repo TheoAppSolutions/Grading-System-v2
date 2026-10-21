@@ -75,6 +75,13 @@ class AcademicRecordsTest extends TestCase
             'coverage' => 1,
             'days' => 50,
         ]);
+        Student::query()->create([
+            'id' => 1001,
+            'first_name' => 'Sample',
+            'last_name' => 'Student',
+            'gender' => 1,
+            'active' => 1,
+        ]);
         Attendance::query()->create([
             'student_id' => 1001,
             'school_year_id' => $schoolYear->id,
@@ -99,6 +106,13 @@ class AcademicRecordsTest extends TestCase
             'school_year_id' => $schoolYear->id,
             'coverage' => 1,
             'days' => 10,
+        ]);
+        Student::query()->create([
+            'id' => 1001,
+            'first_name' => 'Sample',
+            'last_name' => 'Student',
+            'gender' => 1,
+            'active' => 1,
         ]);
         Attendance::query()->create([
             'student_id' => 1001,

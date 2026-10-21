@@ -6,6 +6,7 @@ use App\Helpers\MigrationTools;
 use App\Models\CommentCriteria;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CommentsMigrationController extends BaseMigrationController
 {
@@ -72,15 +73,48 @@ class CommentsMigrationController extends BaseMigrationController
                     ->chunk(self::CHUNK_SIZE, function ($rows) use (&$stats, $midquarterIndex) {
 
                         $toInsert = [];
+                        $studentIds = collect($rows)
+                            ->pluck('student_id')
+                            ->map(fn ($studentId) => (int) $studentId)
+                            ->unique()
+                            ->values();
+                        $existingStudentIds = DB::connection('new_db')
+                            ->table('students')
+                            ->whereIn('id', $studentIds)
+                            ->pluck('id')
+                            ->map(fn ($studentId) => (int) $studentId)
+                            ->all();
+                        $existingStudentIds = array_fill_keys($existingStudentIds, true);
 
                         foreach ($rows as $row) {
                             $schoolYearId = $this->resolveSchoolYear($row->schoolyear ?? null);
                             $key          = $row->student_id . '_' . ($row->schoolyear ?? '');
+                            $studentId    = (int) $row->student_id;
+
+                            if (! isset($existingStudentIds[$studentId])) {
+                                $stats['skipped']++;
+                                Log::channel('migrationlog')->warning('Skipped orphan comment row', [
+                                    'student_id' => $studentId,
+                                    'schoolyear' => $row->schoolyear ?? null,
+                                    'reason' => 'student does not exist in new_db.students',
+                                ]);
+                                continue;
+                            }
+
+                            if ($schoolYearId === null) {
+                                $stats['skipped']++;
+                                Log::channel('migrationlog')->warning('Skipped comment row with unknown school year', [
+                                    'student_id' => $studentId,
+                                    'schoolyear' => $row->schoolyear ?? null,
+                                    'reason' => 'school year does not exist in new_db.school_years',
+                                ]);
+                                continue;
+                            }
 
                             // Dedupe
                             $exists = DB::connection('new_db')
                                 ->table('comments')
-                                ->where('student_id',     $row->student_id)
+                                ->where('student_id',     $studentId)
                                 ->where('school_year_id', $schoolYearId)
                                 ->exists();
 
@@ -96,7 +130,7 @@ class CommentsMigrationController extends BaseMigrationController
                             $midquarterByQuarter = $midquarterIndex[$key] ?? [];
 
                             $toInsert[] = [
-                                'student_id'           => (int) $row->student_id,
+                                'student_id'           => $studentId,
                                 'school_year_id'       => $schoolYearId,
                                 'comments_quarter'     => $row->comments,
                                 'comments_midquarter'  => json_encode($midquarterByQuarter),
@@ -127,6 +161,10 @@ class CommentsMigrationController extends BaseMigrationController
                                             'row'     => $mapped['student_id'],
                                             'message' => $rowError->getMessage(),
                                         ];
+                                        Log::channel('migrationlog')->error('Migration insert error [comments]', [
+                                            'row' => $mapped,
+                                            'error' => $rowError->getMessage(),
+                                        ]);
                                     }
                                 }
                             }

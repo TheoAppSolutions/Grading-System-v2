@@ -62,7 +62,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Role::class, 'users_roles', 'user_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
     }
 
     public function subjects(): HasMany

@@ -307,9 +307,9 @@ abstract class BaseMigrationController extends Controller
                                     'old' => $row,
                                     'new' => $mapped,
                                 ];
-                            // } else {
-                                // $skippedRecords[$oldTable][] = $row;
-                                // $stats['skipped']++;
+                            } else {
+                                $skippedRecords[$oldTable][] = $row;
+                                $stats['skipped']++;
                             }
                         } catch (Throwable $e) {
                             $stats['errors'][] = [

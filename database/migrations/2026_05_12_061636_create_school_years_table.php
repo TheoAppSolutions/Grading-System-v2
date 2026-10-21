@@ -23,7 +23,7 @@ return new class extends Migration
 
         Schema::create('school_year_infos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_year_id')->constrained('school_years')->onDelete('cascade');
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->integer('coverage')->unsigned();
             $table->unsignedInteger('days')->default(0);
             $table->timestamps();
@@ -31,7 +31,7 @@ return new class extends Migration
 
         Schema::create('school_year_card_templates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_year_id')->constrained()->onDelete('cascade');
+            $table->foreignId('school_year_id')->constrained('school_years')->cascadeOnDelete();
             $table->integer('card_template_id')->nullable();
             $table->timestamps();
         });
@@ -42,8 +42,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('school_years');
-        Schema::dropIfExists('school_year_infos');
         Schema::dropIfExists('school_year_card_templates');
+        Schema::dropIfExists('school_year_infos');
+        Schema::dropIfExists('school_years');
     }
 };
