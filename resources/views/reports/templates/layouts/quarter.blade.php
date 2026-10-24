@@ -90,6 +90,10 @@
         @yield('content')
 
         @include('reports.templates.parts.blank_row')
+
+        @if (($type ?? null) === 'award')
+            @include('reports.templates.parts.footer_award', ['subjects' => array_values($subjects ?? [])])
+        @endif
     </table>
 </div>
 </body>

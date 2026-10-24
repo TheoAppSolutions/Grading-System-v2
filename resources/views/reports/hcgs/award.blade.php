@@ -1,0 +1,1 @@
+@extends('reports.hcgs.quarter')

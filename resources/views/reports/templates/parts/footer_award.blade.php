@@ -6,7 +6,7 @@
 @php($ctr=0)
 
 <tr style='height:15.0pt'>
-    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! $award['HIGHESTHONORS'] ?? '' !!}</td>
+    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! !empty($award['HIGHESTHONORS'] ?? null) ? \App\Helpers\MyTools::checkMark() : '' !!}</td>
     <td colspan=9 class=report-card__comments>With Highest Honors</td>
     <td colspan=3 class=report-card__blank></td>
 
@@ -20,7 +20,7 @@
     @endif
 </tr>
 <tr style='height:15.0pt'>
-    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! $award['HIGHHONORS'] ?? '' !!}</td>
+    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! !empty($award['HIGHHONORS'] ?? null) ? \App\Helpers\MyTools::checkMark() : '' !!}</td>
     <td colspan=9 class=report-card__comments>With High Honors</td>
     <td colspan=3 class=report-card__blank></td>
 
@@ -34,7 +34,7 @@
     @endif
 </tr>
 <tr style='height:15.0pt'>
-    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! $award['HONORS']  ?? '' !!}</td>
+    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! !empty($award['HONORS'] ?? null) ? \App\Helpers\MyTools::checkMark() : '' !!}</td>
     <td colspan=9 class=report-card__comments>With Honors</td>
     <td colspan=3 class=report-card__blank></td>
 
@@ -48,7 +48,7 @@
     @endif
 </tr>
 <tr style='height:15.0pt'>
-    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! $award["DEPORTMENT"] ?? '' !!}</td>
+    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! !empty($award['DEPORTMENT'] ?? null) ? \App\Helpers\MyTools::checkMark() : '' !!}</td>
     <td colspan=9 class=report-card__comments>Deportment</td>
     <td colspan=3 class=report-card__blank></td>
 
@@ -62,7 +62,7 @@
     @endif
 </tr>
 <tr style='height:15.0pt'>
-    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! $award['EFFORT'] ?? '' !!}</td>
+    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! !empty($award['EFFORT'] ?? null) ? \App\Helpers\MyTools::checkMark() : '' !!}</td>
     <td colspan=9 class=report-card__comments>Effort</td>
     <td colspan=3 class=report-card__blank></td>
 
@@ -76,7 +76,7 @@
     @endif
 </tr>
 <tr style='height:15.0pt'>
-    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! $attendance->PerfectAttendance ?? '' !!}</td>
+    <td colspan=8 height=20 class=report-card__checkmark style='height:15.0pt'>{!! !empty(data_get($attendance ?? [], 'PerfectAttendance')) ? \App\Helpers\MyTools::checkMark() : '' !!}</td>
     <td colspan=9 class=report-card__comments>Perfect Attendance</td>
     <td colspan=3 class=report-card__blank></td>
 

@@ -118,7 +118,7 @@
             white-space: nowrap;
         }
 
-        .eport-card__card-label {
+        .report-card__card-label {
             padding-top: 1px;
             padding-right: 1px;
             padding-left: 1px;
@@ -547,6 +547,11 @@
         </tr>
 
         @foreach($students as $student)
+            @php
+                $studentId = $student->student_id ?? $student->id;
+                $studentAwards = $awards[$studentId] ?? [];
+                $studentName = trim(($student->last_name ?? $student->lastname ?? '') . ', ' . ($student->first_name ?? $student->firstname ?? ''));
+            @endphp
             <tr style='height:15.0pt'>
                 <td colspan=2 height=40 class=report-card__card-label
                     style='border-bottom:1pt solid black; height:30.0pt;width:101pt; vertical-align: middle;'>
@@ -554,45 +559,45 @@
                 </td>
                 <td colspan=4 height=40 class=report-card__card-label
                     style='border-bottom:1pt solid black; height:30.0pt;width:101pt; vertical-align: middle;'>
-                    {{ $student->student_id }}
+                    {{ $studentId }}
                 </td>
 
                 <td colspan=15 height=40 class=report-card__card-label style="text-align: left;vertical-align: middle;">
-                    &nbsp;{{ $student->lastname . ', ' . $student->firstname . ' (' . $student->gender . ')' ?? '' }}
+                    &nbsp;{{ $studentName . ' (' . $student->gender . ')' }}
                 </td>
 
                 <td colspan=10 class=report-card__card-label style='vertical-align: middle;'>
-                    {!! $awards[$student->student_id]["HIGHESTHONORS"] ? checkMark() ."Highest Honors<br/>" : '' !!}
-                    {!! $awards[$student->student_id]["HIGHHONORS"] ? checkMark() ."High Honors<br/>" : '' !!}
-                    {!! $awards[$student->student_id]["HONORS"] ? checkMark() ."Honors<br/>" : '' !!}
-                    @if ($awards[$student->student_id]['term-summary__average'])
-                        {!! '(' . $awards[$student->student_id]['term-summary__average'] . ')'  !!}
+                    {!! !empty($studentAwards["HIGHESTHONORS"]) ? \App\Helpers\MyTools::checkMark() ."Highest Honors<br/>" : '' !!}
+                    {!! !empty($studentAwards["HIGHHONORS"]) ? \App\Helpers\MyTools::checkMark() ."High Honors<br/>" : '' !!}
+                    {!! !empty($studentAwards["HONORS"]) ? \App\Helpers\MyTools::checkMark() ."Honors<br/>" : '' !!}
+                    @if (!empty($studentAwards['term-summary__average']))
+                        {!! '(' . $studentAwards['term-summary__average'] . ')'  !!}
                     @endif
                 </td>
 
                 <td colspan=10 class=report-card__card-label style='vertical-align: middle;'>
-                    @if ($awards[$student->student_id]['DEPORTMENT'])
-                        {!! checkMark() . "Deportment" . ' (' . $awards[$student->student_id]['DEPORTMENT_grade'] . ')' !!}
+                    @if (!empty($studentAwards['DEPORTMENT']))
+                        {!! \App\Helpers\MyTools::checkMark() . "Deportment" . ' (' . ($studentAwards['DEPORTMENT_grade'] ?? '') . ')' !!}
                     @endif
-                    @if ($awards[$student->student_id]['EFFORT'])
-                        @if ($awards[$student->student_id]['DEPORTMENT'])
+                    @if (!empty($studentAwards['EFFORT']))
+                        @if (!empty($studentAwards['DEPORTMENT']))
                             <br/>
                         @endif
-                        {!! checkMark() . "Effort" !!}
+                        {!! \App\Helpers\MyTools::checkMark() . "Effort" !!}
                     @endif
                 </td>
 
                 <td colspan=8 class=report-card__card-label style='vertical-align: middle;'>
-                    {!! $attendance[$student->student_id] ?? '' !!}
+                    {!! !empty($attendance[$studentId]) ? \App\Helpers\MyTools::checkMark() : '' !!}
                 </td>
 
                 <td colspan=10 class=report-card__card-label style='vertical-align: middle;'>
-                    @if(isset($awards[$student->student_id]["SEA"]))
-                        @foreach($awards[$student->student_id]["SEA"] as $SEA)
-                            @if ($SEA['report-card__subject-title'] == "PHYSICAL EDUCATION")
-                                {!! checkMark() !!}P.E. ({!! $student->gender == "M" ? "BOYS" : "GIRLS" !!} . ' (' . $SEA['report-card__grade'] . ')' ) !!}
+                    @if(isset($studentAwards["SEA"]))
+                        @foreach($studentAwards["SEA"] as $SEA)
+                            @if (in_array(($SEA['subjecttitle'] ?? $SEA['subject_title'] ?? ''), ['PHYSICAL EDUCATION', 'P.E.', 'PE'], true))
+                                {!! \App\Helpers\MyTools::checkMark() !!}P.E. ({{ $student->gender == "M" ? "BOYS" : "GIRLS" }} ({{ $SEA['grade'] ?? '' }}))
                             @else
-                                {!! checkMark() . $SEA['report-card__subject-title'] . ' (' . $SEA['report-card__grade'] . ')'  !!}
+                                {!! \App\Helpers\MyTools::checkMark() . ($SEA['subjecttitle'] ?? $SEA['subject_title'] ?? '') . ' (' . ($SEA['grade'] ?? '') . ')'  !!}
                             @endif
                             <br/>
                         @endforeach

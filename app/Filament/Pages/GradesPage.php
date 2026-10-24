@@ -9,6 +9,7 @@ use App\Models\Grade;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Services\SubjectExcellenceAwards;
 use App\Support\ImportCodeWorkbook;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -20,7 +21,6 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -149,6 +149,46 @@ class GradesPage extends Page implements HasTable
         // Midquarter and quarter edits can both be pending for the same
         // student/quarter, so changing the displayed type must not clear them.
         $this->resetTable();
+    }
+
+    public function selectSubjectExcellenceAward(int $studentId): void
+    {
+        abort_unless($this->canManageCurrentSubject(), 403);
+
+        $schoolYear = SchoolYear::getActive();
+        $subject = $this->subjectId ? Subject::find($this->subjectId) : null;
+
+        if (! $schoolYear || ! $subject || ! $this->gradeLevelId) {
+            Notification::make()
+                ->title('SEA selection unavailable')
+                ->body('The subject, grade level, or school year is unavailable.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        try {
+            app(SubjectExcellenceAwards::class)->selectForStudent(
+                subject: $subject,
+                schoolYearId: (int) $schoolYear->id,
+                gradeLevelId: (int) $this->gradeLevelId,
+                studentId: $studentId,
+                schoolYearLabel: $schoolYear->label,
+            );
+
+            Notification::make()
+                ->title('SEA selection saved')
+                ->body('The selected student was saved to the awards table.')
+                ->success()
+                ->send();
+        } catch (\InvalidArgumentException $exception) {
+            Notification::make()
+                ->title('SEA selection not saved')
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     public function form(Schema $schema): Schema
@@ -406,7 +446,66 @@ class GradesPage extends Page implements HasTable
                     Notification::make()->title('Grades saved')->success()->send();
                 })
                 ->visible(fn (): bool => SchoolYear::getActive() !== null && $this->subjectId !== null),
+
+            Action::make('subjectExcellenceRanking')
+                ->label('SEA Ranking')
+                ->color('warning')
+                ->icon(Heroicon::OutlinedTrophy)
+                ->modalHeading(fn (): string => 'Subject Excellence Ranking')
+                ->modalWidth('xl')
+                ->modalContent(function (): HtmlString {
+                    $schoolYear = SchoolYear::getActive();
+                    $subject = $this->subjectId ? Subject::find($this->subjectId) : null;
+
+                    if (! $schoolYear || ! $subject || ! $this->gradeLevelId) {
+                        return new HtmlString('<p>Subject, grade level, or school year is unavailable.</p>');
+                    }
+
+                    $ranking = app(SubjectExcellenceAwards::class)->ranking(
+                        subject: $subject,
+                        schoolYearId: (int) $schoolYear->id,
+                        gradeLevelId: (int) $this->gradeLevelId,
+                        schoolYearLabel: $schoolYear->label,
+                    );
+                    $normalizedSubjectTitle = strtoupper(preg_replace(
+                        '/[^A-Z0-9]+/i',
+                        '',
+                        (string) $subject->subject_title,
+                    ));
+
+                    return new HtmlString(view('filament.app.pages.sea-ranking', [
+                        'ranking' => $ranking,
+                        'subject' => $subject,
+                        'isPhysicalEducation' => in_array(
+                            $normalizedSubjectTitle,
+                            ['PE', 'PHYSICALEDUCATION'],
+                            true,
+                        ),
+                    ])->render());
+                })
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close')
+                ->visible(fn (): bool => $this->subjectId > 0
+                    && $this->gradeLevelId > 0
+                    && $this->hasSavedFinalGrades()),
         ];
+    }
+
+    private function hasSavedFinalGrades(): bool
+    {
+        $schoolYearId = SchoolYear::getActive()?->id;
+
+        if (! $schoolYearId || ! $this->subjectId || ! $this->gradeLevelId) {
+            return false;
+        }
+
+        return Grade::query()
+            ->where('subject_id', $this->subjectId)
+            ->where('grade_level_id', $this->gradeLevelId)
+            ->where('school_year_id', $schoolYearId)
+            ->whereNotNull('final')
+            ->where('final', '>', 0)
+            ->exists();
     }
 
     private function canManageCurrentSubject(): bool

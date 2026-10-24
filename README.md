@@ -29,7 +29,7 @@ The system is designed to replace fragmented or legacy grading workflows with a 
 | Asset pipeline | Vite 8, Laravel Vite Plugin |
 | Database | Eloquent ORM with MySQL configured by `.env.example`; SQLite is also supported and used by the legacy-import workflow |
 | Legacy data import | A second configurable database connection for the old system |
-| PDF/report generation | Blade templates and `wkhtmltopdf` through Laravel Snappy; DOMPDF and Browsershot are also installed |
+| PDF/report generation | Blade templates rendered to PDF with Spatie Browsershot and Chromium; DOMPDF and Snappy remain available |
 | Browser automation | Puppeteer |
 | Monitoring and operations | Laravel Telescope, Laravel Debugbar, Spatie Laravel Health, Spatie Laravel Backup |
 | Testing and quality | PHPUnit 12, Laravel Pint, Mockery, Faker |
@@ -49,7 +49,7 @@ The root URL redirects to `/app`. Report endpoints are available under `/report`
 - Composer
 - Node.js and npm
 - MySQL for the provided environment template, or SQLite/another Laravel-supported database
-- `wkhtmltopdf` for PDF output outside the local environment
+- Chromium/Puppeteer for PDF output through Spatie Browsershot
 
 If legacy data will be imported, access to the source database and its appropriate PHP database driver are also required.
 
@@ -156,7 +156,9 @@ Use `php artisan migrate:all --fresh` only when you intentionally want the comma
 
 ## Reports and PDF generation
 
-Quarter reports and transcripts are rendered from Blade templates. In a local environment, report routes return HTML for easier development and debugging. In non-local environments, the same views are converted to A4 portrait PDFs using `wkhtmltopdf` through Laravel Snappy.
+Quarter reports, transcripts, and batch report cards are rendered from Blade templates and converted to A4 PDFs using Spatie Browsershot and Chromium. The setup script installs Puppeteer’s `chrome-headless-shell` binary.
+
+If PHP runs under a service manager that does not inherit your shell PATH, set `BROWSERSHOT_NODE_BINARY` to the absolute path of Node.js.
 
 Before deploying PDF output, configure the Snappy binary paths for the target operating system and verify that the selected school report templates exist.
 

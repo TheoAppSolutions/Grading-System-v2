@@ -19,7 +19,7 @@ class EnrollmentRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->with(['schoolYear', 'gradeLevel', 'section']))
+            ->modifyQueryUsing(fn ($query) => $query->with(['schoolYear', 'gradeLevel', 'section', 'student']))
             ->columns([
                 TextColumn::make('schoolYear.label')
                     ->label('School Year')
@@ -45,8 +45,28 @@ class EnrollmentRelationManager extends RelationManager
                     ->outlined(true)
                     ->openUrlInNewTab()
                     ->visible(fn ($record): bool => filled($record->school_year_id) && filled($record->student_id)),
+                Action::make('show_award_report')
+                    ->label('Award Report')
+                    ->button()
+                    ->icon(Heroicon::OutlinedTrophy)
+                    ->size(Size::ExtraSmall)
+                    ->color('warning')
+                    ->url(fn ($record) => route('report.award', [$record->school_year_id, $record->student_id]))
+                    ->outlined(true)
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record): bool => filled($record->school_year_id) && filled($record->student_id)),
             ])
             ->headerActions([
+                Action::make('award_summary')
+                    ->label('Awards Summary')
+                    ->button()
+                    ->color('warning')
+                    ->icon(Heroicon::OutlinedTrophy)
+                    ->size(Size::ExtraSmall)
+                    ->url(fn () => route('report.award.student.summary', [$this->ownerRecord->id]))
+                    ->outlined(true)
+                    ->openUrlInNewTab()
+                    ->visible(fn (): bool => $this->ownerRecord->enrollments()->exists()),
                 Action::make('tor')
                     ->label('Transcript of Records')
                     ->button()

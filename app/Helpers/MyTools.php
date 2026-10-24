@@ -4,31 +4,30 @@ namespace App\Helpers;
 
 // use App\Helpers\BIS\HelperTools as Helpers;
 use App\Helpers\HCGS\HelperTools as Helpers;
-
 use App\Models;
 use App\Services\GitUpdater;
-use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class MyTools extends Helpers
 {
     public static function systemLogo(): string
     {
-        return url('images/logo.png?' . time());
+        return url('images/logo.png?'.time());
     }
 
     public static function getMonths(): array
     {
         return [
-            1  => 'January',
-            2  => 'February',
-            3  => 'March',
-            4  => 'April',
-            5  => 'May',
-            6  => 'June',
-            7  => 'July',
-            8  => 'August',
-            9  => 'September',
+            1 => 'January',
+            2 => 'February',
+            3 => 'March',
+            4 => 'April',
+            5 => 'May',
+            6 => 'June',
+            7 => 'July',
+            8 => 'August',
+            9 => 'September',
             10 => 'October',
             11 => 'November',
             12 => 'December',
@@ -61,32 +60,32 @@ class MyTools extends Helpers
     {
         $abs = abs($number);
         $mod100 = $abs % 100;
-        $mod10  = $abs % 10;
+        $mod10 = $abs % 10;
 
         $suffix = match (true) {
             $mod100 >= 11 && $mod100 <= 13 => 'th',
-            $mod10 === 1                   => 'st',
-            $mod10 === 2                   => 'nd',
-            $mod10 === 3                   => 'rd',
-            default                        => 'th',
+            $mod10 === 1 => 'st',
+            $mod10 === 2 => 'nd',
+            $mod10 === 3 => 'rd',
+            default => 'th',
         };
 
-        return $number . $suffix;
+        return $number.$suffix;
     }
 
     public static function getImage(int|string $id = '', string $type = 'users'): string
     {
         $relativePath = match ($type) {
-            'users'    => 'images/users/' . ($id !== '' ? $id : Auth::id()) . '.jpg',
-            'students' => 'images/students/' . $id . '.jpg',
-            default    => '',
+            'users' => 'images/users/'.($id !== '' ? $id : Auth::id()).'.jpg',
+            'students' => 'images/students/'.$id.'.jpg',
+            default => '',
         };
 
-        if ($relativePath === '' || !file_exists(public_path($relativePath))) {
+        if ($relativePath === '' || ! file_exists(public_path($relativePath))) {
             return self::systemLogo();
         }
 
-        return url($relativePath . '?' . time());
+        return url($relativePath.'?'.time());
     }
 
     public static function getStudentFullname(int|string $studentId): string
@@ -98,7 +97,7 @@ class MyTools extends Helpers
 
     public static function checkMark(): string
     {
-        $src = e(url('checkmark.png'));
+        $src = e(url('assets/images/checkmark.png'));
 
         return "<img src=\"{$src}\" style=\"height:20px;width:20px;\" alt=\"✓\">";
     }

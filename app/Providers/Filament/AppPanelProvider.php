@@ -2,9 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Resources\Office\Reports\ReportsResource;
 use App\Filament\Pages;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Plugins\AnnouncementsPlugin;
+use App\Filament\Resources\AnnouncementResource;
 use App\Helpers\MyTools;
 use App\Models\SubjectUser;
 use Filament\Actions\Action;
@@ -34,8 +37,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Saade\Facehash\Enums\Variant;
 use Saade\FilamentFacehash\FacehashPlugin;
 use Saade\FilamentFacehash\FacehashProvider;
-use App\Filament\Plugins\AnnouncementsPlugin;
-use App\Filament\Resources\AnnouncementResource;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -147,12 +148,41 @@ class AppPanelProvider extends PanelProvider
                     ->all();
 
                 // Office Menu is intended for office staff and administrators
-                // only. Remove the entire group for all other App-panel users.
+                // only. Move the reports link into Homeroom Menu for users
+                // who have an active homeroom assignment.
                 if (Auth::user()?->isOffice() !== true) {
+                    $reportsItem = null;
+
                     $groups = collect($groups)
-                        ->reject(fn (NavigationGroup $group) => $group->getLabel() === 'Office Menu')
+                        ->flatMap(function (NavigationGroup $group) use (&$reportsItem): array {
+                            if ($group->getLabel() !== 'Office Menu') {
+                                return [$group];
+                            }
+
+                            $reportsItem = collect($group->getItems())
+                                ->first(fn (NavigationItem $item): bool => $item->getKey() === ReportsResource::class);
+
+                            return [];
+                        })
                         ->values()
                         ->all();
+
+                    if ($reportsItem instanceof NavigationItem) {
+                        $homeroomGroup = collect($groups)
+                            ->first(fn (NavigationGroup $group): bool => $group->getLabel() === 'Homeroom Menu');
+
+                        if ($homeroomGroup) {
+                            $homeroomGroup->items(
+                                collect($homeroomGroup->getItems())
+                                    ->push($reportsItem)
+                                    ->sortBy(fn (NavigationItem $item) => $item->getSort())
+                                    ->values()
+                                    ->all(),
+                            );
+                        } else {
+                            $groups[] = NavigationGroup::make('Homeroom Menu')->items([$reportsItem]);
+                        }
+                    }
                 }
 
                 if ($schoolYear) {
