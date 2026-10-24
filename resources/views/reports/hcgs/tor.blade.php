@@ -139,7 +139,8 @@
                         </tr>
 
                         @foreach($record['subjects'] as $subjectTitle => $subject)
-                            @php($row = $grades[$subject->subjectname])
+                            {{-- A matched subject may not have any grade rows yet. --}}
+                            @php($row = $grades[$subject->subjectname] ?? [])
                             @if(isset($row[1]["final"]) or isset($row[2]["final"]) or isset($row[3]["final"]) or isset($row[4]["final"]))
                                 <tr>
                                     <td height="10" class="grades__report-card__blank"></td>

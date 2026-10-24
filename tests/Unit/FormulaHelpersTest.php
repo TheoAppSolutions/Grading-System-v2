@@ -75,5 +75,52 @@ class FormulaHelpersTest extends TestCase
         $this->assertSame('PASSED', $result['generalremarks']);
         $this->assertFalse($result['disqualifyForHonors']);
         $this->assertSame('93.00', $result['totalgpa']);
+        $this->assertSame('93.000', $result['term-summary__average']);
+    }
+
+    public function test_semestral_periods_are_not_averaged_into_the_first_display_slot(): void
+    {
+        $subjects = [(object) ['subject_code' => 'MATH']];
+        $gradeset = [
+            'MATH' => [
+                1 => ['final' => '80.00', 'rawfinal' => 80, 'raweffort' => 4],
+                2 => ['final' => '90.00', 'rawfinal' => 90, 'raweffort' => 4],
+            ],
+        ];
+
+        $result = FormulaHelpers::getFinalAveragePerSubject(
+            $gradeset,
+            $subjects,
+            1,
+            2,
+            false,
+            2025
+        );
+
+        $this->assertSame('80.00', $result['MATH'][1]['final']);
+        $this->assertSame('90.00', $result['MATH'][2]['final']);
+        $this->assertSame('85.00', $result['MATH'][5]['final']);
+    }
+
+    public function test_final_grade_is_computed_when_effort_is_missing(): void
+    {
+        $subjects = [(object) ['subject_code' => 'MATH']];
+        $gradeset = [
+            'MATH' => [
+                1 => ['final' => '80.00', 'rawfinal' => 80],
+                2 => ['final' => '90.00', 'rawfinal' => 90],
+            ],
+        ];
+
+        $result = FormulaHelpers::getFinalAveragePerSubject(
+            $gradeset,
+            $subjects,
+            1,
+            2,
+            false,
+            2025
+        );
+
+        $this->assertSame('85.00', $result['MATH'][5]['final']);
     }
 }

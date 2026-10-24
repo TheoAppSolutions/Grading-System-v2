@@ -19,7 +19,21 @@
 
 @section('content')
     <?php
-        if($gradeLevel->id >= 1 && $gradeLevel->id <= 6 || $gradeLevel->id >= 11 && $gradeLevel->id <= 12):
+        $subjectRows = [];
+
+        // The grades bucket is keyed by subject_code (for example, CREPR or
+        // ENGLPR), while this report uses a fixed, human-readable subject
+        // list. Build a normalized title lookup so migrated subject codes do
+        // not prevent the grades from being rendered.
+        $normalizeSubjectTitle = static function ($value): string {
+            return trim((string) preg_replace('/[^A-Z0-9]+/i', ' ', (string) $value));
+        };
+
+        $subjectsByTitle = collect($subjects)->keyBy(
+            static fn ($subject) => strtoupper($normalizeSubjectTitle($subject->subject_title ?? ''))
+        );
+
+        if (($gradeLevel->id >= 1 && $gradeLevel->id <= 6) || ($gradeLevel->id >= 11 && $gradeLevel->id <= 12)):
             $subjectRows = [
                 ['title' => 'CRE', 'key' => 'CRE'],
                 ['title' => 'English', 'key' => 'ENGLISH'],
@@ -55,9 +69,46 @@
     ?>
 
     @foreach ($subjectRows as $row)
+        @php
+            $subject = $subjects[$row['key']] ?? $subjects[$row['title']] ?? null;
+            $subjectTitle = strtoupper($normalizeSubjectTitle($row['title']));
+
+            if ($subject === null) {
+                $subject = $subjectsByTitle[$subjectTitle] ?? null;
+            }
+
+            if ($subject === null) {
+                // Some display labels intentionally differ from the stored
+                // title, especially between primary and secondary levels.
+                $subjectTitleAliases = [
+                    'THE ARTS' => ['ARTS'],
+                    'MAKING A LIVING HOME ECONOMICS' => [
+                        'LIVING HOME ECONOMICS',
+                        'HOME ECONOMICS',
+                        'MAKING A LIVING',
+                    ],
+                    'PERSONAL DEVELOPMENT HEALTH' => [
+                        'PERSONAL DEVELOPMENT',
+                        'HEALTH',
+                    ],
+                ];
+
+                foreach ($subjectTitleAliases[$subjectTitle] ?? [] as $alias) {
+                    $subject = $subjectsByTitle[$alias] ?? null;
+
+                    if ($subject !== null) {
+                        break;
+                    }
+                }
+            }
+
+            $subjectCode = $subject->subject_code ?? $row['key'];
+        @endphp
+
         @include('reports.templates.parts.subject_row', [
             'title' => $row['title'],
-            'subject' => $subjects[$row['key']] ?? 'NA',
+            'subject' => $subject,
+            'code' => $subjectCode,
             'grades' => $grades,
         ])
     @endforeach
@@ -82,13 +133,15 @@
 
     @include('reports.templates.parts.blank_row')
 
-    @include('reports.templates.parts.comments_section', [
-        'height' => '17pt',
-        'comments' => $comments ?? [],
-        'homeroom' => $homeroom ?? '',
-        'principal' => $principal ?? '',
-        'eligibleFor' => $eligibleFor ?? '',
-    ])
+    @if (($type ?? null) !== 'award')
+        @include('reports.templates.parts.comments_section', [
+            'height' => '17pt',
+            'comments' => $comments ?? [],
+            'homeroom' => $homeroom ?? '',
+            'principal' => $principal ?? '',
+            'eligibleFor' => $eligibleFor ?? '',
+        ])
+    @endif
 @endsection
 
 @section('attendance-section')

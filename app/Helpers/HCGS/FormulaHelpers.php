@@ -20,21 +20,21 @@ class FormulaHelpers
      * Compute each subject's final grade/effort/GPA contribution, then roll
      * everything up into the general average.
      *
-     * @param array $gradeset      Working grade data, keyed by subject name and quarter.
-     * @param iterable $subjects   Subjects to process; each needs a ->subjectCode property.
-     * @param int $startCounter    First quarter to include (inclusive).
-     * @param int $endCounter      Last quarter to include (inclusive).
-     * @param bool $isAwardReport  If true, process a subject even without a final grade yet.
-     * @param int $schoolyear      School year, determines quarterly vs semestral grading.
+     * @param  array  $gradeset  Working grade data, keyed by subject name and quarter.
+     * @param  iterable  $subjects  Subjects to process; each needs a ->subjectCode property.
+     * @param  int  $startCounter  First quarter to include (inclusive).
+     * @param  int  $endCounter  Last quarter to include (inclusive).
+     * @param  bool  $isAwardReport  If true, process a subject even without a final grade yet.
+     * @param  int  $schoolyear  School year, determines quarterly vs semestral grading.
      * @return array The updated gradeset.
      */
     public static function getFinalAveragePerSubject(
-    array $gradeset,
-    iterable $subjects,
-    int $startCounter,
-    int $endCounter,
-    bool $isAwardReport,
-    int $schoolyear
+        array $gradeset,
+        iterable $subjects,
+        int $startCounter,
+        int $endCounter,
+        bool $isAwardReport,
+        int $schoolyear
     ): array {
         $lastSubjectCode = '';
         $totalUnits = 0;
@@ -53,7 +53,7 @@ class FormulaHelpers
             $hasFinalGrade = isset($gradeset[$subjectCode][$endCounter]['final'])
                 && $gradeset[$subjectCode][$endCounter]['final'] !== '';
 
-            if (!$hasFinalGrade && !$isAwardReport) {
+            if (! $hasFinalGrade && ! $isAwardReport) {
                 continue;
             }
 
@@ -80,11 +80,11 @@ class FormulaHelpers
                 }
             }
 
-            if (!isset($subAverage['final'], $subAverage['raweffort'])) {
+            if (! isset($subAverage['final'])) {
                 continue;
             }
 
-            if (count($subAverage['final']) !== 4 && count($subAverage['final']) !== 2) {
+            if (count($subAverage['final']) !== $expectedPeriods) {
                 continue;
             }
 
@@ -92,7 +92,7 @@ class FormulaHelpers
             $gradeset[$subjectCode][5]['rawfinal'] = $rawFinal;
             $gradeset[$subjectCode][5]['final'] = $rawFinal;
 
-            if (count($subAverage['raweffort']) === $expectedPeriods) {
+            if (isset($subAverage['raweffort']) && count($subAverage['raweffort']) === $expectedPeriods) {
                 $effort = self::getFinalEffort(array_sum($subAverage['raweffort']), $schoolyear);
                 $gradeset[$subjectCode][5]['effort'] = $effort;
                 $gradeset['finaleffort'][$subjectCode] = $effort;
@@ -104,7 +104,7 @@ class FormulaHelpers
 
             $gradeset[$subjectCode]['remarks'] = $gradeset[$subjectCode][5]['final'] >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
 
-            if (!isset($gradeset[$subjectCode]['unit']) || $lastSubjectCode === $subjectCode) {
+            if (! isset($gradeset[$subjectCode]['unit']) || $lastSubjectCode === $subjectCode) {
                 continue;
             }
 
@@ -122,33 +122,35 @@ class FormulaHelpers
             }
         }
 
-        // Consolidate 4 quarters into 2 semester slots per subject.
-        // Slot 1 = average of Q1 & Q2; Slot 2 = average of Q3 & Q4; Q3 & Q4 are then removed.
-        foreach ($subjects as $subject) {
-            $subjectCode = data_get($subject, 'subject_code');
+        // Consolidate four quarterly grades into two semester display slots.
+        // Current semestral records already use slots 1 and 2 and must not be averaged again.
+        if ($expectedPeriods === 4) {
+            foreach ($subjects as $subject) {
+                $subjectCode = data_get($subject, 'subject_code');
 
-            if (!isset($gradeset[$subjectCode])) {
-                continue;
+                if (! isset($gradeset[$subjectCode])) {
+                    continue;
+                }
+
+                $q1 = $gradeset[$subjectCode][1]['rawfinal'] ?? null;
+                $q2 = $gradeset[$subjectCode][2]['rawfinal'] ?? null;
+                $q3 = $gradeset[$subjectCode][3]['rawfinal'] ?? null;
+                $q4 = $gradeset[$subjectCode][4]['rawfinal'] ?? null;
+
+                if ($q1 !== null && $q2 !== null) {
+                    $sem1Avg = number_format(($q1 + $q2) / 2, 2);
+                    $gradeset[$subjectCode][1]['rawfinal'] = $sem1Avg;
+                    $gradeset[$subjectCode][1]['final'] = $sem1Avg;
+                }
+
+                if ($q3 !== null && $q4 !== null) {
+                    $sem2Avg = number_format(($q3 + $q4) / 2, 2);
+                    $gradeset[$subjectCode][2]['rawfinal'] = $sem2Avg;
+                    $gradeset[$subjectCode][2]['final'] = $sem2Avg;
+                }
+
+                unset($gradeset[$subjectCode][3], $gradeset[$subjectCode][4]);
             }
-
-            $q1 = $gradeset[$subjectCode][1]['rawfinal'] ?? null;
-            $q2 = $gradeset[$subjectCode][2]['rawfinal'] ?? null;
-            $q3 = $gradeset[$subjectCode][3]['rawfinal'] ?? null;
-            $q4 = $gradeset[$subjectCode][4]['rawfinal'] ?? null;
-
-            if ($q1 !== null && $q2 !== null) {
-                $sem1Avg = number_format(($q1 + $q2) / 2, 2);
-                $gradeset[$subjectCode][1]['rawfinal'] = $sem1Avg;
-                $gradeset[$subjectCode][1]['final']    = $sem1Avg;
-            }
-
-            if ($q3 !== null && $q4 !== null) {
-                $sem2Avg = number_format(($q3 + $q4) / 2, 2);
-                $gradeset[$subjectCode][2]['rawfinal'] = $sem2Avg;
-                $gradeset[$subjectCode][2]['final']    = $sem2Avg;
-            }
-
-            unset($gradeset[$subjectCode][3], $gradeset[$subjectCode][4]);
         }
 
         if (isset($gradeset['finalave']) && $totalUnits > 1) {
@@ -162,9 +164,6 @@ class FormulaHelpers
      * Compute the general average, GPA, and honors eligibility from
      * accumulated per-subject data.
      *
-     * @param array $gradeset
-     * @param float $totalUnits
-     * @param array $totalGpa
      * @return array The updated gradeset.
      */
     public static function getGeneralAverage(array $gradeset, float $totalUnits, array $totalGpa): array
@@ -174,6 +173,7 @@ class FormulaHelpers
 
         $generalAverage = array_sum((array) $gradeset['finalave']) / $totalUnits;
         $gradeset['generalaverage'] = number_format($generalAverage, 3);
+        $gradeset['term-summary__average'] = $gradeset['generalaverage'];
         $gradeset['generalremarks'] = $generalAverage >= self::PASSING_GRADE ? 'PASSED' : 'FAILED';
         $gradeset['disqualifyForHonors'] = $generalAverage < self::HONORS_THRESHOLD;
 
@@ -184,9 +184,7 @@ class FormulaHelpers
      * Convert a summed raw effort score into a final effort rating,
      * averaged over the number of grading periods for the school year.
      *
-     * @param float $effortGrades Sum of raw effort scores across periods.
-     * @param int $schoolyear
-     * @return float
+     * @param  float  $effortGrades  Sum of raw effort scores across periods.
      */
     public static function getFinalEffort(float $effortGrades, int $schoolyear): float
     {
@@ -197,10 +195,6 @@ class FormulaHelpers
      * Average deportment scores per quarter and, once all periods are in,
      * compute the overall deportment average.
      *
-     * @param array $gradeset
-     * @param int $schoolyear
-     * @param int $startCounter
-     * @param int $endCounter
      * @return array The updated gradeset.
      */
     public static function getDeportmentAverage(
@@ -223,7 +217,7 @@ class FormulaHelpers
 
         $expectedPeriods = self::expectedPeriodCount($schoolyear);
 
-        if (!empty($gradeset['deportment'][$endCounter]) && count($gradeset['deportment']) === $expectedPeriods) {
+        if (! empty($gradeset['deportment'][$endCounter]) && count($gradeset['deportment']) === $expectedPeriods) {
             $gradeset['deportment'][5] = number_format(
                 array_sum($gradeset['rawdeportment']) / count($gradeset['rawdeportment']),
                 3
@@ -236,19 +230,18 @@ class FormulaHelpers
     /**
      * Number of grading periods expected for a given school year:
      * 2 (semestral) from SEMESTRAL_CUTOFF_YEAR onward, 4 (quarterly) before that.
-     *
-     * @param int $schoolyear
-     * @return int
      */
     private static function expectedPeriodCount(int $schoolyear): int
     {
         return $schoolyear >= self::SEMESTRAL_CUTOFF_YEAR ? 2 : 4;
     }
 
-    public static function average($first, $second) {
+    public static function average($first, $second)
+    {
         if (empty($first) || empty($second) || $first == 0 || $second == 0) {
             return '';
         }
+
         return number_format((($first + $second) / 2), 2);
     }
 }

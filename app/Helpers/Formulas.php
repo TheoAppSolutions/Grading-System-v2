@@ -4,12 +4,12 @@ namespace App\Helpers;
 
 // use App\Helpers\BIS\FormulaHelpers as Formula;
 use App\Helpers\HCGS\FormulaHelpers as Formula;
-use App\Models\Grade;
-use App\Models\Comment;
 use App\Models\Attendance;
-use App\Models\SchoolYearInfo;
-use App\Models\User;
+use App\Models\Comment;
+use App\Models\Grade;
 use App\Models\Homeroom;
+use App\Models\SchoolYearInfo;
+use App\Models\SubjectUnit;
 use App\Models\UserRole;
 
 class Formulas extends Formula
@@ -21,12 +21,13 @@ class Formulas extends Formula
         $matchedSubjects,
         string $type,
         ?int $quarter,
-        int $schoolYear
+        int $schoolYear,
+        bool $isAwardReport = false
     ): array {
         $records = [];
-        
+
         foreach ($matchedSubjects as $subject) {
-            $records['subjects'][$subject->subject_title] = $subject;
+            $records['subjects'][$subject->subject_code] = $subject;
         }
 
         $grades = Grade::where('student_id', $studentId)
@@ -54,16 +55,21 @@ class Formulas extends Formula
             // Deportment average expects an array of raw scores per quarter to average over.
             $records['grades']['deportment'][$grade->quarter][] = $grade['deportment'];
 
-            if ($grade->quarter == 4) {
-                $type = "quarter";
-            }
         }
 
+        // Subject units are school-year-specific. Do not use the first
+        // historical unit row: newer subjects may have had zero units in
+        // earlier years and a valid value (for example, 0.5) this year.
+        $subjectUnits = SubjectUnit::query()
+            ->whereIn('subject_id', $matchedSubjects->pluck('id'))
+            ->where('school_year_id', $schoolYearId)
+            ->pluck('units', 'subject_id');
+
         // Attach units onto each subject bucket so getFinalAveragePerSubject can compute
-        // finalave/GPA. Adjust `units` to whatever property actually holds the unit count.
+        // finalave/GPA using the current enrollment's school year.
         foreach ($matchedSubjects as $subject) {
             if (isset($records['grades'][$subject->subject_code])) {
-                $records['grades'][$subject->subject_code]['unit'] = $subject['subjectUnit'][0]['units'] ?? 0;
+                $records['grades'][$subject->subject_code]['unit'] = (float) ($subjectUnits[$subject->id] ?? 0);
             }
         }
 
@@ -83,7 +89,7 @@ class Formulas extends Formula
             $subjectsForFormula,
             $startCounter,
             (int) $endCounter,
-            false,
+            $isAwardReport,
             $schoolYear
         );
 
@@ -116,7 +122,7 @@ class Formulas extends Formula
 
         $grade = (float) $grade;
 
-        return match(true) {
+        return match (true) {
             $grade >= 97 => 'A+',
             $grade >= 93 => 'A',
             $grade >= 90 => 'A-',
@@ -129,7 +135,7 @@ class Formulas extends Formula
             $grade >= 67 => 'D+',
             $grade >= 63 => 'D',
             $grade >= 60 => 'D-',
-            default      => 'F',
+            default => 'F',
         };
     }
 
@@ -189,25 +195,22 @@ class Formulas extends Formula
         return $attendance;
     }
 
-
-    public static function getHomeroomAdvisor(int $schoolYearId, int $gradeLevelId)
+    public static function getHomeroomAdvisor(int $schoolYearId, int $gradeLevelId): ?string
     {
-        $advisors = Homeroom::with('adviser')
+        $advisor = Homeroom::with('adviser')
             ->where('school_year_id', $schoolYearId)
             ->where('grade_level_id', $gradeLevelId)
-            ->first()
-            ->adviser;
+            ->first()?->adviser;
 
-        return $advisors->honorifics .' ' . $advisors->name;
+        return $advisor ? trim($advisor->honorifics.' '.$advisor->name) : null;
     }
 
     public static function getPrincipal(): ?string
     {
         $principal = UserRole::with('user')
             ->where('role_id', 2)
-            ->first()
-            ->user;
+            ->first()?->user;
 
-        return $principal->honorifics .' ' . $principal->name;
+        return $principal ? trim($principal->honorifics.' '.$principal->name) : null;
     }
 }

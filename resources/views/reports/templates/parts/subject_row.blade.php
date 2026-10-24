@@ -18,8 +18,8 @@
         $not_applicable - boolean to indicate if the subject is not applicable
 --}}
 <?php
-    $na          = is_object($subject) ? false : true;
-    $code        = data_get($subject, "subject_code");
+    $na          = ! is_object($subject);
+    $code        = $code ?? data_get($subject, 'subject_code');
     $q1Final     = data_get($grades, "$code.1.final");
     $q1Effort    = data_get($grades, "$code.1.effort");
     $q2Final     = data_get($grades, "$code.2.final");
