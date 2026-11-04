@@ -15,3 +15,5 @@
         <a href="#" class="hover:underline">{{ config('app.name') }} Grading System</a>. All Rights Reserved.
     </span>
 </footer>
+
+@include('filament.help-tour')
