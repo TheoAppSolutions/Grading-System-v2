@@ -21,15 +21,16 @@ class SchoolYearInfoRelationManager extends RelationManager
         $coverageOptions = CardTemplate::getOptions($entries);
 
         return $table
-            ->heading('')
+            ->heading('School days by grading period')
             ->columns([
                 TextColumn::make('coverage')
                     ->label('Coverage')
                     ->formatStateUsing(fn($state) => $coverageOptions[$state] ?? '-'),
                 TextInputColumn::make('days')
+                    ->label('School days')
                     ->type('number')
                     ->disabled(function () use ($isActive) { return $isActive != 1; })
-                    ->rules(['required', 'max:255']),
+                    ->rules(['required', 'integer', 'min:0', 'max:255']),
             ]);
     }
 }

@@ -6,6 +6,9 @@ use App\Helpers\Formulas;
 use App\Helpers\MyTools;
 use App\Models\Award;
 use App\Models\Enrollment;
+use App\Models\Grade;
+use App\Models\SchoolYear;
+use App\Models\SchoolYearInfo;
 use App\Services\SubjectExcellenceAwards;
 use App\Support\ReportAccess;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +18,237 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ReportController extends Controller
 {
+    public function generateAttendanceReport(int $school_year_id, int $grade_level_id, int $entry)
+    {
+        $schoolYear = SchoolYear::findOrFail($school_year_id);
+        $entryOptions = \App\Models\Config\CardTemplate::getOptions((int) $schoolYear->attendance_entries);
+        abort_unless(array_key_exists($entry, $entryOptions), 404);
+
+        $user = Auth::user();
+        abort_unless(ReportAccess::canViewGradeLevel($user, $school_year_id, $grade_level_id), 403);
+
+        $enrollmentsQuery = Enrollment::query()
+            ->with([
+                'student.attendance' => fn ($query) => $query->where('school_year_id', $school_year_id),
+                'section',
+            ])
+            ->where('school_year_id', $school_year_id)
+            ->where('grade_level_id', $grade_level_id)
+            ->whereHas('student', fn ($query) => $query->where('active', true));
+
+        ReportAccess::scopeEnrollments($enrollmentsQuery, $user, $school_year_id);
+
+        $enrollments = $enrollmentsQuery
+            ->join('students', 'students.id', '=', 'enrollments.student_id')
+            ->orderBy('students.gender', 'desc')
+            ->orderBy('students.last_name')
+            ->orderBy('students.first_name')
+            ->select('enrollments.*')
+            ->get();
+        $schoolDays = (float) SchoolYearInfo::query()
+            ->where('school_year_id', $school_year_id)
+            ->where('coverage', $entry)
+            ->value('days');
+        $rows = $enrollments->map(function (Enrollment $enrollment) use ($entry, $schoolDays): array {
+            $attendance = $enrollment->student?->attendance?->first()?->attendance ?? [];
+            $absent = (float) data_get($attendance, $entry.'.A', 0);
+            $tardy = (float) data_get($attendance, $entry.'.T', 0);
+
+            return [
+                'student' => $enrollment->student,
+                'section' => $enrollment->section?->label,
+                'absent' => $absent,
+                'tardy' => $tardy,
+                'present' => max(0, $schoolDays - $absent),
+            ];
+        });
+
+        return $this->renderOrGeneratePdf(
+            'reports.templates.attendance',
+            [
+                'schoolYear' => $schoolYear,
+                'gradeLevel' => \App\Models\Config\GradeLevel::findOrFail($grade_level_id),
+                'entryLabel' => $entryOptions[$entry],
+                'schoolDays' => $schoolDays,
+                'rows' => $rows,
+            ],
+            "Attendance-{$grade_level_id}-{$entry}-{$school_year_id}.pdf",
+            'Landscape',
+        );
+    }
+
+    public function generateSubjectSummary(int $school_year_id, int $grade_level_id, int $subject_id)
+    {
+        abort_unless(ReportAccess::canViewGradeLevel(Auth::user(), $school_year_id, $grade_level_id), 403);
+
+        $schoolYear = \App\Models\SchoolYear::findOrFail($school_year_id);
+        $subject = \App\Models\Subject::with(['gradeLevel', 'subjectUser.teacher'])
+            ->whereKey($subject_id)
+            ->where('grade_level_id', $grade_level_id)
+            ->firstOrFail();
+        $students = Enrollment::query()
+            ->with('student')
+            ->where('grade_level_id', $grade_level_id)
+            ->tap(fn ($query) => ReportAccess::scopeEnrollments($query, Auth::user(), $school_year_id))
+            ->whereHas('student', fn ($query) => $query->where('active', true))
+            ->orderBy('student_id')
+            ->get()
+            ->pluck('student')
+            ->filter()
+            ->values();
+        $grades = Grade::query()
+            ->where('school_year_id', $school_year_id)
+            ->where('grade_level_id', $grade_level_id)
+            ->where('subject_id', $subject_id)
+            ->get()
+            ->groupBy('student_id')
+            ->map(fn ($rows) => $rows->keyBy('quarter'));
+        $periodCount = min(4, max(1, (int) $schoolYear->attendance_entries));
+
+        return $this->renderOrGeneratePdf(
+            'reports.templates.summary.subject_v2',
+            compact('schoolYear', 'subject', 'students', 'grades', 'periodCount'),
+            "Subject-Summary-{$grade_level_id}-{$subject_id}.pdf",
+            'Landscape',
+        );
+    }
+
+    public function generateSubjectSummaryBatch(int $school_year_id, int $grade_level_id)
+    {
+        abort_unless(ReportAccess::canViewGradeLevel(Auth::user(), $school_year_id, $grade_level_id), 403);
+
+        $schoolYear = \App\Models\SchoolYear::findOrFail($school_year_id);
+        $subjects = \App\Models\Subject::with(['gradeLevel', 'subjectUser.teacher'])
+            ->where('grade_level_id', $grade_level_id)
+            ->whereHas('subjectUser', fn ($query) => $query->where('school_year_id', $school_year_id))
+            ->orderBy('subject_code')
+            ->get();
+        abort_if($subjects->isEmpty(), 404, 'No subjects are assigned to this grade level.');
+
+        $students = Enrollment::query()
+            ->with('student')
+            ->where('grade_level_id', $grade_level_id)
+            ->tap(fn ($query) => ReportAccess::scopeEnrollments($query, Auth::user(), $school_year_id))
+            ->whereHas('student', fn ($query) => $query->where('active', true))
+            ->orderBy('student_id')
+            ->get()
+            ->pluck('student')
+            ->filter()
+            ->values();
+        $periodCount = min(4, max(1, (int) $schoolYear->attendance_entries));
+        $pages = $subjects->map(function ($subject) use ($school_year_id, $grade_level_id, $students, $schoolYear, $periodCount): string {
+            $grades = Grade::query()
+                ->where('school_year_id', $school_year_id)
+                ->where('grade_level_id', $grade_level_id)
+                ->where('subject_id', $subject->id)
+                ->get()
+                ->groupBy('student_id')
+                ->map(fn ($rows) => $rows->keyBy('quarter'));
+
+            $body = View::make('reports.templates.summary.subject_v2', compact(
+                'schoolYear', 'subject', 'students', 'grades', 'periodCount',
+            ))->render();
+
+            return '<section style="page-break-after:always;break-after:page">'.$this->renderReportCardBody($body).'</section>';
+        })->implode('');
+
+        return $this->renderBrowserPdf(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body>'.$pages.'</body></html>',
+            "Subject-Summaries-{$grade_level_id}.pdf",
+            'Landscape',
+        );
+    }
+
+    public function generateMasterSummary(int $school_year_id, int $grade_level_id)
+    {
+        abort_unless(ReportAccess::canViewGradeLevel(Auth::user(), $school_year_id, $grade_level_id), 403);
+
+        $schoolYear = \App\Models\SchoolYear::findOrFail($school_year_id);
+        $gradeLevel = \App\Models\Config\GradeLevel::findOrFail($grade_level_id);
+        $subjects = \App\Models\Subject::query()
+            ->where('grade_level_id', $grade_level_id)
+            ->whereHas('subjectUser', fn ($query) => $query->where('school_year_id', $school_year_id))
+            ->orderBy('subject_code')
+            ->get();
+        $students = Enrollment::query()
+            ->with('student')
+            ->where('grade_level_id', $grade_level_id)
+            ->tap(fn ($query) => ReportAccess::scopeEnrollments($query, Auth::user(), $school_year_id))
+            ->whereHas('student', fn ($query) => $query->where('active', true))
+            ->get()
+            ->pluck('student')
+            ->filter()
+            ->sortBy(fn ($student) => mb_strtolower($student->last_name.' '.$student->first_name))
+            ->values();
+        $grades = Grade::query()
+            ->where('school_year_id', $school_year_id)
+            ->where('grade_level_id', $grade_level_id)
+            ->get()
+            ->groupBy('student_id')
+            ->map(fn ($rows) => $rows->groupBy('subject_id')->map(fn ($subjectGrades) => $subjectGrades->keyBy('quarter')));
+        $periodCount = min(4, max(1, (int) $schoolYear->attendance_entries));
+
+        return $this->renderOrGeneratePdf(
+            'reports.templates.summary.master_v2',
+            compact('schoolYear', 'gradeLevel', 'subjects', 'students', 'grades', 'periodCount'),
+            "Master-Summary-{$grade_level_id}.pdf",
+            'Landscape',
+        );
+    }
+
+    public function generateMidquarter(int $school_year_id, int $student_id)
+    {
+        $enrollment = Enrollment::with(['gradeLevel', 'schoolYear', 'student'])
+            ->where('school_year_id', $school_year_id)
+            ->where('student_id', $student_id)
+            ->firstOrFail();
+        abort_unless(ReportAccess::canViewEnrollment(Auth::user(), $enrollment), 403);
+
+        $subjects = $enrollment->matchedSubjects()->orderBy('subject_code')->get();
+        $grades = Grade::query()
+            ->with('subject')
+            ->where('student_id', $student_id)
+            ->where('school_year_id', $school_year_id)
+            ->where('grade_level_id', $enrollment->grade_level_id)
+            ->orderByDesc('quarter')
+            ->get()
+            ->keyBy('subject_id');
+        $comments = Formulas::getComments($student_id, $school_year_id, 'midquarter');
+        $commentCriteria = \App\Models\CommentCriteria::getMidquarterCriteria()->keyBy('id');
+
+        return $this->renderOrGeneratePdf(
+            'reports.templates.midquarter',
+            compact('enrollment', 'subjects', 'grades', 'comments', 'commentCriteria'),
+            "Midquarter-{$student_id}.pdf",
+        );
+    }
+
+    public function generateStudentProgress(int $school_year_id, int $student_id)
+    {
+        $enrollment = Enrollment::with(['gradeLevel', 'schoolYear', 'student'])
+            ->where('school_year_id', $school_year_id)
+            ->where('student_id', $student_id)
+            ->firstOrFail();
+        abort_unless(ReportAccess::canViewEnrollment(Auth::user(), $enrollment), 403);
+
+        $subjects = $enrollment->matchedSubjects()->orderBy('subject_code')->get();
+        $grades = Grade::query()
+            ->with('subject')
+            ->where('student_id', $student_id)
+            ->where('school_year_id', $school_year_id)
+            ->where('grade_level_id', $enrollment->grade_level_id)
+            ->get()
+            ->groupBy('subject_id');
+        $comments = Formulas::getComments($student_id, $school_year_id, 'both');
+        $attendance = Formulas::getAttendance($student_id, $school_year_id);
+
+        return $this->renderOrGeneratePdf(
+            'reports.templates.progress',
+            compact('enrollment', 'subjects', 'grades', 'comments', 'attendance'),
+            "Progress-{$student_id}.pdf",
+        );
+    }
+
     public function generateQuarter($school_year_id, $student_id)
     {
         $record = Enrollment::with(['gradeLevel', 'schoolYear', 'student'])
@@ -47,7 +281,6 @@ class ReportController extends Controller
             abort_unless(ReportAccess::canViewGradeLevel($user, $schoolYearId, $gradeLevelId), 403);
         }
 
-        $accessibleGradeLevelIds = ReportAccess::accessibleGradeLevelIds($user, $schoolYearId);
         $enrollments = Enrollment::query()
             ->with(['gradeLevel', 'schoolYear', 'student'])
             ->where('enrollments.school_year_id', $schoolYearId)
@@ -56,10 +289,7 @@ class ReportController extends Controller
                 $gradeLevelId !== null,
                 fn ($query) => $query->where('enrollments.grade_level_id', $gradeLevelId),
             )
-            ->when(
-                $accessibleGradeLevelIds !== null,
-                fn ($query) => $query->whereIn('enrollments.grade_level_id', $accessibleGradeLevelIds ?: [-1]),
-            )
+            ->tap(fn ($query) => ReportAccess::scopeEnrollments($query, $user, $schoolYearId))
             ->join('students', 'students.id', '=', 'enrollments.student_id')
             ->orderBy('students.last_name')
             ->orderBy('students.first_name')

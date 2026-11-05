@@ -14,6 +14,7 @@ use App\Models\SchoolYearInfo;
 use Filament\Actions\Action;
 use Filament\Actions\ImportAction;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
@@ -74,7 +75,7 @@ class ListAttendances extends ListRecords
             return null;
         }
 
-        if (Auth::user()?->isAdmin()) {
+        if (Auth::user()?->isOffice()) {
             $gradeLevelId = data_get($this->tableFilters, 'grade_level_id.value');
 
             return filled($gradeLevelId) ? (int) $gradeLevelId : null;
@@ -188,7 +189,57 @@ class ListAttendances extends ListRecords
                 ->action(fn ($livewire) => $livewire->saveAttendance())
                 ->button()
                 ->color('primary'),
+            Action::make('printAttendance')
+                ->label('Print attendance report')
+                ->icon('heroicon-o-printer')
+                ->color('gray')
+                ->schema([
+                    Select::make('grade_level_id')
+                        ->label('Grade level')
+                        ->options(fn (): array => $this->getReportGradeLevelOptions())
+                        ->default(fn (): ?int => $this->getAttendanceGradeLevelId())
+                        ->required(),
+                    Select::make('entry')
+                        ->label(fn (): string => CardTemplate::getOptionsLabel((int) (SchoolYear::getActive()?->attendance_entries ?? 0)))
+                        ->options(fn (): array => CardTemplate::getOptions((int) (SchoolYear::getActive()?->attendance_entries ?? 0)))
+                        ->default(fn (): int => (int) (data_get($this->tableFilters, 'attendance_entry.attendance_entry') ?: $this->entryNumber))
+                        ->required(),
+                ])
+                ->action(function (array $data): void {
+                    $schoolYearId = SchoolYear::getActive()?->id;
+                    abort_unless($schoolYearId, 403);
+                    $this->redirectRoute(
+                        'report.attendance',
+                        [$schoolYearId, $data['grade_level_id'], $data['entry']],
+                        navigate: false,
+                    );
+                })
+                ->visible(fn (): bool => SchoolYear::getActive() !== null),
         ];
+    }
+
+    private function getReportGradeLevelOptions(): array
+    {
+        $schoolYearId = SchoolYear::getActive()?->id;
+
+        if (! $schoolYearId) {
+            return [];
+        }
+
+        if (Auth::user()?->isAdmin()) {
+            return GradeLevel::query()->orderBy('sort_order')->pluck('label', 'id')->all();
+        }
+
+        return Homeroom::query()
+            ->with('gradeLevel')
+            ->where('school_year_id', $schoolYearId)
+            ->where(function (Builder $query): void {
+                $query->where('user_id', Auth::id())
+                    ->orWhere('user2_id', Auth::id());
+            })
+            ->get()
+            ->pluck('gradeLevel.label', 'grade_level_id')
+            ->all();
     }
 
     public function saveAttendance(): void

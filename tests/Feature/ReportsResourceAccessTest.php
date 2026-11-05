@@ -6,6 +6,7 @@ use App\Filament\App\Resources\Office\Reports\ReportsResource;
 use App\Models\Enrollment;
 use App\Models\Homeroom;
 use App\Models\SchoolYear;
+use App\Models\Section;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\UserRole;
@@ -121,6 +122,35 @@ class ReportsResourceAccessTest extends TestCase
         )->pluck('id')->all();
 
         $this->assertSame([1001], $visibleStudentIds);
+    }
+
+    public function test_section_assignment_limits_enrollment_and_student_report_scope(): void
+    {
+        $year = SchoolYear::query()->create(['label' => '2026-2027', 'active' => 1]);
+        $teacher = $this->userWithRole(4);
+        $sectionA = Section::query()->create(['school_year_id' => $year->id, 'grade_level_id' => 7, 'label' => 'A']);
+        $sectionB = Section::query()->create(['school_year_id' => $year->id, 'grade_level_id' => 7, 'label' => 'B']);
+        Homeroom::query()->create([
+            'school_year_id' => $year->id,
+            'grade_level_id' => 7,
+            'section_id' => $sectionA->id,
+            'user_id' => $teacher->id,
+        ]);
+
+        $this->student(1011);
+        $this->student(1012);
+        $inSection = Enrollment::query()->create([
+            'student_id' => 1011, 'school_year_id' => $year->id, 'grade_level_id' => 7, 'section_id' => $sectionA->id,
+        ]);
+        $otherSection = Enrollment::query()->create([
+            'student_id' => 1012, 'school_year_id' => $year->id, 'grade_level_id' => 7, 'section_id' => $sectionB->id,
+        ]);
+
+        $this->assertTrue(ReportAccess::canViewEnrollment($teacher, $inSection));
+        $this->assertFalse(ReportAccess::canViewEnrollment($teacher, $otherSection));
+        $visibleStudentIds = ReportAccess::scopeStudents(Student::query(), $teacher, $year->id)
+            ->orderBy('id')->pluck('id')->all();
+        $this->assertSame([1011], $visibleStudentIds);
     }
 
     public function test_assigned_teacher_sees_reports_in_the_homeroom_menu(): void

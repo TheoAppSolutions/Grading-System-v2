@@ -131,6 +131,28 @@ class ReportsTable
                         'report.award',
                         [$record->enrollments->first()->school_year_id, $record->id],
                     )),
+                Action::make('midquarter_report')
+                    ->label('Mid-quarter')
+                    ->icon(Heroicon::OutlinedDocumentText)
+                    ->size(Size::Small)
+                    ->button()
+                    ->outlined()
+                    ->openUrlInNewTab()
+                    ->url(fn (Student $record): string => route(
+                        'report.midquarter',
+                        [$record->enrollments->first()->school_year_id, $record->id],
+                    )),
+                Action::make('progress_report')
+                    ->label('Progress')
+                    ->icon(Heroicon::OutlinedChartBarSquare)
+                    ->size(Size::Small)
+                    ->button()
+                    ->outlined()
+                    ->openUrlInNewTab()
+                    ->url(fn (Student $record): string => route(
+                        'report.progress',
+                        [$record->enrollments->first()->school_year_id, $record->id],
+                    )),
             ]);
     }
 }

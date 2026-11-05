@@ -31,6 +31,10 @@ final class ReportAccess
 
         return self::homeroomAssignments($user, (int) $enrollment->school_year_id)
             ->where('grade_level_id', $enrollment->grade_level_id)
+            ->where(function (Builder $query) use ($enrollment): void {
+                $query->whereNull('section_id')
+                    ->orWhere('section_id', $enrollment->section_id);
+            })
             ->exists();
     }
 
@@ -77,15 +81,39 @@ final class ReportAccess
      */
     public static function scopeStudents(Builder $query, ?User $user, ?int $schoolYearId): Builder
     {
-        $gradeLevelIds = self::accessibleGradeLevelIds($user, $schoolYearId);
+        return $query->whereHas('enrollments', fn (Builder $enrollmentQuery) =>
+            self::scopeEnrollments($enrollmentQuery, $user, $schoolYearId));
+    }
 
-        return $query->whereHas('enrollments', function (Builder $enrollmentQuery) use ($schoolYearId, $gradeLevelIds): void {
-            $enrollmentQuery
-                ->where('school_year_id', $schoolYearId)
-                ->when(
-                    $gradeLevelIds !== null,
-                    fn (Builder $query) => $query->whereIn('grade_level_id', $gradeLevelIds ?: [-1])
-                );
+    /** Limit enrollment rows to the user's year, grade, and assigned section. */
+    public static function scopeEnrollments(Builder $query, ?User $user, ?int $schoolYearId): Builder
+    {
+        $query->where('school_year_id', $schoolYearId ?: -1);
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->isOffice()) {
+            return $query;
+        }
+
+        $assignments = self::homeroomAssignments($user, (int) $schoolYearId)
+            ->get(['grade_level_id', 'section_id']);
+
+        if ($assignments->isEmpty()) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $visible) use ($assignments): void {
+            foreach ($assignments as $assignment) {
+                $visible->orWhere(function (Builder $match) use ($assignment): void {
+                    $match->where('grade_level_id', $assignment->grade_level_id);
+                    if ($assignment->section_id !== null) {
+                        $match->where('section_id', $assignment->section_id);
+                    }
+                });
+            }
         });
     }
 

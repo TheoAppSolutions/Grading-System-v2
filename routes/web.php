@@ -19,6 +19,16 @@ Route::middleware('auth')->prefix('report')->group(function () {
     Route::get('/awards/student/{student_id}', [ReportController::class, 'generateStudentAwardSummary'])->name('report.award.student.summary');
     Route::get('/awards/summary/{school_year_id}/{grade_level_id}', [ReportController::class, 'generateAwardSummary'])->name('report.award.summary');
     Route::get('/tor/{student_id}', [ReportController::class, 'generateTOR'])->name('report.tor');
+    Route::get('/subject-summary/{school_year_id}/{grade_level_id}/{subject_id}', [ReportController::class, 'generateSubjectSummary'])->name('report.subject.summary');
+    Route::get('/subject-summary/batch/{school_year_id}/{grade_level_id}', [ReportController::class, 'generateSubjectSummaryBatch'])->name('report.subject.summary.batch');
+    Route::get('/master-summary/{school_year_id}/{grade_level_id}', [ReportController::class, 'generateMasterSummary'])->name('report.master.summary');
+    Route::get('/midquarter/{school_year_id}/{student_id}', [ReportController::class, 'generateMidquarter'])->name('report.midquarter');
+    Route::get('/progress/{school_year_id}/{student_id}', [ReportController::class, 'generateStudentProgress'])->name('report.progress');
+    Route::get('/attendance/{school_year_id}/{grade_level_id}/{entry}', [ReportController::class, 'generateAttendanceReport'])
+        ->whereNumber('school_year_id')
+        ->whereNumber('grade_level_id')
+        ->whereNumber('entry')
+        ->name('report.attendance');
 });
 
 Route::get('/admin/file-storage/{fileStorage}/download', function (FileStorage $fileStorage) {
